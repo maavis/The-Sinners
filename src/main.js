@@ -1413,14 +1413,31 @@ let isAudioPlaying = false;
 let activeMusicFilter = 'ALL';
 let musicSearchQuery = '';
 
+export function closeGlobalPlayer() {
+  globalAudio.pause();
+  globalAudio.currentTime = 0;
+  isAudioPlaying = false;
+  currentTrackIndex = -1;
+  const playerBar = document.getElementById('global-music-player');
+  if (playerBar) {
+    playerBar.classList.add('hidden');
+  }
+  updatePlayerPlayStateUI(false);
+  updateTrackListPlayingIndicators();
+}
+
 function initGlobalPlayer() {
   const playBtn = document.getElementById('player-play-btn');
   const prevBtn = document.getElementById('player-prev-btn');
   const nextBtn = document.getElementById('player-next-btn');
+  const closeBtn = document.getElementById('player-close-btn');
   const favBtn = document.getElementById('player-fav-btn');
   const volumeSlider = document.getElementById('player-volume-slider');
   const progressContainer = document.getElementById('player-progress-bar-container');
 
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeGlobalPlayer);
+  }
   if (playBtn) {
     playBtn.addEventListener('click', toggleAudioPlayPause);
   }

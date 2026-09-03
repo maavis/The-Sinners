@@ -345,9 +345,10 @@
   display: flex;
   gap: 3rem;
   animation: marqueeMoveRev 36s linear infinite;
-  font-family: var(--store-font-gothic);
-  font-size: 0.85rem;
-  letter-spacing: 0.25em;
+  font-family: var(--store-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
   color: var(--store-blood);
   text-transform: uppercase;
 }

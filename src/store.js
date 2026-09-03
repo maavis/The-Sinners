@@ -837,9 +837,9 @@ function renderCartDrawer() {
     b.onclick = () => {
       const id = b.getAttribute('data-id');
       const size = b.getAttribute('data-size');
-      const item = cart.find(x => x.id === id && x.size === size);
+      const item = cart.find(x => x.id === id || (x.productId === id && x.size === size));
       if (item) {
-        updateCartQuantity(id, size, item.quantity - 1);
+        updateCartQuantity(item.id || id, size, item.quantity - 1);
         renderCartDrawer();
         updateCartBadgeUI();
       }
@@ -850,9 +850,9 @@ function renderCartDrawer() {
     b.onclick = () => {
       const id = b.getAttribute('data-id');
       const size = b.getAttribute('data-size');
-      const item = cart.find(x => x.id === id && x.size === size);
+      const item = cart.find(x => x.id === id || (x.productId === id && x.size === size));
       if (item) {
-        updateCartQuantity(id, size, item.quantity + 1);
+        updateCartQuantity(item.id || id, size, item.quantity + 1);
         renderCartDrawer();
         updateCartBadgeUI();
       }
@@ -864,6 +864,7 @@ function renderCartDrawer() {
       const id = b.getAttribute('data-id');
       const size = b.getAttribute('data-size');
       removeFromCart(id, size);
+      showStoreToast('✓ ÜRÜN SEPETTEN ÇIKARILDI');
       renderCartDrawer();
       updateCartBadgeUI();
     };
