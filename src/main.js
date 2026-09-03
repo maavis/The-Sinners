@@ -308,7 +308,7 @@ function initClientRouter() {
   }
 
   function handleRoute(path) {
-    if (path === '/admin' || path.startsWith('/admin/')) {
+    if (path === '/admin' || path.startsWith('/admin/') || path === '/login') {
       document.documentElement.classList.add('route-admin');
       document.documentElement.classList.remove('route-tour', 'route-updates', 'route-about', 'route-music', 'route-privacy', 'route-terms');
       handleAdminRouting();

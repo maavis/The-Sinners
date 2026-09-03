@@ -69,10 +69,7 @@ import {
   updateFooterData
 } from './data/footer.js';
 
-const AUTH_CONFIG = {
-  sessionKey: 'parrhesia_admin_auth',
-  verifyPassword: (password) => password === 'mavisim'
-};
+import { supabase } from './lib/supabase.js';
 
 export function showAdminToast(message, type = 'success') {
   let toastContainer = document.getElementById('admin-toast-container');
@@ -102,7 +99,36 @@ export function showAdminToast(message, type = 'success') {
   }, 3200);
 }
 
+let currentAdminSession = null;
+
+export async function checkAdminAuth() {
+  if (!supabase) return false;
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error || !data || !data.session) {
+      currentAdminSession = null;
+      return false;
+    }
+    currentAdminSession = data.session;
+    return true;
+  } catch (err) {
+    console.error('Supabase Auth Session Check Error:', err);
+    currentAdminSession = null;
+    return false;
+  }
+}
+
 export function initAdminPortal() {
+  if (supabase) {
+    supabase.auth.onAuthStateChange((event, session) => {
+      currentAdminSession = session;
+      const path = window.location.pathname;
+      if (path === '/admin' || path.startsWith('/admin/') || path === '/login') {
+        handleAdminRouting();
+      }
+    });
+  }
+
   handleAdminRouting();
 
   window.addEventListener('popstate', () => {
@@ -110,9 +136,9 @@ export function initAdminPortal() {
   });
 }
 
-export function handleAdminRouting() {
+export async function handleAdminRouting() {
   const path = window.location.pathname;
-  const isAdminRoute = path === '/admin' || path.startsWith('/admin/');
+  const isAdminRoute = path === '/admin' || path.startsWith('/admin/') || path === '/login';
 
   const mainSiteContainer = document.querySelector('.site-container');
   const mobileHeader = document.querySelector('.mobile-header');
@@ -126,7 +152,23 @@ export function handleAdminRouting() {
 
     adminRoot.classList.remove('hidden');
 
-    if (!isAuthenticated()) {
+    const isAuthed = await checkAdminAuth();
+
+    // If already logged in and navigating to /login, redirect to /admin/dashboard
+    if (path === '/login') {
+      if (isAuthed) {
+        navigateAdmin('/admin/dashboard');
+        return;
+      }
+      renderAdminLogin(adminRoot);
+      return;
+    }
+
+    // Protected Admin Route: If unauthenticated, redirect to /login
+    if (!isAuthed) {
+      if (path !== '/admin' && window.location.pathname !== '/login') {
+        window.history.replaceState(null, '', '/login');
+      }
       renderAdminLogin(adminRoot);
       return;
     }
@@ -159,18 +201,6 @@ export function handleAdminRouting() {
   }
 }
 
-function isAuthenticated() {
-  return sessionStorage.getItem(AUTH_CONFIG.sessionKey) === 'true';
-}
-
-function setAuthenticated(status) {
-  if (status) {
-    sessionStorage.setItem(AUTH_CONFIG.sessionKey, 'true');
-  } else {
-    sessionStorage.removeItem(AUTH_CONFIG.sessionKey);
-  }
-}
-
 function navigateAdmin(path) {
   if (window.location.pathname !== path) {
     window.history.pushState(null, '', path);
@@ -179,7 +209,7 @@ function navigateAdmin(path) {
 }
 
 /**
- * Render Admin Login Screen
+ * Render Admin Login Screen (Supabase Auth Email + Password)
  */
 function renderAdminLogin(container) {
   container.innerHTML = `
@@ -189,42 +219,86 @@ function renderAdminLogin(container) {
         <div class="admin-login-sub">ADMINISTRATION PORTAL</div>
         <form id="admin-login-form">
           <div class="admin-form-group">
-            <label class="admin-label" for="admin-password-input">Security Password</label>
+            <label class="admin-label" for="admin-email-input">Admin Email Address</label>
             <input 
-              type="password" 
-              id="admin-password-input" 
+              type="email" 
+              id="admin-email-input" 
               class="admin-input" 
-              placeholder="Enter password..." 
-              autocomplete="current-password" 
+              placeholder="admin@thesinners.com" 
+              autocomplete="email" 
               autofocus 
               required 
             />
           </div>
+          <div class="admin-form-group">
+            <label class="admin-label" for="admin-password-input">Password</label>
+            <input 
+              type="password" 
+              id="admin-password-input" 
+              class="admin-input" 
+              placeholder="••••••••" 
+              autocomplete="current-password" 
+              required 
+            />
+          </div>
           <button type="submit" class="admin-btn admin-btn-primary" style="width: 100%;">LOGIN TO CMS</button>
-          <div id="admin-error" class="admin-error-msg"></div>
+          <div id="admin-error" class="admin-error-msg" style="color: #e05656; font-size: 0.8rem; margin-top: 0.75rem; text-align: center;"></div>
         </form>
       </div>
     </div>
   `;
 
   const form = container.querySelector('#admin-login-form');
+  const emailInput = container.querySelector('#admin-email-input');
   const passwordInput = container.querySelector('#admin-password-input');
   const errorMsg = container.querySelector('#admin-error');
 
-  if (form && passwordInput) {
-    form.addEventListener('submit', (e) => {
+  if (form && emailInput && passwordInput) {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const val = passwordInput.value;
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
 
-      if (AUTH_CONFIG.verifyPassword(val)) {
-        setAuthenticated(true);
-        logActivity('LOGIN', 'Administrator logged into CMS');
-        if (errorMsg) errorMsg.textContent = '';
-        handleAdminRouting();
-      } else {
-        if (errorMsg) errorMsg.textContent = 'Invalid password.';
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'AUTHENTICATING...';
+      }
+      if (errorMsg) errorMsg.textContent = '';
+
+      if (!supabase) {
+        if (errorMsg) errorMsg.textContent = 'Supabase client is not initialized.';
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'LOGIN TO CMS';
+        }
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        console.log('Supabase Auth Success:', data);
+        logActivity('LOGIN', `Administrator (${email}) logged into CMS`);
+        showAdminToast('✓ LOGIN SUCCESSFUL');
+        navigateAdmin('/admin/dashboard');
+      } catch (err) {
+        console.error('Supabase Auth Error:', err);
+        if (errorMsg) errorMsg.textContent = err.message || 'Invalid email or password.';
         passwordInput.value = '';
         passwordInput.focus();
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'LOGIN TO CMS';
+        }
       }
     });
   }
@@ -321,10 +395,17 @@ function bindAdminNavEvents(container) {
 
   const logoutBtn = container.querySelector('#admin-logout-btn');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      setAuthenticated(false);
+    logoutBtn.addEventListener('click', async () => {
+      if (supabase) {
+        try {
+          await supabase.auth.signOut();
+        } catch (e) {
+          console.error('Supabase Sign Out Error:', e);
+        }
+      }
       logActivity('LOGOUT', 'Administrator logged out');
-      handleAdminRouting();
+      showAdminToast('✓ LOGGED OUT SUCCESSFULLY');
+      navigateAdmin('/login');
     });
   }
 }
