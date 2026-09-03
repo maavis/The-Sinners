@@ -332,7 +332,8 @@ function initClientRouter() {
     links.forEach(link => {
       const route = link.getAttribute('data-route') || link.getAttribute('href');
       const isNewsMatch = (path === '/news' || path === '/updates') && (route === '/news' || route === '/updates');
-      if (route === path || (path === '/' && route === '/') || isNewsMatch) {
+      const isMerchMatch = (path === '/merch' || path === '/store' || path === '/store-teaser') && (route === '/merch' || route === '/store' || route === '/store-teaser');
+      if (route === path || (path === '/' && route === '/') || isNewsMatch || isMerchMatch) {
         link.classList.add('active');
       } else {
         link.classList.remove('active');
@@ -376,8 +377,8 @@ function initClientRouter() {
     const currentActiveSec = allSections.find(s => s && !s.classList.contains('hidden'));
 
     let targetNextSec = heroSec;
-    if (normalizedPath === '/merch' || normalizedPath.startsWith('/merch/')) targetNextSec = null;
-    else if (normalizedPath === '/store' || normalizedPath === '/store-teaser') targetNextSec = storeTeaserSec;
+    if (normalizedPath === '/merch-preview' || normalizedPath === '/store-vault') targetNextSec = null;
+    else if (normalizedPath === '/merch' || normalizedPath === '/store' || normalizedPath === '/store-teaser') targetNextSec = storeTeaserSec;
     else if (normalizedPath === '/tour') targetNextSec = tourSec;
     else if (normalizedPath === '/news' || normalizedPath === '/updates') targetNextSec = updatesSec;
     else if (normalizedPath === '/about') targetNextSec = aboutSec;
@@ -390,11 +391,11 @@ function initClientRouter() {
       document.documentElement.classList.remove('route-home', 'route-tour', 'route-updates', 'route-about', 'route-music', 'route-privacy', 'route-terms', 'route-merch', 'route-store-teaser');
 
       const storeRoot = document.getElementById('merch-store-root');
-      if (storeRoot && normalizedPath !== '/merch' && !normalizedPath.startsWith('/merch/')) {
+      if (storeRoot && normalizedPath !== '/merch-preview' && normalizedPath !== '/store-vault') {
         storeRoot.classList.add('hidden');
       }
 
-      if (normalizedPath === '/store' || normalizedPath === '/store-teaser') {
+      if (normalizedPath === '/merch' || normalizedPath === '/store' || normalizedPath === '/store-teaser') {
         document.documentElement.classList.add('route-store-teaser');
         stopAboutSlideshow();
         stopHeroGhostTextEngine();
@@ -412,7 +413,7 @@ function initClientRouter() {
         if (termsSec) termsSec.classList.add('hidden');
         if (storeTeaserSec) storeTeaserSec.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'instant' });
-      } else if (normalizedPath === '/merch' || normalizedPath.startsWith('/merch/')) {
+      } else if (normalizedPath === '/merch-preview' || normalizedPath === '/store-vault') {
         document.documentElement.classList.add('route-merch');
         stopAboutSlideshow();
         stopHeroGhostTextEngine();
@@ -428,6 +429,7 @@ function initClientRouter() {
         if (musicSec) musicSec.classList.add('hidden');
         if (privacySec) privacySec.classList.add('hidden');
         if (termsSec) termsSec.classList.add('hidden');
+        if (storeTeaserSec) storeTeaserSec.classList.add('hidden');
 
         if (storeRoot) {
           storeRoot.classList.remove('hidden');
