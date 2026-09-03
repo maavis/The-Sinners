@@ -6,7 +6,7 @@ import { getJournalEntries } from './data/updates.js';
 import { getAboutData } from './data/about.js';
 import { getSocialLinks, getSocialIconHTML } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
-import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase } from './data/music.js';
+import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase, isMusicDataLoading } from './data/music.js';
 import { initMotionSystem, triggerPageTransition, observeNewElements, revealSectionContent } from './motion.js';
 
 import './styles/main.css';
@@ -1569,8 +1569,29 @@ function renderPublicMusicPage() {
   const currentReleaseTracklistEl = document.getElementById('current-release-tracklist');
   const discographyGridEl = document.getElementById('discography-grid');
 
+  const isLoading = isMusicDataLoading();
   const allReleases = getReleases();
   const publishedReleases = allReleases.filter(r => r.status === 'PUBLISHED');
+
+  if (isLoading) {
+    if (currentReleaseTracklistEl) {
+      currentReleaseTracklistEl.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 2.5rem 1rem; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-align: center;">
+          // YAYINLAR VE PARÇALAR YÜKLENİYOR...
+        </div>
+      `;
+    }
+    if (discographyGridEl) {
+      discographyGridEl.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 2rem 0; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-align: center;">
+          // DİSKOGRAFİ YÜKLENİYOR...
+        </div>
+      `;
+    }
+    renderMusicArchiveList();
+    setupArchiveControls();
+    return;
+  }
   
   // 1) Find the explicit featured release (e.g. 9MM HATE)
   // 2) If not explicitly featured, find the main ALBUM release
@@ -1603,41 +1624,49 @@ function renderPublicMusicPage() {
 
   // 1. Current Release Tracklist
   if (currentReleaseTracklistEl && mainRelease) {
-    currentReleaseTracklistEl.innerHTML = (mainRelease.tracks || []).map((trk, idx) => {
-      const isCurrent = currentTrackList[currentTrackIndex] && currentTrackList[currentTrackIndex].id === trk.id;
-      const isPlaying = isCurrent && isAudioPlaying;
-
-      return `
-        <div class="music-track-row ${isCurrent ? 'is-playing' : ''} ${isPlaying ? 'is-active-playing' : ''}" data-track-id="${trk.id}">
-          <div class="track-row-left">
-            <span class="track-num">${(idx + 1) < 10 ? '0' + (idx + 1) : (idx + 1)}</span>
-            <button type="button" class="track-play-inline-btn" aria-label="Play ${escapeHtml(trk.title)}">
-              <svg class="play-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <svg class="pause-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-            </button>
-            <span class="track-title-text">${escapeHtml(trk.title)}</span>
-          </div>
-          <span class="track-duration-text">${trk.duration}</span>
+    if ((mainRelease.tracks || []).length === 0) {
+      currentReleaseTracklistEl.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 2rem 0; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em;">
+          // BU YAYINDA HENÜZ PARÇA BULUNMUYOR.
         </div>
       `;
-    }).join('');
+    } else {
+      currentReleaseTracklistEl.innerHTML = (mainRelease.tracks || []).map((trk, idx) => {
+        const isCurrent = currentTrackList[currentTrackIndex] && currentTrackList[currentTrackIndex].id === trk.id;
+        const isPlaying = isCurrent && isAudioPlaying;
 
-    const currentRows = currentReleaseTracklistEl.querySelectorAll('.music-track-row');
-    currentRows.forEach(row => {
-      row.onclick = () => {
-        const trkId = row.getAttribute('data-track-id');
-        const trk = (mainRelease.tracks || []).find(t => t.id === trkId);
-        if (trk) {
-          const currentTrk = currentTrackList[currentTrackIndex];
-          if (currentTrk && currentTrk.id === trk.id) {
-            toggleAudioPlayPause();
-          } else {
-            const queue = (mainRelease.tracks || []).map(t => ({ ...t, coverUrl: mainRelease.coverUrl, artist: mainRelease.artist }));
-            playTrack(trk, queue);
+        return `
+          <div class="music-track-row ${isCurrent ? 'is-playing' : ''} ${isPlaying ? 'is-active-playing' : ''}" data-track-id="${trk.id}">
+            <div class="track-row-left">
+              <span class="track-num">${(idx + 1) < 10 ? '0' + (idx + 1) : (idx + 1)}</span>
+              <button type="button" class="track-play-inline-btn" aria-label="Play ${escapeHtml(trk.title)}">
+                <svg class="play-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <svg class="pause-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+              </button>
+              <span class="track-title-text">${escapeHtml(trk.title)}</span>
+            </div>
+            <span class="track-duration-text">${trk.duration}</span>
+          </div>
+        `;
+      }).join('');
+
+      const currentRows = currentReleaseTracklistEl.querySelectorAll('.music-track-row');
+      currentRows.forEach(row => {
+        row.onclick = () => {
+          const trkId = row.getAttribute('data-track-id');
+          const trk = (mainRelease.tracks || []).find(t => t.id === trkId);
+          if (trk) {
+            const currentTrk = currentTrackList[currentTrackIndex];
+            if (currentTrk && currentTrk.id === trk.id) {
+              toggleAudioPlayPause();
+            } else {
+              const queue = (mainRelease.tracks || []).map(t => ({ ...t, coverUrl: mainRelease.coverUrl, artist: mainRelease.artist }));
+              playTrack(trk, queue);
+            }
           }
-        }
-      };
-    });
+        };
+      });
+    }
   }
 
   // Play Release Button Handler
@@ -1657,39 +1686,47 @@ function renderPublicMusicPage() {
 
   // 3. Discography Grid
   if (discographyGridEl) {
-    discographyGridEl.innerHTML = publishedReleases.map(rel => {
-      const trackCount = (rel.tracks || []).length;
-      return `
-        <div class="discography-card" data-release-id="${rel.id}">
-          <div class="disco-cover-wrapper">
-            <img src="${rel.coverUrl}" alt="${escapeHtml(rel.title)} Cover" class="disco-cover-img" />
-            <div class="disco-overlay-btn">
-              <span>LISTEN NOW</span>
-            </div>
-          </div>
-          <div class="disco-card-info">
-            <div class="disco-card-meta">
-              <span class="disco-year">${rel.year}</span>
-              <span class="disco-type">${rel.type}</span>
-            </div>
-            <h3 class="disco-card-title">${escapeHtml(rel.title)}</h3>
-            <span class="disco-track-count">${trackCount} ${trackCount === 1 ? 'TRACK' : 'TRACKS'}</span>
-          </div>
+    if (publishedReleases.length === 0) {
+      discographyGridEl.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 2rem 0; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-align: center;">
+          // HENÜZ YAYINLANMIŞ ALBÜM VEYA SINGLE BULUNMUYOR.
         </div>
       `;
-    }).join('');
+    } else {
+      discographyGridEl.innerHTML = publishedReleases.map(rel => {
+        const trackCount = (rel.tracks || []).length;
+        return `
+          <div class="discography-card" data-release-id="${rel.id}">
+            <div class="disco-cover-wrapper">
+              <img src="${rel.coverUrl}" alt="${escapeHtml(rel.title)} Cover" class="disco-cover-img" />
+              <div class="disco-overlay-btn">
+                <span>LISTEN NOW</span>
+              </div>
+            </div>
+            <div class="disco-card-info">
+              <div class="disco-card-meta">
+                <span class="disco-year">${rel.year}</span>
+                <span class="disco-type">${rel.type}</span>
+              </div>
+              <h3 class="disco-card-title">${escapeHtml(rel.title)}</h3>
+              <span class="disco-track-count">${trackCount} ${trackCount === 1 ? 'TRACK' : 'TRACKS'}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
 
-    const discoCards = discographyGridEl.querySelectorAll('.discography-card');
-    discoCards.forEach(card => {
-      card.onclick = () => {
-        const relId = card.getAttribute('data-release-id');
-        const rel = publishedReleases.find(r => r.id === relId);
-        if (rel && (rel.tracks || []).length > 0) {
-          const queue = rel.tracks.map(t => ({ ...t, coverUrl: rel.coverUrl, artist: rel.artist }));
-          playTrack(queue[0], queue);
-        }
-      };
-    });
+      const discoCards = discographyGridEl.querySelectorAll('.discography-card');
+      discoCards.forEach(card => {
+        card.onclick = () => {
+          const relId = card.getAttribute('data-release-id');
+          const rel = publishedReleases.find(r => r.id === relId);
+          if (rel && (rel.tracks || []).length > 0) {
+            const queue = rel.tracks.map(t => ({ ...t, coverUrl: rel.coverUrl, artist: rel.artist }));
+            playTrack(queue[0], queue);
+          }
+        };
+      });
+    }
   }
 
   observeNewElements(document.getElementById('music'));
@@ -1700,6 +1737,17 @@ let showAllArchiveTracks = false;
 function renderMusicArchiveList() {
   const archiveListEl = document.getElementById('music-archive-list');
   if (!archiveListEl) return;
+
+  if (isMusicDataLoading()) {
+    archiveListEl.innerHTML = `
+      <div style="padding: 2.5rem 1rem; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-align: center;">
+        // PARÇA LİSTESİ YÜKLENİYOR...
+      </div>
+    `;
+    const expandRow = document.getElementById('archive-expand-row');
+    if (expandRow) expandRow.classList.add('hidden');
+    return;
+  }
 
   const allTracks = getAllTracks();
   const favs = getFavoriteTrackIds();

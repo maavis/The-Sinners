@@ -1,108 +1,29 @@
 /**
  * THE SINNERS MÜZİK VE DİSKOGRAFİ VERİ SERVİSİ
- * Supabase `releases` ve `tracks` PostgreSQL Tabloları İle Canlı Entegrasyon.
+ * Yalnızca Canlı Supabase `releases` ve `tracks` Tablolarından Yüklenir.
  */
 
 import { supabase } from '../lib/supabase.js';
 
-export const INITIAL_RELEASES = [
-  {
-    id: 'rel_9mm_hate',
-    title: '9MM HATE',
-    artist: 'THE SINNERS',
-    year: '2026',
-    releaseDate: '18 OCAK 2026',
-    type: 'ALBUM',
-    coverUrl: 'https://i.imgur.com/ADvecY4.gif',
-    description: 'The Sinners\' flagship 2026 dark alternative / gothic rock album featuring 8 raw, high-contrast tracks.',
-    status: 'PUBLISHED',
-    featured: true,
-    spotifyUrl: 'https://spotify.com',
-    appleUrl: 'https://apple.com',
-    youtubeUrl: 'https://youtube.com',
-    bandcampUrl: 'https://bandcamp.com',
-    tracks: [
-      { id: 'trk_101', title: 'Parrhesia!', duration: '03:56', durationSec: 236, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' },
-      { id: 'trk_102', title: 'Wasn\'t Me', duration: '03:23', durationSec: 203, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' },
-      { id: 'trk_103', title: 'Betrayal', duration: '03:34', durationSec: 214, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' },
-      { id: 'trk_104', title: 'I\'m Not Okay', duration: '03:25', durationSec: 205, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' },
-      { id: 'trk_105', title: 'For the Night', duration: '03:25', durationSec: 205, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' },
-      { id: 'trk_106', title: 'Way to Heaven', duration: '05:57', durationSec: 357, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' },
-      { id: 'trk_107', title: 'Still Standing', duration: '04:12', durationSec: 252, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' },
-      { id: 'trk_108', title: 'No Longer Quiet', duration: '03:45', durationSec: 225, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' }
-    ]
-  },
-  {
-    id: 'rel_cruel',
-    title: 'CRUEL',
-    artist: 'THE SINNERS',
-    year: '2025',
-    releaseDate: '05 KASIM 2025',
-    type: 'SINGLE',
-    coverUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80',
-    description: 'Heavy guitar riffs and visceral vocals leading the Sanguivore Era.',
-    status: 'PUBLISHED',
-    featured: false,
-    spotifyUrl: '',
-    appleUrl: '',
-    youtubeUrl: '',
-    bandcampUrl: '',
-    tracks: [
-      { id: 'trk_201', title: 'Cruel', duration: '04:15', durationSec: 255, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', releaseId: 'rel_cruel', releaseTitle: 'CRUEL', type: 'SINGLE' },
-      { id: 'trk_202', title: 'Cruel (Instrumental)', duration: '04:15', durationSec: 255, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', releaseId: 'rel_cruel', releaseTitle: 'CRUEL', type: 'SINGLE' }
-    ]
-  },
-  {
-    id: 'rel_its_the_way',
-    title: 'IT\'S THE WAY',
-    artist: 'THE SINNERS',
-    year: '2025',
-    releaseDate: '14 AĞUSTOS 2025',
-    type: 'SINGLE',
-    coverUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
-    description: 'Atmospheric post-punk anthem with sweeping synth basslines.',
-    status: 'PUBLISHED',
-    featured: false,
-    spotifyUrl: '',
-    appleUrl: '',
-    youtubeUrl: '',
-    bandcampUrl: '',
-    tracks: [
-      { id: 'trk_301', title: 'It\'s the Way', duration: '03:48', durationSec: 228, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3', releaseId: 'rel_its_the_way', releaseTitle: 'IT\'S THE WAY', type: 'SINGLE' }
-    ]
-  },
-  {
-    id: 'rel_survive',
-    title: 'SURVIVE',
-    artist: 'THE SINNERS',
-    year: '2025',
-    releaseDate: '20 ŞUBAT 2025',
-    type: 'EP',
-    coverUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
-    description: 'The foundational 3-track EP defining The Sinners\' signature gothic sound.',
-    status: 'PUBLISHED',
-    featured: false,
-    spotifyUrl: '',
-    appleUrl: '',
-    youtubeUrl: '',
-    bandcampUrl: '',
-    tracks: [
-      { id: 'trk_401', title: 'Survive', duration: '04:02', durationSec: 242, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3', releaseId: 'rel_survive', releaseTitle: 'SURVIVE', type: 'EP' },
-      { id: 'trk_402', title: 'Darkness Echoes', duration: '03:50', durationSec: 230, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3', releaseId: 'rel_survive', releaseTitle: 'SURVIVE', type: 'EP' },
-      { id: 'trk_403', title: 'Bloodline', duration: '04:30', durationSec: 270, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3', releaseId: 'rel_survive', releaseTitle: 'SURVIVE', type: 'EP' }
-    ]
-  }
-];
-
-let inMemoryReleases = [...INITIAL_RELEASES];
+let inMemoryReleases = [];
+let isMusicLoading = true;
 
 export const RELEASES = inMemoryReleases;
 
+export function isMusicDataLoading() {
+  return isMusicLoading;
+}
+
 /**
- * Supabase `releases` ve `tracks` tablolarından verileri çeker
+ * Supabase `releases` ve `tracks` tablolarından canlı verileri çeker
  */
 export async function fetchMusicFromSupabase() {
-  if (!supabase) return inMemoryReleases;
+  if (!supabase) {
+    isMusicLoading = false;
+    return inMemoryReleases;
+  }
+
+  isMusicLoading = true;
 
   try {
     const { data: releasesData, error: relError } = await supabase
@@ -112,6 +33,7 @@ export async function fetchMusicFromSupabase() {
 
     if (relError) {
       console.warn('Supabase releases tablosu okunamadı:', relError.message);
+      isMusicLoading = false;
       return inMemoryReleases;
     }
 
@@ -124,7 +46,7 @@ export async function fetchMusicFromSupabase() {
       console.warn('Supabase tracks tablosu okunamadı:', trkError.message);
     }
 
-    if (releasesData && releasesData.length > 0) {
+    if (releasesData) {
       inMemoryReleases = releasesData.map(r => {
         const matchingTracks = (tracksData || [])
           .filter(t => t.release_id === r.id || t.releaseId === r.id)
@@ -158,11 +80,12 @@ export async function fetchMusicFromSupabase() {
           tracks: matchingTracks
         };
       });
-
-      window.dispatchEvent(new CustomEvent('music-data-updated'));
     }
   } catch (err) {
     console.error('Supabase Müzik Veri Çekme Hatası:', err);
+  } finally {
+    isMusicLoading = false;
+    window.dispatchEvent(new CustomEvent('music-data-updated'));
   }
 
   return inMemoryReleases;
