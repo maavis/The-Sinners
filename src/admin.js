@@ -34,7 +34,9 @@ import {
   addSlide,
   updateSlide,
   deleteSlide,
-  updateBioParagraphs
+  updateBioParagraphs,
+  cleanImageUrl,
+  fetchAboutSlidesFromSupabase
 } from './data/about.js';
 
 import {
@@ -1995,11 +1997,15 @@ function renderAdminAbout(container) {
 
   const deleteSlideBtns = container.querySelectorAll('.btn-delete-slide');
   deleteSlideBtns.forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       const id = btn.getAttribute('data-id');
-      deleteSlide(id);
-      logActivity('ABOUT SLIDE DELETED', `Deleted about slide ${id}`);
-      showAdminToast('✓ SLIDE DELETED', 'danger');
+      try {
+        await deleteSlide(id);
+        logActivity('ABOUT SLIDE DELETED', `Deleted about slide ${id}`);
+        showAdminToast('✓ SLIDE DELETED', 'danger');
+      } catch (err) {
+        showAdminToast('⚠ Slide silinirken hata: ' + (err.message || 'Supabase error'), 'danger');
+      }
       renderAdminAbout(container);
     };
   });
@@ -2039,6 +2045,7 @@ function renderAboutSlideAdminRows(slides) {
 
 function openSlideModal(slideItem, rootContainer) {
   const isEdit = !!slideItem;
+  const initialUrl = slideItem ? cleanImageUrl(slideItem.url) : '';
   const modalOverlay = document.createElement('div');
   modalOverlay.className = 'admin-modal-backdrop';
 
@@ -2051,12 +2058,20 @@ function openSlideModal(slideItem, rootContainer) {
       <form id="slide-form">
         <div class="admin-modal-body">
           <div class="admin-form-group">
-            <label class="admin-label">Image URL*</label>
-            <input type="url" id="slide-url" class="admin-input" value="${slideItem ? escapeHtml(slideItem.url) : ''}" required />
+            <label class="admin-label">Image URL (Imgur veya direkt görsel linki)*</label>
+            <input type="url" id="slide-url" class="admin-input" value="${escapeHtml(initialUrl)}" placeholder="https://i.imgur.com/... veya https://imgur.com/..." required />
+            <p class="admin-input-help" style="font-size: 0.75rem; color: #888; margin-top: 4px;">Imgur sayfa linkleri otomatik olarak direkt resim linkine dönüştürülür.</p>
           </div>
           <div class="admin-form-group" style="margin-top: 1rem;">
             <label class="admin-label">Caption / Tagline*</label>
-            <input type="text" id="slide-caption" class="admin-input" value="${slideItem ? escapeHtml(slideItem.caption) : ''}" required />
+            <input type="text" id="slide-caption" class="admin-input" value="${slideItem ? escapeHtml(slideItem.caption) : ''}" placeholder="e.g. STUDIO TRANSMISSIONS" required />
+          </div>
+          <div class="admin-form-group" style="margin-top: 1rem;">
+            <label class="admin-label">Görsel Önizleme</label>
+            <div class="admin-img-preview-box" style="width: 100%; height: 160px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; position: relative;">
+              <img id="slide-preview-img" src="${initialUrl}" style="width: 100%; height: 100%; object-fit: cover; ${initialUrl ? '' : 'display: none;'}" alt="Slide Preview" />
+              <span id="slide-preview-placeholder" style="color: #666; font-size: 0.78rem; font-family: monospace; ${initialUrl ? 'display: none;' : ''}">// GÖRSEL ÖNİZLEMESİ</span>
+            </div>
           </div>
         </div>
         <div class="admin-modal-footer">
@@ -2072,24 +2087,81 @@ function openSlideModal(slideItem, rootContainer) {
   modalOverlay.querySelector('.admin-modal-close').onclick = closeModal;
   modalOverlay.querySelector('.admin-modal-cancel').onclick = closeModal;
 
-  const form = modalOverlay.querySelector('#slide-form');
-  form.onsubmit = (e) => {
-    e.preventDefault();
-    const url = modalOverlay.querySelector('#slide-url').value;
-    const caption = modalOverlay.querySelector('#slide-caption').value;
+  const urlInput = modalOverlay.querySelector('#slide-url');
+  const previewImg = modalOverlay.querySelector('#slide-preview-img');
+  const previewPlaceholder = modalOverlay.querySelector('#slide-preview-placeholder');
 
-    if (isEdit) {
-      updateSlide(slideItem.id, { url, caption });
-      logActivity('ABOUT SLIDE UPDATED', `Updated slide ${slideItem.id}`);
-      showAdminToast('✓ SLIDE IMAGE SAVED');
-    } else {
-      addSlide({ url, caption });
-      logActivity('ABOUT SLIDE CREATED', `Added new slide "${caption}"`);
-      showAdminToast('✓ NEW SLIDE CREATED');
+  const updatePreview = () => {
+    const rawVal = urlInput.value.trim();
+    if (!rawVal) {
+      previewImg.style.display = 'none';
+      previewPlaceholder.style.display = 'block';
+      previewPlaceholder.textContent = '// GÖRSEL ÖNİZLEMESİ';
+      previewPlaceholder.style.color = '#666';
+      return;
     }
 
-    closeModal();
-    renderAdminAbout(rootContainer);
+    const cleaned = cleanImageUrl(rawVal);
+    previewImg.src = cleaned;
+    previewImg.style.display = 'block';
+    previewPlaceholder.style.display = 'none';
+  };
+
+  if (previewImg) {
+    previewImg.onerror = () => {
+      previewImg.style.display = 'none';
+      previewPlaceholder.style.display = 'block';
+      previewPlaceholder.textContent = '⚠ Geçersiz veya yüklenemeyen görsel linki';
+      previewPlaceholder.style.color = '#d92b2b';
+    };
+    previewImg.onload = () => {
+      previewImg.style.display = 'block';
+      previewPlaceholder.style.display = 'none';
+    };
+  }
+
+  if (urlInput) {
+    urlInput.oninput = updatePreview;
+    urlInput.onblur = () => {
+      const cleaned = cleanImageUrl(urlInput.value.trim());
+      if (cleaned && cleaned !== urlInput.value) {
+        urlInput.value = cleaned;
+        updatePreview();
+      }
+    };
+  }
+
+  const form = modalOverlay.querySelector('#slide-form');
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ SAVING...';
+    }
+
+    const rawUrl = urlInput.value.trim();
+    const cleanedUrl = cleanImageUrl(rawUrl);
+    const caption = modalOverlay.querySelector('#slide-caption').value.trim();
+
+    try {
+      if (isEdit) {
+        await updateSlide(slideItem.id, { url: cleanedUrl, caption });
+        logActivity('ABOUT SLIDE UPDATED', `Updated slide ${slideItem.id}`);
+        showAdminToast('✓ SLIDE IMAGE SAVED');
+      } else {
+        await addSlide({ url: cleanedUrl, caption });
+        logActivity('ABOUT SLIDE CREATED', `Added new slide "${caption}"`);
+        showAdminToast('✓ NEW SLIDE CREATED');
+      }
+    } catch (err) {
+      console.error('Error saving slide:', err);
+      showAdminToast('⚠ Supabase sync error: ' + (err.message || 'Check RLS/Network'), 'danger');
+    } finally {
+      closeModal();
+      renderAdminAbout(rootContainer);
+    }
   };
 }
 
