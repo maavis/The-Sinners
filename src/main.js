@@ -363,6 +363,7 @@ function initClientRouter() {
     const musicSec = document.getElementById('music');
     const privacySec = document.getElementById('privacy');
     const termsSec = document.getElementById('terms');
+    const storeTeaserSec = document.getElementById('store-teaser');
     const homeScrollSec = document.getElementById('home-scroll-sections');
 
     const sidebarNav = document.getElementById('sidebar-navigation');
@@ -371,11 +372,12 @@ function initClientRouter() {
     if (aboutToggleBtn) aboutToggleBtn.classList.remove('is-active');
 
     // Find currently active section before route swap
-    const allSections = [heroSec, tourSec, updatesSec, aboutSec, musicSec, privacySec, termsSec];
+    const allSections = [heroSec, tourSec, updatesSec, aboutSec, musicSec, privacySec, termsSec, storeTeaserSec];
     const currentActiveSec = allSections.find(s => s && !s.classList.contains('hidden'));
 
     let targetNextSec = heroSec;
     if (normalizedPath === '/merch' || normalizedPath.startsWith('/merch/')) targetNextSec = null;
+    else if (normalizedPath === '/store' || normalizedPath === '/store-teaser') targetNextSec = storeTeaserSec;
     else if (normalizedPath === '/tour') targetNextSec = tourSec;
     else if (normalizedPath === '/news' || normalizedPath === '/updates') targetNextSec = updatesSec;
     else if (normalizedPath === '/about') targetNextSec = aboutSec;
@@ -385,14 +387,32 @@ function initClientRouter() {
 
     const executeRouteSwap = () => {
       // Cleanly remove all route state classes from root element
-      document.documentElement.classList.remove('route-home', 'route-tour', 'route-updates', 'route-about', 'route-music', 'route-privacy', 'route-terms', 'route-merch');
+      document.documentElement.classList.remove('route-home', 'route-tour', 'route-updates', 'route-about', 'route-music', 'route-privacy', 'route-terms', 'route-merch', 'route-store-teaser');
 
       const storeRoot = document.getElementById('merch-store-root');
       if (storeRoot && normalizedPath !== '/merch' && !normalizedPath.startsWith('/merch/')) {
         storeRoot.classList.add('hidden');
       }
 
-      if (normalizedPath === '/merch' || normalizedPath.startsWith('/merch/')) {
+      if (normalizedPath === '/store' || normalizedPath === '/store-teaser') {
+        document.documentElement.classList.add('route-store-teaser');
+        stopAboutSlideshow();
+        stopHeroGhostTextEngine();
+        stopHomeScrollEngine();
+
+        if (heroSec) heroSec.classList.add('hidden');
+        if (homeScrollSec) homeScrollSec.classList.add('hidden');
+        if (merchSec) merchSec.classList.add('hidden');
+        if (videoSec) videoSec.classList.add('hidden');
+        if (tourSec) tourSec.classList.add('hidden');
+        if (updatesSec) updatesSec.classList.add('hidden');
+        if (aboutSec) aboutSec.classList.add('hidden');
+        if (musicSec) musicSec.classList.add('hidden');
+        if (privacySec) privacySec.classList.add('hidden');
+        if (termsSec) termsSec.classList.add('hidden');
+        if (storeTeaserSec) storeTeaserSec.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (normalizedPath === '/merch' || normalizedPath.startsWith('/merch/')) {
         document.documentElement.classList.add('route-merch');
         stopAboutSlideshow();
         stopHeroGhostTextEngine();
@@ -429,6 +449,7 @@ function initClientRouter() {
         if (musicSec) musicSec.classList.add('hidden');
         if (privacySec) privacySec.classList.add('hidden');
         if (termsSec) termsSec.classList.add('hidden');
+        if (storeTeaserSec) storeTeaserSec.classList.add('hidden');
         if (tourSec) tourSec.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'instant' });
         renderPublicTourDates();
@@ -447,6 +468,7 @@ function initClientRouter() {
         if (musicSec) musicSec.classList.add('hidden');
         if (privacySec) privacySec.classList.add('hidden');
         if (termsSec) termsSec.classList.add('hidden');
+        if (storeTeaserSec) storeTeaserSec.classList.add('hidden');
         if (updatesSec) updatesSec.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'instant' });
         renderPublicUpdatesPage();
@@ -462,6 +484,7 @@ function initClientRouter() {
         if (musicSec) musicSec.classList.add('hidden');
         if (privacySec) privacySec.classList.add('hidden');
         if (termsSec) termsSec.classList.add('hidden');
+        if (storeTeaserSec) storeTeaserSec.classList.add('hidden');
         if (aboutSec) aboutSec.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'instant' });
         renderPublicAboutPage();
@@ -480,6 +503,7 @@ function initClientRouter() {
         if (aboutSec) aboutSec.classList.add('hidden');
         if (privacySec) privacySec.classList.add('hidden');
         if (termsSec) termsSec.classList.add('hidden');
+        if (storeTeaserSec) storeTeaserSec.classList.add('hidden');
         if (musicSec) musicSec.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'instant' });
         renderPublicMusicPage();
@@ -498,6 +522,7 @@ function initClientRouter() {
         if (aboutSec) aboutSec.classList.add('hidden');
         if (musicSec) musicSec.classList.add('hidden');
         if (termsSec) termsSec.classList.add('hidden');
+        if (storeTeaserSec) storeTeaserSec.classList.add('hidden');
         if (privacySec) privacySec.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'instant' });
         renderPublicFooters();
@@ -516,6 +541,7 @@ function initClientRouter() {
         if (aboutSec) aboutSec.classList.add('hidden');
         if (musicSec) musicSec.classList.add('hidden');
         if (privacySec) privacySec.classList.add('hidden');
+        if (storeTeaserSec) storeTeaserSec.classList.add('hidden');
         if (termsSec) termsSec.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'instant' });
         renderPublicFooters();
@@ -535,6 +561,7 @@ function initClientRouter() {
         if (musicSec) musicSec.classList.add('hidden');
         if (privacySec) privacySec.classList.add('hidden');
         if (termsSec) termsSec.classList.add('hidden');
+        if (storeTeaserSec) storeTeaserSec.classList.add('hidden');
 
         initHomeScrollEngine();
         if (heroSec) revealSectionContent(heroSec);
