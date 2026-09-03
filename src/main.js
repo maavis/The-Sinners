@@ -7,7 +7,7 @@ import { getAboutData } from './data/about.js';
 import { getSocialLinks, getSocialIconHTML } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
 import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack } from './data/music.js';
-import { initMotionSystem, triggerPageTransition, observeNewElements } from './motion.js';
+import { initMotionSystem, triggerPageTransition, observeNewElements, revealSectionContent } from './motion.js';
 
 import './styles/main.css';
 import './styles/admin.css';

@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Production build output
+dist/
+
+# Environment configuration (Contains sensitive API keys)
+.env
+.env.local
+.env.*.local
+
+# Editor / OS junk
+.DS_Store
+Thumbs.db
+*.log
