@@ -1,6 +1,6 @@
 /**
- * PARRHESIA BACKSTAGE ADMIN CMS PORTAL MODULE
- * Full production-ready content management system for Tour, Music, Updates, Media Library, and Settings.
+ * THE SINNERS BACKSTAGE ADMIN YÖNETİM PANELİ MODÜLÜ
+ * Turne, Müzik, Haberler, Medya Kütüphanesi, Hakkımızda ve Sistem Ayarları Yönetimi.
  */
 
 import {
@@ -112,7 +112,7 @@ export async function checkAdminAuth() {
     currentAdminSession = data.session;
     return true;
   } catch (err) {
-    console.error('Supabase Auth Session Check Error:', err);
+    console.error('Supabase Oturum Kontrol Hatası:', err);
     currentAdminSession = null;
     return false;
   }
@@ -123,7 +123,7 @@ export function initAdminPortal() {
     supabase.auth.onAuthStateChange((event, session) => {
       currentAdminSession = session;
       const path = window.location.pathname;
-      if (path === '/admin' || path.startsWith('/admin/') || path === '/login') {
+      if (path === '/admin' || path.startsWith('/admin/')) {
         handleAdminRouting();
       }
     });
@@ -138,7 +138,7 @@ export function initAdminPortal() {
 
 export async function handleAdminRouting() {
   const path = window.location.pathname;
-  const isAdminRoute = path === '/admin' || path.startsWith('/admin/') || path === '/login';
+  const isAdminRoute = path === '/admin' || path.startsWith('/admin/');
 
   const mainSiteContainer = document.querySelector('.site-container');
   const mobileHeader = document.querySelector('.mobile-header');
@@ -154,21 +154,8 @@ export async function handleAdminRouting() {
 
     const isAuthed = await checkAdminAuth();
 
-    // If already logged in and navigating to /login, redirect to /admin/dashboard
-    if (path === '/login') {
-      if (isAuthed) {
-        navigateAdmin('/admin/dashboard');
-        return;
-      }
-      renderAdminLogin(adminRoot);
-      return;
-    }
-
-    // Protected Admin Route: If unauthenticated, redirect to /login
+    // Oturum yoksa doğrudan /admin sayfasında giriş formunu göster
     if (!isAuthed) {
-      if (path !== '/admin' && window.location.pathname !== '/login') {
-        window.history.replaceState(null, '', '/login');
-      }
       renderAdminLogin(adminRoot);
       return;
     }
@@ -209,17 +196,17 @@ function navigateAdmin(path) {
 }
 
 /**
- * Render Admin Login Screen (Supabase Auth Email + Password)
+ * Yönetici Giriş Ekranı (Supabase Auth E-Posta + Şifre)
  */
 function renderAdminLogin(container) {
   container.innerHTML = `
     <div class="admin-login-wrapper">
       <div class="admin-login-card">
-        <div class="admin-login-title">THE SINNERS CMS</div>
-        <div class="admin-login-sub">ADMINISTRATION PORTAL</div>
+        <div class="admin-login-title">THE SINNERS YÖNETİM PANELİ</div>
+        <div class="admin-login-sub">ADMİN GİRİŞİ</div>
         <form id="admin-login-form">
           <div class="admin-form-group">
-            <label class="admin-label" for="admin-email-input">Admin Email Address</label>
+            <label class="admin-label" for="admin-email-input">Yönetici E-Posta Adresi</label>
             <input 
               type="email" 
               id="admin-email-input" 
@@ -231,7 +218,7 @@ function renderAdminLogin(container) {
             />
           </div>
           <div class="admin-form-group">
-            <label class="admin-label" for="admin-password-input">Password</label>
+            <label class="admin-label" for="admin-password-input">Şifre</label>
             <input 
               type="password" 
               id="admin-password-input" 
@@ -241,7 +228,7 @@ function renderAdminLogin(container) {
               required 
             />
           </div>
-          <button type="submit" class="admin-btn admin-btn-primary" style="width: 100%;">LOGIN TO CMS</button>
+          <button type="submit" class="admin-btn admin-btn-primary" style="width: 100%;">PANELE GİRİŞ YAP</button>
           <div id="admin-error" class="admin-error-msg" style="color: #e05656; font-size: 0.8rem; margin-top: 0.75rem; text-align: center;"></div>
         </form>
       </div>
@@ -262,15 +249,15 @@ function renderAdminLogin(container) {
       const submitBtn = form.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = 'AUTHENTICATING...';
+        submitBtn.textContent = 'GİRİŞ YAPILIYOR...';
       }
       if (errorMsg) errorMsg.textContent = '';
 
       if (!supabase) {
-        if (errorMsg) errorMsg.textContent = 'Supabase client is not initialized.';
+        if (errorMsg) errorMsg.textContent = 'Supabase istemcisi başlatılamadı.';
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'LOGIN TO CMS';
+          submitBtn.textContent = 'PANELE GİRİŞ YAP';
         }
         return;
       }
@@ -285,19 +272,19 @@ function renderAdminLogin(container) {
           throw error;
         }
 
-        console.log('Supabase Auth Success:', data);
-        logActivity('LOGIN', `Administrator (${email}) logged into CMS`);
-        showAdminToast('✓ LOGIN SUCCESSFUL');
-        navigateAdmin('/admin/dashboard');
+        console.log('Supabase Giriş Başarılı:', data);
+        logActivity('GİRİŞ', `Yönetici (${email}) panele giriş yaptı`);
+        showAdminToast('✓ GİRİŞ BAŞARILI');
+        handleAdminRouting();
       } catch (err) {
-        console.error('Supabase Auth Error:', err);
-        if (errorMsg) errorMsg.textContent = err.message || 'Invalid email or password.';
+        console.error('Supabase Giriş Hatası:', err);
+        if (errorMsg) errorMsg.textContent = err.message || 'Geçersiz e-posta adresi veya şifre.';
         passwordInput.value = '';
         passwordInput.focus();
       } finally {
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'LOGIN TO CMS';
+          submitBtn.textContent = 'PANELE GİRİŞ YAP';
         }
       }
     });
@@ -305,7 +292,7 @@ function renderAdminLogin(container) {
 }
 
 /**
- * Common Admin Sidebar Helper
+ * Ortak Admin Yan Menü (Sidebar) Şablonu
  */
 function getAdminSidebarHTML(activeRoute) {
   return `
@@ -313,63 +300,63 @@ function getAdminSidebarHTML(activeRoute) {
       <div>
         <div class="admin-sidebar-brand">
           <div class="admin-brand-title">THE SINNERS CMS</div>
-          <div class="admin-brand-sub">Central Content Management</div>
+          <div class="admin-brand-sub">İçerik & Site Yönetim Merkezi</div>
         </div>
 
         <div class="admin-nav-group">
-          <div class="admin-nav-heading">DASHBOARD</div>
+          <div class="admin-nav-heading">GENEL BAKIŞ</div>
           <ul class="admin-nav-list">
             <li class="admin-nav-item">
-              <a href="/admin/dashboard" class="admin-link ${activeRoute === '/admin' || activeRoute === '/admin/dashboard' ? 'active' : ''}">Dashboard</a>
+              <a href="/admin/dashboard" class="admin-link ${activeRoute === '/admin' || activeRoute === '/admin/dashboard' ? 'active' : ''}">Kontrol Paneli</a>
             </li>
           </ul>
         </div>
 
         <div class="admin-nav-group">
-          <div class="admin-nav-heading">CONTENT</div>
+          <div class="admin-nav-heading">İÇERİK YÖNETİMİ</div>
           <ul class="admin-nav-list">
             <li class="admin-nav-item">
-              <a href="/admin/tour" class="admin-link ${activeRoute === '/admin/tour' ? 'active' : ''}">Tour</a>
+              <a href="/admin/tour" class="admin-link ${activeRoute === '/admin/tour' ? 'active' : ''}">Turne & Konserler</a>
             </li>
             <li class="admin-nav-item">
-              <a href="/admin/music" class="admin-link ${activeRoute === '/admin/music' ? 'active' : ''}">Music</a>
+              <a href="/admin/music" class="admin-link ${activeRoute === '/admin/music' ? 'active' : ''}">Müzik & Diskografi</a>
             </li>
             <li class="admin-nav-item">
-              <a href="/admin/updates" class="admin-link ${activeRoute === '/admin/updates' ? 'active' : ''}">UPD//T3</a>
+              <a href="/admin/updates" class="admin-link ${activeRoute === '/admin/updates' ? 'active' : ''}">Haberler & Yazılar</a>
             </li>
             <li class="admin-nav-item">
-              <a href="/admin/about" class="admin-link ${activeRoute === '/admin/about' ? 'active' : ''}">About</a>
+              <a href="/admin/about" class="admin-link ${activeRoute === '/admin/about' ? 'active' : ''}">Hakkımızda & Slaytlar</a>
             </li>
           </ul>
         </div>
 
         <div class="admin-nav-group">
-          <div class="admin-nav-heading">MEDIA</div>
+          <div class="admin-nav-heading">MEDYA</div>
           <ul class="admin-nav-list">
             <li class="admin-nav-item">
-              <a href="/admin/media" class="admin-link ${activeRoute === '/admin/media' ? 'active' : ''}">Media Library</a>
+              <a href="/admin/media" class="admin-link ${activeRoute === '/admin/media' ? 'active' : ''}">Medya Kütüphanesi</a>
             </li>
           </ul>
         </div>
 
         <div class="admin-nav-group">
-          <div class="admin-nav-heading">SYSTEM</div>
+          <div class="admin-nav-heading">SİSTEM AYARLARI</div>
           <ul class="admin-nav-list">
             <li class="admin-nav-item">
-              <a href="/admin/footer" class="admin-link ${activeRoute === '/admin/footer' ? 'active' : ''}">Footer</a>
+              <a href="/admin/footer" class="admin-link ${activeRoute === '/admin/footer' ? 'active' : ''}">Alt Bilgi (Footer)</a>
             </li>
             <li class="admin-nav-item">
-              <a href="/admin/socials" class="admin-link ${activeRoute === '/admin/socials' ? 'active' : ''}">Social Links</a>
+              <a href="/admin/socials" class="admin-link ${activeRoute === '/admin/socials' ? 'active' : ''}">Sosyal Medya Linkleri</a>
             </li>
             <li class="admin-nav-item">
-              <a href="/admin/settings" class="admin-link ${activeRoute === '/admin/settings' ? 'active' : ''}">Settings</a>
+              <a href="/admin/settings" class="admin-link ${activeRoute === '/admin/settings' ? 'active' : ''}">Site Ayarları</a>
             </li>
           </ul>
         </div>
       </div>
 
       <div class="sidebar-footer">
-        <button id="admin-logout-btn" class="admin-logout-link">Log Out</button>
+        <button id="admin-logout-btn" class="admin-logout-link">Çıkış Yap</button>
       </div>
     </aside>
   `;
@@ -400,18 +387,18 @@ function bindAdminNavEvents(container) {
         try {
           await supabase.auth.signOut();
         } catch (e) {
-          console.error('Supabase Sign Out Error:', e);
+          console.error('Supabase Çıkış Hatası:', e);
         }
       }
-      logActivity('LOGOUT', 'Administrator logged out');
-      showAdminToast('✓ LOGGED OUT SUCCESSFULLY');
-      navigateAdmin('/login');
+      logActivity('ÇIKIŞ', 'Yönetici oturumu kapattı');
+      showAdminToast('✓ ÇIKIŞ YAPILDI');
+      handleAdminRouting();
     });
   }
 }
 
 /**
- * Render Admin CMS Dashboard Screen
+ * Yönetim Paneli Genel Bakış (Dashboard) Ekranı
  */
 function renderAdminDashboard(container) {
   const tours = getTourEvents();
@@ -434,39 +421,39 @@ function renderAdminDashboard(container) {
       <main class="admin-main-content">
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">Dashboard Overview</h1>
-            <p class="admin-page-desc">Central Content & System Activity Summary</p>
+            <h1 class="admin-page-title">Genel Bakış</h1>
+            <p class="admin-page-desc">İçerik ve Sistem İşlem Özeti</p>
           </div>
         </div>
 
         <div class="admin-stats-grid">
           <div class="admin-stat-card">
-            <div class="admin-stat-label">TOUR EVENTS</div>
+            <div class="admin-stat-label">KONSER ETKİNLİKLERİ</div>
             <div class="admin-stat-val">${tours.length}</div>
-            <div class="admin-stat-sub">${upcomingTours.length} upcoming shows</div>
+            <div class="admin-stat-sub">${upcomingTours.length} gelecek konser</div>
           </div>
 
           <div class="admin-stat-card">
-            <div class="admin-stat-label">DISCOGRAPHY</div>
+            <div class="admin-stat-label">DİSKOGRAFİ</div>
             <div class="admin-stat-val">${releases.length}</div>
-            <div class="admin-stat-sub">${totalTracks.length} tracks published</div>
+            <div class="admin-stat-sub">${totalTracks.length} parça yayında</div>
           </div>
 
           <div class="admin-stat-card">
-            <div class="admin-stat-label">TRANSMISSIONS</div>
+            <div class="admin-stat-label">HABERLER & YAZILAR</div>
             <div class="admin-stat-val">${transmissions.length}</div>
-            <div class="admin-stat-sub">UPD//T3 journal records</div>
+            <div class="admin-stat-sub">Kayıtlı yazı ve makale</div>
           </div>
 
           <div class="admin-stat-card">
-            <div class="admin-stat-label">MEDIA ASSETS</div>
+            <div class="admin-stat-label">MEDYA DOSYALARI</div>
             <div class="admin-stat-val">${mediaItems.length}</div>
-            <div class="admin-stat-sub">Uploaded image files</div>
+            <div class="admin-stat-sub">Yüklenen görsel ve medya</div>
           </div>
         </div>
 
         <div class="admin-content-section" style="margin-top: 2.5rem;">
-          <h2 class="admin-section-subtitle">RECENT ACTIVITY LOG</h2>
+          <h2 class="admin-section-subtitle">SON İŞLEM GEÇMİŞİ</h2>
           <div class="admin-activity-list">
             ${activities.length > 0 ? activities.map(act => `
               <div class="admin-activity-item">
@@ -474,9 +461,9 @@ function renderAdminDashboard(container) {
                   <span class="activity-badge">${escapeHtml(act.action)}</span>
                   <span class="activity-details">${escapeHtml(act.details)}</span>
                 </div>
-                <span class="activity-time">${new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} — ${new Date(act.timestamp).toLocaleDateString()}</span>
+                <span class="activity-time">${new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} — ${new Date(act.timestamp).toLocaleDateString('tr-TR')}</span>
               </div>
-            `).join('') : '<div class="admin-empty-state">No recent activity recorded.</div>'}
+            `).join('') : '<div class="admin-empty-state">Kayıtlı son işlem bulunmuyor.</div>'}
           </div>
         </div>
       </main>
@@ -488,7 +475,7 @@ function renderAdminDashboard(container) {
 
 /**
  * --------------------------------------------------------------------------
- * TOUR MANAGEMENT CMS VIEW (/admin/tour)
+ * TURNE & KONSER YÖNETİMİ GÖRÜNÜMÜ (/admin/tour)
  * --------------------------------------------------------------------------
  */
 let activeTourFilter = 'ALL';
@@ -528,27 +515,27 @@ function renderAdminTour(container) {
       <main class="admin-main-content">
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">Tour Management</h1>
-            <p class="admin-page-desc">Create, Edit, Publish and Manage Upcoming & Past Tour Events</p>
+            <h1 class="admin-page-title">Turne & Konser Yönetimi</h1>
+            <p class="admin-page-desc">Gelecek ve Geçmiş Konser Etkinliklerini Yönetin</p>
           </div>
           <div class="admin-header-actions" style="display: flex; gap: 0.75rem;">
-            <button id="btn-add-upcoming-event" class="admin-btn admin-btn-primary">+ GELECEK ETKİNLİK (UPCOMING)</button>
-            <button id="btn-add-past-event" class="admin-btn admin-btn-secondary" style="border-color: #d92b2b; color: #ffffff; background: rgba(217, 43, 43, 0.15);">+ GEÇMİŞ ETKİNLİK (PAST)</button>
+            <button id="btn-add-upcoming-event" class="admin-btn admin-btn-primary">+ YENİ GELECEK KONSER</button>
+            <button id="btn-add-past-event" class="admin-btn admin-btn-secondary" style="border-color: #d92b2b; color: #ffffff; background: rgba(217, 43, 43, 0.15);">+ GEÇMİŞ ETKİNLİK ARŞİVİ</button>
           </div>
         </div>
 
         <div class="admin-toolbar">
           <div class="admin-search-box">
-            <input type="text" id="tour-search-input" class="admin-input" placeholder="Search event, venue, or city..." value="${escapeHtml(tourSearchQuery)}" />
+            <input type="text" id="tour-search-input" class="admin-input" placeholder="Etkinlik, mekan veya şehir ara..." value="${escapeHtml(tourSearchQuery)}" />
           </div>
 
           <div class="admin-filter-tabs">
             <button class="admin-filter-btn ${activeTourFilter === 'ALL' ? 'active' : ''}" data-filter="ALL">TÜMÜ (${events.length})</button>
-            <button class="admin-filter-btn ${activeTourFilter === 'UPCOMING' ? 'active' : ''}" data-filter="UPCOMING">GELECEK ETKİNLİKLER</button>
-            <button class="admin-filter-btn ${activeTourFilter === 'PAST' ? 'active' : ''}" data-filter="PAST">GEÇMİŞ ETKİNLİKLER</button>
+            <button class="admin-filter-btn ${activeTourFilter === 'UPCOMING' ? 'active' : ''}" data-filter="UPCOMING">GELECEK KONSERLER</button>
+            <button class="admin-filter-btn ${activeTourFilter === 'PAST' ? 'active' : ''}" data-filter="PAST">GEÇMİŞ KONSERLER</button>
             <button class="admin-filter-btn ${activeTourFilter === 'SOLD_OUT' ? 'active' : ''}" data-filter="SOLD_OUT">TÜKENDİ</button>
-            <button class="admin-filter-btn ${activeTourFilter === 'PUBLISHED' ? 'active' : ''}" data-filter="PUBLISHED">PUBLISHED</button>
-            <button class="admin-filter-btn ${activeTourFilter === 'DRAFT' ? 'active' : ''}" data-filter="DRAFT">DRAFTS</button>
+            <button class="admin-filter-btn ${activeTourFilter === 'PUBLISHED' ? 'active' : ''}" data-filter="PUBLISHED">YAYINDA</button>
+            <button class="admin-filter-btn ${activeTourFilter === 'DRAFT' ? 'active' : ''}" data-filter="DRAFT">TASLAKLAR</button>
           </div>
         </div>
 
@@ -557,12 +544,12 @@ function renderAdminTour(container) {
             <thead>
               <tr>
                 <th>ZAMAN / DÖNEM</th>
-                <th>TARIH</th>
+                <th>TARİH</th>
                 <th>MEKAN & ETKİNLİK</th>
                 <th>ŞEHİR / ÜLKE</th>
                 <th>DURUM</th>
                 <th>FOTOĞRAFLAR</th>
-                <th>YAYIN</th>
+                <th>YAYIN DURUMU</th>
                 <th>İŞLEMLER</th>
               </tr>
             </thead>
@@ -613,8 +600,8 @@ function renderAdminTour(container) {
     btn.onclick = async () => {
       const id = btn.getAttribute('data-id');
       await toggleTourEventVisibility(id);
-      logActivity('TOUR UPDATED', `Visibility toggled for tour event ${id}`);
-      showAdminToast('✓ TOUR EVENT VISIBILITY UPDATED');
+      logActivity('KONSER GÜNCELLENDİ', `Konser görünürlüğü değiştirildi: ${id}`);
+      showAdminToast('✓ KONSER YAYIN DURUMU GÜNCELLENDİ');
       renderAdminTour(container);
     };
   });
@@ -648,19 +635,19 @@ function renderAdminEventRows(events, todayStr) {
         <td><strong>${escapeHtml(evt.date)}</strong></td>
         <td>
           <div class="admin-row-title">${escapeHtml(evt.venue)}</div>
-          <div class="admin-sub-text">${escapeHtml(evt.description || 'Concert Event')}</div>
+          <div class="admin-sub-text">${escapeHtml(evt.description || 'Konser Etkinliği')}</div>
         </td>
         <td>${escapeHtml(evt.city)}, ${escapeHtml(evt.country)}</td>
         <td><span class="admin-badge ${statusBadgeClass}">${escapeHtml(displayStatus)}</span></td>
         <td><strong>${photoCount > 0 ? `📷 ${photoCount} Fotoğraf` : '—'}</strong></td>
         <td>
-          <span class="admin-badge ${evt.visible ? 'badge-active' : 'badge-muted'}">${evt.visible ? 'PUBLISHED' : 'DRAFT'}</span>
+          <span class="admin-badge ${evt.visible ? 'badge-active' : 'badge-muted'}">${evt.visible ? 'YAYINDA' : 'TASLAK'}</span>
         </td>
         <td>
           <div class="admin-action-btns">
-            <button class="admin-action-btn btn-edit-event" data-id="${evt.id}">Edit</button>
-            <button class="admin-action-btn btn-toggle-event" data-id="${evt.id}">${evt.visible ? 'Unpublish' : 'Publish'}</button>
-            <button class="admin-action-btn btn-danger btn-delete-event" data-id="${evt.id}">Delete</button>
+            <button class="admin-action-btn btn-edit-event" data-id="${evt.id}">Düzenle</button>
+            <button class="admin-action-btn btn-toggle-event" data-id="${evt.id}">${evt.visible ? 'Yayından Kaldır' : 'Yayınla'}</button>
+            <button class="admin-action-btn btn-danger btn-delete-event" data-id="${evt.id}">Sil</button>
           </div>
         </td>
       </tr>
@@ -668,105 +655,103 @@ function renderAdminEventRows(events, todayStr) {
   }).join('');
 }
 
-function openEventModal(eventToEdit, rootContainer, defaultPeriod = 'UPCOMING') {
+function openEventModal(eventToEdit, rootContainer, forcedPeriod = null) {
   const isEdit = !!eventToEdit;
   const todayStr = new Date().toISOString().split('T')[0];
 
-  let initialPeriod = defaultPeriod;
-  let initialDate = '';
-
-  if (eventToEdit) {
+  let initialPeriod = 'UPCOMING';
+  if (forcedPeriod) {
+    initialPeriod = forcedPeriod;
+  } else if (eventToEdit) {
     initialPeriod = eventToEdit.date < todayStr ? 'PAST' : 'UPCOMING';
-    initialDate = eventToEdit.date;
-  } else {
-    if (defaultPeriod === 'PAST') {
-      const pastDate = new Date();
-      pastDate.setMonth(pastDate.getMonth() - 3);
-      initialDate = pastDate.toISOString().split('T')[0];
-    } else {
-      const futureDate = new Date();
-      futureDate.setMonth(futureDate.getMonth() + 2);
-      initialDate = futureDate.toISOString().split('T')[0];
-    }
+  }
+
+  let initialDate = eventToEdit ? eventToEdit.date : todayStr;
+  if (!eventToEdit && initialPeriod === 'PAST') {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    initialDate = yesterday.toISOString().split('T')[0];
   }
 
   const modalOverlay = document.createElement('div');
   modalOverlay.className = 'admin-modal-backdrop';
 
   modalOverlay.innerHTML = `
-    <div class="admin-modal">
-      <div class="admin-modal-header">
-        <h2 class="admin-modal-title">${isEdit ? 'EDIT TOUR EVENT' : (defaultPeriod === 'PAST' ? 'YENİ GEÇMİŞ ETKİNLİK EKLE' : 'YENİ GELECEK ETKİNLİK EKLE')}</h2>
+    <div class="admin-modal admin-modal-wide" style="max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="admin-modal-header" style="position: sticky; top: 0; background: #141418; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 1.5rem 2rem; z-index: 10;">
+        <h2 class="admin-modal-title">${isEdit ? 'KONSER ETKİNLİĞİNİ DÜZENLE' : 'YENİ KONSER ETKİNLİĞİ EKLE'}</h2>
         <button type="button" class="admin-modal-close">&times;</button>
       </div>
-      <form id="tour-event-form" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
-        <div class="admin-modal-body" style="flex: 1; overflow-y: auto;">
+      <form id="tour-event-form" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="admin-modal-body" style="padding: 2rem;">
           <div class="admin-form-grid">
             <div class="admin-form-group span-2">
-              <label class="admin-label">Etkinlik Zaman Türü (Period)*</label>
-              <select id="evt-period-category" class="admin-input">
-                <option value="UPCOMING" ${initialPeriod === 'UPCOMING' ? 'selected' : ''}>GELECEK ETKİNLİK (Upcoming Concert)</option>
-                <option value="PAST" ${initialPeriod === 'PAST' ? 'selected' : ''}>GEÇMİŞ ETKİNLİK (Past Show Archive)</option>
+              <label class="admin-label">Etkinlik Dönemi / Kategorisi*</label>
+              <select id="evt-period-category" class="admin-input" ${isEdit ? 'disabled' : ''}>
+                <option value="UPCOMING" ${initialPeriod === 'UPCOMING' ? 'selected' : ''}>GELECEK ETKİNLİK (Bilet Satışı Aktif)</option>
+                <option value="PAST" ${initialPeriod === 'PAST' ? 'selected' : ''}>GEÇMİŞ ETKİNLİK (Arşiv & Fotoğraf Galerisi)</option>
               </select>
             </div>
 
             <div class="admin-form-group span-2">
-              <label class="admin-label">Etkinlik Tarihi (YYYY-MM-DD)*</label>
+              <label class="admin-label">Etkinlik Tarihi (YYYY-AA-GG)*</label>
               <input type="date" id="evt-date" class="admin-input" value="${initialDate}" required />
             </div>
 
             <div class="admin-form-group span-2">
-              <label class="admin-label">Mekan Adı (Venue)*</label>
-              <input type="text" id="evt-venue" class="admin-input" placeholder="Örn: Sick New World Festival / O2 Brixton Academy" value="${eventToEdit ? escapeHtml(eventToEdit.venue) : ''}" required />
+              <label class="admin-label">Mekan Adı*</label>
+              <input type="text" id="evt-venue" class="admin-input" placeholder="Örn: KüçükÇiftlik Park / O2 Brixton Academy" value="${eventToEdit ? escapeHtml(eventToEdit.venue) : ''}" required />
             </div>
 
             <div class="admin-form-group">
-              <label class="admin-label">Şehir (City)*</label>
-              <input type="text" id="evt-city" class="admin-input" placeholder="Örn: İstanbul / London" value="${eventToEdit ? escapeHtml(eventToEdit.city) : ''}" required />
+              <label class="admin-label">Şehir*</label>
+              <input type="text" id="evt-city" class="admin-input" placeholder="Örn: İstanbul / Londra" value="${eventToEdit ? escapeHtml(eventToEdit.city) : ''}" required />
             </div>
 
             <div class="admin-form-group">
-              <label class="admin-label">Ülke / Eyalet (Country)*</label>
-              <input type="text" id="evt-country" class="admin-input" placeholder="Örn: Türkiye / UK" value="${eventToEdit ? escapeHtml(eventToEdit.country) : ''}" required />
+              <label class="admin-label">Ülke*</label>
+              <input type="text" id="evt-country" class="admin-input" placeholder="Örn: Türkiye / İngiltere" value="${eventToEdit ? escapeHtml(eventToEdit.country) : ''}" required />
             </div>
 
             <div class="admin-form-group" id="evt-status-group">
-              <label class="admin-label">Bilet Durumu (Status)</label>
+              <label class="admin-label">Bilet Satış Durumu</label>
               <select id="evt-status" class="admin-input">
-                <option value="SATIŞTA" ${eventToEdit && eventToEdit.status === 'SATIŞTA' ? 'selected' : ''}>SATIŞTA (On Sale)</option>
+                <option value="SATIŞTA" ${eventToEdit && eventToEdit.status === 'SATIŞTA' ? 'selected' : ''}>SATIŞTA</option>
                 <option value="TÜKENDİ" ${eventToEdit && eventToEdit.status === 'TÜKENDİ' ? 'selected' : ''}>TÜKENDİ (Sold Out)</option>
-                <option value="CANCELLED" ${eventToEdit && eventToEdit.status === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
+                <option value="YEDEK LİSTE" ${eventToEdit && eventToEdit.status === 'YEDEK LİSTE' ? 'selected' : ''}>YEDEK LİSTE</option>
+                <option value="İPTAL EDİLDİ" ${eventToEdit && eventToEdit.status === 'İPTAL EDİLDİ' ? 'selected' : ''}>İPTAL EDİLDİ</option>
+                <option value="YAKINDA" ${eventToEdit && eventToEdit.status === 'YAKINDA' ? 'selected' : ''}>YAKINDA SATIŞTA</option>
               </select>
             </div>
 
             <div class="admin-form-group">
-              <label class="admin-label">Yayın Durumu (Publish Status)</label>
+              <label class="admin-label">Yayın Durumu</label>
               <select id="evt-visible" class="admin-input">
-                <option value="true" ${!eventToEdit || eventToEdit.visible ? 'selected' : ''}>PUBLISHED (Yayında)</option>
-                <option value="false" ${eventToEdit && !eventToEdit.visible ? 'selected' : ''}>DRAFT (Taslak / Gizli)</option>
+                <option value="true" ${!eventToEdit || eventToEdit.visible ? 'selected' : ''}>YAYINDA (Herkes Görebilir)</option>
+                <option value="false" ${eventToEdit && !eventToEdit.visible ? 'selected' : ''}>TASLAK (Gizli)</option>
               </select>
             </div>
 
             <div class="admin-form-group span-2" id="evt-ticket-url-group">
-              <label class="admin-label">Bilet Alma Bağlantısı (Ticket URL)</label>
-              <input type="url" id="evt-ticket-url" class="admin-input" placeholder="https://tickets.example.com/show" value="${eventToEdit ? escapeHtml(eventToEdit.ticketUrl || '') : ''}" />
+              <label class="admin-label">Bilet Satış Linki (URL)</label>
+              <input type="url" id="evt-ticket-url" class="admin-input" placeholder="https://biletino.com/..." value="${eventToEdit ? escapeHtml(eventToEdit.ticketUrl || '') : ''}" />
             </div>
 
             <div class="admin-form-group span-2">
               <label class="admin-label">Etkinlik Açıklaması / Alt Başlık</label>
-              <input type="text" id="evt-desc" class="admin-input" placeholder="Örn: Headline Stage Performance" value="${eventToEdit ? escapeHtml(eventToEdit.description || '') : ''}" />
+              <input type="text" id="evt-desc" class="admin-input" placeholder="Örn: Headline Canlı Performans" value="${eventToEdit ? escapeHtml(eventToEdit.description || '') : ''}" />
             </div>
 
             <div class="admin-form-group span-2">
               <label class="admin-label">Geçmiş Etkinlik Fotoğraf Galerisi (Her satıra 1 resim URL'si ekleyin)</label>
-              <textarea id="evt-images-textarea" class="admin-input" rows="3" placeholder="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80\nhttps://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80">${eventToEdit && eventToEdit.images ? eventToEdit.images.join('\n') : ''}</textarea>
+              <textarea id="evt-images-textarea" class="admin-input" rows="3" placeholder="https://i.imgur.com/example1.jpg\nhttps://i.imgur.com/example2.jpg">${eventToEdit && eventToEdit.images ? eventToEdit.images.join('\n') : ''}</textarea>
             </div>
           </div>
         </div>
 
         <div class="admin-modal-footer" style="position: sticky; bottom: 0; background: #0e0e11; border-top: 1px solid rgba(255, 255, 255, 0.15); padding: 1.25rem 2rem; display: flex; justify-content: flex-end; gap: 1rem; z-index: 10;">
           <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">İptal</button>
-          <button type="submit" class="admin-btn admin-btn-primary" style="background: #d92b2b; color: #ffffff; padding: 0.75rem 1.8rem; font-size: 0.82rem; font-weight: 700;">💾 KAYDET (SAVE EVENT)</button>
+          <button type="submit" class="admin-btn admin-btn-primary" style="background: #d92b2b; color: #ffffff; padding: 0.75rem 1.8rem; font-size: 0.82rem; font-weight: 700;">KAYDET</button>
         </div>
       </form>
     </div>
@@ -805,7 +790,6 @@ function openEventModal(eventToEdit, rootContainer, defaultPeriod = 'UPCOMING') 
     let dateVal = modalOverlay.querySelector('#evt-date').value;
     const todayStr = new Date().toISOString().split('T')[0];
 
-    // Ensure date matches period logic
     if (selectedPeriod === 'PAST' && dateVal >= todayStr) {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
@@ -815,7 +799,7 @@ function openEventModal(eventToEdit, rootContainer, defaultPeriod = 'UPCOMING') 
     }
 
     const rawImages = modalOverlay.querySelector('#evt-images-textarea').value;
-    const imagesList = rawImages.split('\n').map(s => s.trim()).filter(Boolean);
+    const imagesList = rawImages.split('\n').map(s => cleanImageUrl(s.trim())).filter(Boolean);
 
     const data = {
       date: dateVal,
@@ -833,16 +817,16 @@ function openEventModal(eventToEdit, rootContainer, defaultPeriod = 'UPCOMING') 
     try {
       if (isEdit) {
         await updateTourEvent(eventToEdit.id, data);
-        logActivity('TOUR EVENT UPDATED', `Updated ${selectedPeriod} event "${data.venue}" (${data.city})`);
-        showAdminToast('✓ TOUR EVENT SAVED SUCCESSFULLY');
+        logActivity('KONSER GÜNCELLENDİ', `Konser güncellendi: "${data.venue}" (${data.city})`);
+        showAdminToast('✓ KONSER BAŞARIYLA GÜNCELLENDİ');
       } else {
         await addTourEvent(data);
-        logActivity('TOUR EVENT CREATED', `Created ${selectedPeriod} event "${data.venue}" (${data.city})`);
-        showAdminToast('✓ TOUR EVENT CREATED SUCCESSFULLY');
+        logActivity('KONSER OLUŞTURULDU', `Yeni konser eklendi: "${data.venue}" (${data.city})`);
+        showAdminToast('✓ YENİ KONSER BAŞARIYLA OLUŞTURULDU');
       }
     } catch (err) {
-      console.error('Error saving tour event:', err);
-      showAdminToast('⚠ Saved locally, Supabase sync error: ' + (err.message || 'Check RLS/Network'), 'danger');
+      console.error('Konser kaydetme hatası:', err);
+      showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
     } finally {
       closeModal();
       renderAdminTour(rootContainer);
@@ -852,7 +836,7 @@ function openEventModal(eventToEdit, rootContainer, defaultPeriod = 'UPCOMING') 
 
 /**
  * --------------------------------------------------------------------------
- * MUSIC & DISCOGRAPHY CMS VIEW (/admin/music)
+ * MÜZİK & DİSKOGRAFİ YÖNETİMİ GÖRÜNÜMÜ (/admin/music)
  * --------------------------------------------------------------------------
  */
 let activeMusicTab = 'ALL';
@@ -886,23 +870,23 @@ function renderAdminMusic(container) {
       <main class="admin-main-content">
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">Music & Discography CMS</h1>
-            <p class="admin-page-desc">Manage Official Releases, Tracklists, Audio Files & Cover Artworks</p>
+            <h1 class="admin-page-title">Müzik & Diskografi Yönetimi</h1>
+            <p class="admin-page-desc">Albümler, Single'lar, EP'ler, Şarkı Listeleri ve Ses Dosyaları</p>
           </div>
-          <button id="btn-add-release" class="admin-btn admin-btn-primary">+ CREATE RELEASE</button>
+          <button id="btn-add-release" class="admin-btn admin-btn-primary">+ YENİ YAYIN / ALBÜM EKLE</button>
         </div>
 
         <div class="admin-toolbar">
           <div class="admin-search-box">
-            <input type="text" id="music-search-input" class="admin-input" placeholder="Search release title or type..." value="${escapeHtml(musicSearchTerm)}" />
+            <input type="text" id="music-search-input" class="admin-input" placeholder="Albüm adı, şarkı veya tür ara..." value="${escapeHtml(musicSearchTerm)}" />
           </div>
 
           <div class="admin-filter-tabs">
-            <button class="admin-filter-btn ${activeMusicTab === 'ALL' ? 'active' : ''}" data-filter="ALL">ALL RELEASES (${releases.length})</button>
-            <button class="admin-filter-btn ${activeMusicTab === 'ALBUMS' ? 'active' : ''}" data-filter="ALBUMS">ALBUMS</button>
-            <button class="admin-filter-btn ${activeMusicTab === 'SINGLES' ? 'active' : ''}" data-filter="SINGLES">SINGLES</button>
-            <button class="admin-filter-btn ${activeMusicTab === 'EPS' ? 'active' : ''}" data-filter="EPS">EPs</button>
-            <button class="admin-filter-btn ${activeMusicTab === 'DRAFTS' ? 'active' : ''}" data-filter="DRAFTS">DRAFTS</button>
+            <button class="admin-filter-btn ${activeMusicTab === 'ALL' ? 'active' : ''}" data-filter="ALL">TÜM YAYINLAR (${releases.length})</button>
+            <button class="admin-filter-btn ${activeMusicTab === 'ALBUMS' ? 'active' : ''}" data-filter="ALBUMS">ALBÜMLER</button>
+            <button class="admin-filter-btn ${activeMusicTab === 'SINGLES' ? 'active' : ''}" data-filter="SINGLES">SINGLE'LAR</button>
+            <button class="admin-filter-btn ${activeMusicTab === 'EPS' ? 'active' : ''}" data-filter="EPS">EP'LER</button>
+            <button class="admin-filter-btn ${activeMusicTab === 'DRAFTS' ? 'active' : ''}" data-filter="DRAFTS">TASLAKLAR</button>
           </div>
         </div>
 
@@ -910,13 +894,13 @@ function renderAdminMusic(container) {
           <table class="admin-table">
             <thead>
               <tr>
-                <th>COVER</th>
-                <th>RELEASE TITLE</th>
-                <th>TYPE</th>
-                <th>RELEASE DATE</th>
-                <th>TRACKS</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
+                <th>KAPAK</th>
+                <th>YAYIN ADI</th>
+                <th>TÜR</th>
+                <th>YAYIN TARİHİ</th>
+                <th>PARÇALAR</th>
+                <th>DURUM</th>
+                <th>İŞLEMLER</th>
               </tr>
             </thead>
             <tbody>
@@ -960,14 +944,14 @@ function renderAdminMusic(container) {
 
   const toggleBtns = container.querySelectorAll('.btn-toggle-release');
   toggleBtns.forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       const id = btn.getAttribute('data-id');
       const item = getReleases().find(r => r.id === id);
       if (item) {
         const newStatus = item.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
-        updateRelease(id, { status: newStatus });
-        logActivity('RELEASE UPDATED', `Release "${item.title}" status changed to ${newStatus}`);
-        showAdminToast('✓ RELEASE STATUS UPDATED');
+        await updateRelease(id, { status: newStatus });
+        logActivity('YAYIN GÜNCELLENDİ', `Yayın "${item.title}" durumu değiştirildi: ${newStatus}`);
+        showAdminToast('✓ YAYIN DURUMU GÜNCELLENDİ');
         renderAdminMusic(container);
       }
     };
@@ -985,7 +969,7 @@ function renderAdminMusic(container) {
 
 function renderAdminReleaseRows(releases) {
   if (releases.length === 0) {
-    return `<tr><td colspan="7" class="admin-empty-cell">No releases found matching filter.</td></tr>`;
+    return `<tr><td colspan="7" class="admin-empty-cell">Filtreye uygun yayın bulunamadı.</td></tr>`;
   }
 
   return releases.map(rel => {
@@ -993,23 +977,23 @@ function renderAdminReleaseRows(releases) {
     return `
       <tr>
         <td>
-          <img src="${rel.coverUrl}" alt="Cover" class="admin-thumb-img" />
+          <img src="${rel.coverUrl}" alt="Kapak" class="admin-thumb-img" />
         </td>
         <td>
-          <div class="admin-row-title">${escapeHtml(rel.title)} ${rel.featured ? '<span class="admin-badge badge-warning">FEATURED</span>' : ''}</div>
+          <div class="admin-row-title">${escapeHtml(rel.title)} ${rel.featured ? '<span class="admin-badge badge-warning">ÖNE ÇIKAN</span>' : ''}</div>
           <div class="admin-sub-text">${escapeHtml(rel.artist || 'THE SINNERS')}</div>
         </td>
         <td><span class="admin-badge badge-subtle">${rel.type}</span></td>
         <td>${escapeHtml(rel.releaseDate || rel.year)}</td>
-        <td><strong>${trackCount} ${trackCount === 1 ? 'Track' : 'Tracks'}</strong></td>
+        <td><strong>${trackCount} ${trackCount === 1 ? 'Parça' : 'Parça'}</strong></td>
         <td>
-          <span class="admin-badge ${rel.status === 'PUBLISHED' ? 'badge-active' : 'badge-muted'}">${rel.status || 'PUBLISHED'}</span>
+          <span class="admin-badge ${rel.status === 'PUBLISHED' ? 'badge-active' : 'badge-muted'}">${rel.status === 'PUBLISHED' ? 'YAYINDA' : 'TASLAK'}</span>
         </td>
         <td>
           <div class="admin-action-btns">
-            <button class="admin-action-btn btn-edit-release" data-id="${rel.id}">Edit Release & Tracks</button>
-            <button class="admin-action-btn btn-toggle-release" data-id="${rel.id}">${rel.status === 'PUBLISHED' ? 'Unpublish' : 'Publish'}</button>
-            <button class="admin-action-btn btn-danger btn-delete-release" data-id="${rel.id}">Delete</button>
+            <button class="admin-action-btn btn-edit-release" data-id="${rel.id}">Düzenle</button>
+            <button class="admin-action-btn btn-toggle-release" data-id="${rel.id}">${rel.status === 'PUBLISHED' ? 'Yayından Kaldır' : 'Yayınla'}</button>
+            <button class="admin-action-btn btn-danger btn-delete-release" data-id="${rel.id}">Sil</button>
           </div>
         </td>
       </tr>
@@ -1020,8 +1004,9 @@ function renderAdminReleaseRows(releases) {
 function openReleaseModal(releaseToEdit, rootContainer) {
   const isEdit = !!releaseToEdit;
   let tracksState = releaseToEdit && releaseToEdit.tracks ? JSON.parse(JSON.stringify(releaseToEdit.tracks)) : [
-    { id: 'trk_' + Date.now(), title: 'Sample Track', duration: '03:30', audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }
+    { id: 'trk_' + Date.now(), title: 'Yeni Şarkı', duration: '03:30', audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' }
   ];
+  let deletedTrackIds = [];
 
   let testAudioObj = null;
 
@@ -1032,75 +1017,72 @@ function openReleaseModal(releaseToEdit, rootContainer) {
     modalOverlay.innerHTML = `
       <div class="admin-modal admin-modal-wide">
         <div class="admin-modal-header">
-          <h2 class="admin-modal-title">${isEdit ? 'EDIT RELEASE & TRACKLIST' : 'CREATE NEW RELEASE'}</h2>
+          <h2 class="admin-modal-title">${isEdit ? 'YAYINI VE ŞARKI LİSTESİNİ DÜZENLE' : 'YENİ MÜZİK YAYINI EKLE'}</h2>
           <button type="button" class="admin-modal-close">&times;</button>
         </div>
         <form id="release-form">
           <div class="admin-modal-body admin-grid-layout">
-            <!-- LEFT MAIN COL: RELEASE METADATA & TRACKLIST -->
             <div class="admin-modal-main-col">
               <div class="admin-form-grid">
                 <div class="admin-form-group span-2">
-                  <label class="admin-label">Release Title*</label>
-                  <input type="text" id="rel-title" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.title) : ''}" required placeholder="e.g. 9MM HATE" />
+                  <label class="admin-label">Yayın / Albüm Adı*</label>
+                  <input type="text" id="rel-title" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.title) : ''}" required placeholder="Örn: 9MM HATE" />
                 </div>
 
                 <div class="admin-form-group">
-                  <label class="admin-label">Artist Name*</label>
+                  <label class="admin-label">Sanatçı Adı*</label>
                   <input type="text" id="rel-artist" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.artist) : 'THE SINNERS'}" required />
                 </div>
 
                 <div class="admin-form-group">
-                  <label class="admin-label">Release Type*</label>
+                  <label class="admin-label">Yayın Türü*</label>
                   <select id="rel-type" class="admin-input">
-                    <option value="ALBUM" ${releaseToEdit && releaseToEdit.type === 'ALBUM' ? 'selected' : ''}>ALBUM</option>
+                    <option value="ALBUM" ${releaseToEdit && releaseToEdit.type === 'ALBUM' ? 'selected' : ''}>ALBÜM</option>
                     <option value="SINGLE" ${releaseToEdit && releaseToEdit.type === 'SINGLE' ? 'selected' : ''}>SINGLE</option>
                     <option value="EP" ${releaseToEdit && releaseToEdit.type === 'EP' ? 'selected' : ''}>EP</option>
                   </select>
                 </div>
 
                 <div class="admin-form-group">
-                  <label class="admin-label">Release Date String*</label>
-                  <input type="text" id="rel-date" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.releaseDate) : '18 OCAK 2026'}" placeholder="e.g. 18 OCAK 2026" required />
+                  <label class="admin-label">Yayın Tarihi Metni*</label>
+                  <input type="text" id="rel-date" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.releaseDate) : '18 OCAK 2026'}" placeholder="Örn: 18 OCAK 2026" required />
                 </div>
 
                 <div class="admin-form-group">
-                  <label class="admin-label">Year*</label>
+                  <label class="admin-label">Yıl*</label>
                   <input type="text" id="rel-year" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.year) : new Date().getFullYear().toString()}" required />
                 </div>
 
                 <div class="admin-form-group span-2">
-                  <label class="admin-label">Description / Bio Statement</label>
-                  <textarea id="rel-desc" class="admin-input" rows="2" placeholder="Brief description of the release...">${releaseToEdit ? escapeHtml(releaseToEdit.description) : ''}</textarea>
+                  <label class="admin-label">Açıklama / Biyografi Notu</label>
+                  <textarea id="rel-desc" class="admin-input" rows="2" placeholder="Yayın hakkında kısa açıklama...">${releaseToEdit ? escapeHtml(releaseToEdit.description) : ''}</textarea>
                 </div>
 
-                <!-- DIGITAL PLATFORM LINKS (Database Ready) -->
                 <div class="admin-form-group">
-                  <label class="admin-label">Spotify Link</label>
+                  <label class="admin-label">Spotify Linki</label>
                   <input type="url" id="rel-spotify" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.spotifyUrl || '') : ''}" placeholder="https://open.spotify.com/..." />
                 </div>
 
                 <div class="admin-form-group">
-                  <label class="admin-label">Apple Music Link</label>
+                  <label class="admin-label">Apple Music Linki</label>
                   <input type="url" id="rel-apple" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.appleUrl || '') : ''}" placeholder="https://music.apple.com/..." />
                 </div>
 
                 <div class="admin-form-group">
-                  <label class="admin-label">YouTube Link</label>
+                  <label class="admin-label">YouTube Linki</label>
                   <input type="url" id="rel-youtube" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.youtubeUrl || '') : ''}" placeholder="https://youtube.com/..." />
                 </div>
 
                 <div class="admin-form-group">
-                  <label class="admin-label">Bandcamp / Store Link</label>
+                  <label class="admin-label">Bandcamp / Mağaza Linki</label>
                   <input type="url" id="rel-bandcamp" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.bandcampUrl || '') : ''}" placeholder="https://bandcamp.com/..." />
                 </div>
               </div>
 
-              <!-- TRACKLIST MANAGER -->
               <div class="admin-tracklist-editor" style="margin-top: 2rem;">
                 <div class="admin-section-header-row">
-                  <h3>TRACKLIST MANAGER (${tracksState.length} TRACKS)</h3>
-                  <button type="button" id="btn-add-track-row" class="admin-btn admin-btn-secondary">+ ADD TRACK</button>
+                  <h3>ŞARKI LİSTESİ (${tracksState.length} PARÇA)</h3>
+                  <button type="button" id="btn-add-track-row" class="admin-btn admin-btn-secondary">+ PARÇA EKLE</button>
                 </div>
 
                 <div class="admin-table-container">
@@ -1108,10 +1090,10 @@ function openReleaseModal(releaseToEdit, rootContainer) {
                     <thead>
                       <tr>
                         <th style="width: 30px;">#</th>
-                        <th>TRACK TITLE</th>
-                        <th style="width: 80px;">DURATION</th>
-                        <th>AUDIO FILE / STREAM URL</th>
-                        <th style="width: 110px;">PREVIEW / ACTION</th>
+                        <th>PARÇA ADI</th>
+                        <th style="width: 80px;">SÜRE</th>
+                        <th>SES DOSYASI / STREAM URL</th>
+                        <th style="width: 110px;">ÖN DİNLEME / İŞLEM</th>
                       </tr>
                     </thead>
                     <tbody id="tracklist-rows-body">
@@ -1119,23 +1101,23 @@ function openReleaseModal(releaseToEdit, rootContainer) {
                         <tr>
                           <td><strong>${idx + 1}</strong></td>
                           <td>
-                            <input type="text" class="admin-input input-track-title" data-idx="${idx}" value="${escapeHtml(t.title)}" placeholder="Track title..." required />
+                            <input type="text" class="admin-input input-track-title" data-idx="${idx}" value="${escapeHtml(t.title)}" placeholder="Şarkı adı..." required />
                           </td>
                           <td>
                             <input type="text" class="admin-input input-track-dur" data-idx="${idx}" value="${escapeHtml(t.duration)}" placeholder="03:45" required />
                           </td>
                           <td>
                             <div style="display: flex; flex-direction: column; gap: 4px;">
-                              <input type="text" class="admin-input input-track-url" data-idx="${idx}" value="${escapeHtml(t.audioUrl)}" placeholder="https://... or upload local MP3" required />
+                              <input type="text" class="admin-input input-track-url" data-idx="${idx}" value="${escapeHtml(t.audioUrl)}" placeholder="https://... veya yerel MP3 yükle" required />
                               <label class="admin-file-upload-btn" style="display: inline-block; font-size: 0.72rem; padding: 2px 6px; cursor: pointer; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 3px; text-align: center;">
-                                🎵 Upload MP3 File
+                                🎵 MP3 Dosyası Yükle
                                 <input type="file" class="input-track-file hidden" data-idx="${idx}" accept="audio/*" />
                               </label>
                             </div>
                           </td>
                           <td>
                             <div style="display: flex; gap: 4px; align-items: center;">
-                              <button type="button" class="admin-action-btn btn-test-play-audio" data-idx="${idx}" title="Test Play Audio">▶</button>
+                              <button type="button" class="admin-action-btn btn-test-play-audio" data-idx="${idx}" title="Sesi Test Et">▶</button>
                               <button type="button" class="admin-action-btn btn-danger btn-remove-track" data-idx="${idx}">&times;</button>
                             </div>
                           </td>
@@ -1147,46 +1129,44 @@ function openReleaseModal(releaseToEdit, rootContainer) {
               </div>
             </div>
 
-            <!-- RIGHT SIDEBAR COL: ARTWORK & PUBLISHING -->
             <div class="admin-modal-side-col">
               <div class="admin-form-group">
-                <label class="admin-label">Cover Artwork URL / Upload*</label>
+                <label class="admin-label">Kapak Görseli URL / Yükleme*</label>
                 <input type="text" id="rel-cover-url" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.coverUrl) : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'}" required />
                 <label class="admin-btn admin-btn-secondary" style="display: block; width: 100%; margin-top: 6px; text-align: center; cursor: pointer; box-sizing: border-box;">
-                  📷 Upload Cover Image File
+                  📷 Kapak Resmi Yükle
                   <input type="file" id="rel-cover-file" class="hidden" accept="image/*" />
                 </label>
                 <div class="admin-img-preview-box" style="margin-top: 0.75rem;">
-                  <img id="rel-cover-preview" src="${releaseToEdit ? releaseToEdit.coverUrl : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'}" alt="Preview" />
+                  <img id="rel-cover-preview" src="${releaseToEdit ? releaseToEdit.coverUrl : 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80'}" alt="Önizleme" />
                 </div>
               </div>
 
               <div class="admin-form-group" style="margin-top: 1.5rem;">
-                <label class="admin-label">Publication Status</label>
+                <label class="admin-label">Yayın Durumu</label>
                 <select id="rel-status" class="admin-input">
-                  <option value="PUBLISHED" ${!releaseToEdit || releaseToEdit.status === 'PUBLISHED' ? 'selected' : ''}>PUBLISHED (Public)</option>
-                  <option value="DRAFT" ${releaseToEdit && releaseToEdit.status === 'DRAFT' ? 'selected' : ''}>DRAFT (Hidden)</option>
+                  <option value="PUBLISHED" ${!releaseToEdit || releaseToEdit.status === 'PUBLISHED' ? 'selected' : ''}>YAYINDA (Herkes Görebilir)</option>
+                  <option value="DRAFT" ${releaseToEdit && releaseToEdit.status === 'DRAFT' ? 'selected' : ''}>TASLAK (Gizli)</option>
                 </select>
               </div>
 
               <div class="admin-form-group" style="margin-top: 1rem;">
                 <label class="admin-checkbox-label">
                   <input type="checkbox" id="rel-featured" ${releaseToEdit && releaseToEdit.featured ? 'checked' : ''} />
-                  <span>Set as Main Featured Release</span>
+                  <span>Ana Öne Çıkan Yayın Olarak Belirle</span>
                 </label>
               </div>
             </div>
           </div>
 
           <div class="admin-modal-footer">
-            <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">Cancel</button>
-            <button type="submit" class="admin-btn admin-btn-primary">SAVE RELEASE & TRACKS</button>
+            <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">İptal</button>
+            <button type="submit" class="admin-btn admin-btn-primary">YAYINI KAYDET</button>
           </div>
         </form>
       </div>
     `;
 
-    // Bind inner listeners
     const stopTestAudio = () => {
       if (testAudioObj) {
         testAudioObj.pause();
@@ -1208,7 +1188,7 @@ function openReleaseModal(releaseToEdit, rootContainer) {
 
     if (coverInput && coverPreview) {
       coverInput.oninput = (e) => {
-        coverPreview.src = e.target.value;
+        coverPreview.src = cleanImageUrl(e.target.value);
       };
     }
 
@@ -1226,7 +1206,6 @@ function openReleaseModal(releaseToEdit, rootContainer) {
       };
     }
 
-    // Audio MP3 File Upload handlers for tracks
     const trackFileInputs = modalOverlay.querySelectorAll('.input-track-file');
     trackFileInputs.forEach(input => {
       input.onchange = (e) => {
@@ -1241,7 +1220,6 @@ function openReleaseModal(releaseToEdit, rootContainer) {
             if (urlInput) urlInput.value = evt.target.result;
             if (tracksState[idx]) tracksState[idx].audioUrl = evt.target.result;
 
-            // Auto detect duration if possible
             const tempAudio = new Audio(evt.target.result);
             tempAudio.onloadedmetadata = () => {
               const m = Math.floor(tempAudio.duration / 60);
@@ -1256,7 +1234,6 @@ function openReleaseModal(releaseToEdit, rootContainer) {
       };
     });
 
-    // Test Play buttons for tracks in CMS modal
     const testPlayBtns = modalOverlay.querySelectorAll('.btn-test-play-audio');
     testPlayBtns.forEach(btn => {
       btn.onclick = () => {
@@ -1264,7 +1241,7 @@ function openReleaseModal(releaseToEdit, rootContainer) {
         syncTracksFromInputs();
         const trk = tracksState[idx];
         if (!trk || !trk.audioUrl) {
-          showAdminToast('⚠️ Please enter an Audio Stream URL or upload an MP3 file first!');
+          showAdminToast('⚠️ Lütfen önce bir ses bağlantısı (URL) girin veya MP3 yükleyin!');
           return;
         }
 
@@ -1277,7 +1254,7 @@ function openReleaseModal(releaseToEdit, rootContainer) {
           testAudioObj.play().then(() => {
             btn.textContent = '⏸';
           }).catch(err => {
-            showAdminToast('⚠️ Unable to play audio stream: ' + err.message);
+            showAdminToast('⚠️ Ses dosyası oynatılamadı: ' + err.message);
           });
           testAudioObj.onended = () => {
             btn.textContent = '▶';
@@ -1286,30 +1263,39 @@ function openReleaseModal(releaseToEdit, rootContainer) {
       };
     });
 
-    // Add track row
     const addTrackBtn = modalOverlay.querySelector('#btn-add-track-row');
     if (addTrackBtn) {
       addTrackBtn.onclick = () => {
         syncTracksFromInputs();
-        tracksState.push({ id: 'trk_' + Date.now(), title: 'New Track', duration: '03:30', audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' });
+        tracksState.push({ id: 'trk_' + Date.now(), title: 'Yeni Şarkı', duration: '03:30', audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' });
         renderModalContent();
       };
     }
 
-    // Remove track
     const removeTrackBtns = modalOverlay.querySelectorAll('.btn-remove-track');
     removeTrackBtns.forEach(btn => {
       btn.onclick = () => {
         const idx = parseInt(btn.getAttribute('data-idx'));
         syncTracksFromInputs();
+        const removed = tracksState[idx];
+        if (removed && removed.id) {
+          deletedTrackIds.push(removed.id);
+        }
         tracksState.splice(idx, 1);
         renderModalContent();
       };
     });
 
     const form = modalOverlay.querySelector('#release-form');
-    form.onsubmit = (e) => {
+    form.onsubmit = async (e) => {
       e.preventDefault();
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ KAYDEDİLİYOR...';
+      }
+
       stopTestAudio();
       syncTracksFromInputs();
 
@@ -1333,24 +1319,29 @@ function openReleaseModal(releaseToEdit, rootContainer) {
         appleUrl: modalOverlay.querySelector('#rel-apple').value,
         youtubeUrl: modalOverlay.querySelector('#rel-youtube').value,
         bandcampUrl: modalOverlay.querySelector('#rel-bandcamp').value,
-        coverUrl: modalOverlay.querySelector('#rel-cover-url').value,
+        coverUrl: cleanImageUrl(modalOverlay.querySelector('#rel-cover-url').value),
         status: modalOverlay.querySelector('#rel-status').value,
         featured: modalOverlay.querySelector('#rel-featured').checked,
         tracks: formattedTracks
       };
 
-      if (isEdit) {
-        updateRelease(releaseToEdit.id, data);
-        logActivity('RELEASE UPDATED', `Updated release "${data.title}" (${data.type})`);
-        showAdminToast('✓ RELEASE & TRACKLIST SAVED SUCCESSFULLY');
-      } else {
-        addRelease(data);
-        logActivity('RELEASE CREATED', `Created release "${data.title}" (${data.type})`);
-        showAdminToast('✓ NEW RELEASE CREATED SUCCESSFULLY');
+      try {
+        if (isEdit) {
+          await updateRelease(releaseToEdit.id, data, deletedTrackIds);
+          logActivity('YAYIN GÜNCELLENDİ', `Yayın güncellendi: "${data.title}" (${data.type})`);
+          showAdminToast('✓ YAYIN VE ŞARKI LİSTESİ BAŞARIYLA KAYDEDİLDİ');
+        } else {
+          await addRelease(data);
+          logActivity('YAYIN OLUŞTURULDU', `Yeni yayın eklendi: "${data.title}" (${data.type})`);
+          showAdminToast('✓ YENİ YAYIN BAŞARIYLA OLUŞTURULDU');
+        }
+      } catch (err) {
+        console.error('Yayın kaydetme hatası:', err);
+        showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+      } finally {
+        closeModal();
+        renderAdminMusic(rootContainer);
       }
-
-      closeModal();
-      renderAdminMusic(rootContainer);
     };
   };
 
@@ -1374,7 +1365,7 @@ function openReleaseModal(releaseToEdit, rootContainer) {
 
 /**
  * --------------------------------------------------------------------------
- * UPD//T3 TRANSMISSIONS CMS VIEW (/admin/updates)
+ * HABERLER & YAZILAR YÖNETİMİ GÖRÜNÜMÜ (/admin/updates)
  * --------------------------------------------------------------------------
  */
 let activeUpdateFilter = 'ALL';
@@ -1407,22 +1398,22 @@ function renderAdminUpdates(container) {
       <main class="admin-main-content">
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">UPD//T3 Transmissions CMS</h1>
-            <p class="admin-page-desc">Create, Edit, Preview and Publish Digital Journal Records & Essays</p>
+            <h1 class="admin-page-title">Haberler & Yazılar Yönetimi</h1>
+            <p class="admin-page-desc">Haber, Stüdyo Günlüğü, Makale ve Duyuruları Yönetin</p>
           </div>
-          <button id="btn-add-journal" class="admin-btn admin-btn-primary">+ CREATE TRANSMISSION</button>
+          <button id="btn-add-journal" class="admin-btn admin-btn-primary">+ YENİ HABER / YAZI OLUŞTUR</button>
         </div>
 
         <div class="admin-toolbar">
           <div class="admin-search-box">
-            <input type="text" id="update-search-input" class="admin-input" placeholder="Search transmission title or category..." value="${escapeHtml(updateSearchQuery)}" />
+            <input type="text" id="update-search-input" class="admin-input" placeholder="Yazı başlığı veya kategori ara..." value="${escapeHtml(updateSearchQuery)}" />
           </div>
 
           <div class="admin-filter-tabs">
-            <button class="admin-filter-btn ${activeUpdateFilter === 'ALL' ? 'active' : ''}" data-filter="ALL">ALL (${entries.length})</button>
-            <button class="admin-filter-btn ${activeUpdateFilter === 'PUBLISHED' ? 'active' : ''}" data-filter="PUBLISHED">PUBLISHED</button>
-            <button class="admin-filter-btn ${activeUpdateFilter === 'DRAFT' ? 'active' : ''}" data-filter="DRAFT">DRAFTS</button>
-            <button class="admin-filter-btn ${activeUpdateFilter === 'FEATURED' ? 'active' : ''}" data-filter="FEATURED">FEATURED</button>
+            <button class="admin-filter-btn ${activeUpdateFilter === 'ALL' ? 'active' : ''}" data-filter="ALL">TÜMÜ (${entries.length})</button>
+            <button class="admin-filter-btn ${activeUpdateFilter === 'PUBLISHED' ? 'active' : ''}" data-filter="PUBLISHED">YAYINDA</button>
+            <button class="admin-filter-btn ${activeUpdateFilter === 'DRAFT' ? 'active' : ''}" data-filter="DRAFT">TASLAKLAR</button>
+            <button class="admin-filter-btn ${activeUpdateFilter === 'FEATURED' ? 'active' : ''}" data-filter="FEATURED">ÖNE ÇIKANLAR</button>
           </div>
         </div>
 
@@ -1430,11 +1421,11 @@ function renderAdminUpdates(container) {
           <table class="admin-table">
             <thead>
               <tr>
-                <th>DATE</th>
-                <th>TRANSMISSION TITLE</th>
-                <th>CATEGORY</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
+                <th>TARİH</th>
+                <th>YAZI BAŞLIĞI</th>
+                <th>KATEGORİ</th>
+                <th>DURUM</th>
+                <th>İŞLEMLER</th>
               </tr>
             </thead>
             <tbody>
@@ -1487,14 +1478,14 @@ function renderAdminUpdates(container) {
 
   const toggleBtns = container.querySelectorAll('.btn-toggle-journal');
   toggleBtns.forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       const id = btn.getAttribute('data-id');
       const item = getJournalEntries().find(e => e.id === id);
       if (item) {
         const newStatus = item.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
-        updateJournalEntry(id, { status: newStatus });
-        logActivity('TRANSMISSION UPDATED', `Transmission "${item.title}" status changed to ${newStatus}`);
-        showAdminToast('✓ TRANSMISSION STATUS UPDATED');
+        await updateJournalEntry(id, { status: newStatus });
+        logActivity('YAZI GÜNCELLENDİ', `Yazı "${item.title}" durumu değiştirildi: ${newStatus}`);
+        showAdminToast('✓ YAZI YAYIN DURUMU GÜNCELLENDİ');
         renderAdminUpdates(container);
       }
     };
@@ -1512,7 +1503,7 @@ function renderAdminUpdates(container) {
 
 function renderJournalAdminRows(entries) {
   if (entries.length === 0) {
-    return `<tr><td colspan="5" class="admin-empty-cell">No transmission records found matching filter.</td></tr>`;
+    return `<tr><td colspan="5" class="admin-empty-cell">Filtreye uygun yazı kaydı bulunamadı.</td></tr>`;
   }
 
   return entries.map(item => {
@@ -1520,17 +1511,17 @@ function renderJournalAdminRows(entries) {
       <tr>
         <td><strong>${escapeHtml(item.date)}</strong></td>
         <td>
-          <div class="admin-row-title">${escapeHtml(item.title)} ${item.featured ? '<span class="admin-badge badge-warning">FEATURED</span>' : ''}</div>
-          <div class="admin-sub-text">${escapeHtml(item.meta || 'Journal Transmission')}</div>
+          <div class="admin-row-title">${escapeHtml(item.title)} ${item.featured ? '<span class="admin-badge badge-warning">ÖNE ÇIKAN</span>' : ''}</div>
+          <div class="admin-sub-text">${escapeHtml(item.meta || 'Haber Yazısı')}</div>
         </td>
-        <td><span class="admin-badge badge-subtle">${escapeHtml(item.category || 'JOURNAL')}</span></td>
-        <td><span class="admin-badge ${item.status === 'DRAFT' ? 'badge-muted' : 'badge-active'}">${item.status || 'PUBLISHED'}</span></td>
+        <td><span class="admin-badge badge-subtle">${escapeHtml(item.category || 'HABER')}</span></td>
+        <td><span class="admin-badge ${item.status === 'DRAFT' ? 'badge-muted' : 'badge-active'}">${item.status === 'DRAFT' ? 'TASLAK' : 'YAYINDA'}</span></td>
         <td>
           <div class="admin-action-btns">
-            <button class="admin-action-btn btn-edit-journal" data-id="${item.id}">Edit</button>
-            <button class="admin-action-btn btn-preview-journal" data-id="${item.id}">Preview</button>
-            <button class="admin-action-btn btn-toggle-journal" data-id="${item.id}">${item.status === 'DRAFT' ? 'Publish' : 'Unpublish'}</button>
-            <button class="admin-action-btn btn-danger btn-delete-journal" data-id="${item.id}">Delete</button>
+            <button class="admin-action-btn btn-edit-journal" data-id="${item.id}">Düzenle</button>
+            <button class="admin-action-btn btn-preview-journal" data-id="${item.id}">Önizle</button>
+            <button class="admin-action-btn btn-toggle-journal" data-id="${item.id}">${item.status === 'DRAFT' ? 'Yayınla' : 'Yayından Kaldır'}</button>
+            <button class="admin-action-btn btn-danger btn-delete-journal" data-id="${item.id}">Sil</button>
           </div>
         </td>
       </tr>
@@ -1547,7 +1538,7 @@ function openJournalModal(itemToEdit, rootContainer) {
   modalOverlay.innerHTML = `
     <div class="admin-modal admin-modal-wide">
       <div class="admin-modal-header">
-        <h2 class="admin-modal-title">${isEdit ? 'EDIT TRANSMISSION' : 'CREATE TRANSMISSION'}</h2>
+        <h2 class="admin-modal-title">${isEdit ? 'YAZIYI DÜZENLE' : 'YENİ HABER / YAZI OLUŞTUR'}</h2>
         <button type="button" class="admin-modal-close">&times;</button>
       </div>
       <form id="journal-entry-form">
@@ -1555,61 +1546,61 @@ function openJournalModal(itemToEdit, rootContainer) {
           <div class="admin-modal-main-col">
             <div class="admin-form-grid">
               <div class="admin-form-group span-2">
-                <label class="admin-label">Transmission Title*</label>
-                <input type="text" id="j-title" class="admin-input" value="${itemToEdit ? escapeHtml(itemToEdit.title) : ''}" required placeholder="e.g. THE ANALOG RESONANCE OF 9MM HATE" />
+                <label class="admin-label">Yazı Başlığı*</label>
+                <input type="text" id="j-title" class="admin-input" value="${itemToEdit ? escapeHtml(itemToEdit.title) : ''}" required placeholder="Örn: YENİ ALBÜM STÜDYO KAYIT SÜRECİ" />
               </div>
               <div class="admin-form-group">
-                <label class="admin-label">Date String*</label>
-                <input type="text" id="j-date" class="admin-input" value="${itemToEdit ? escapeHtml(itemToEdit.date) : '12 AUG 2026'}" required placeholder="e.g. 12 AUG 2026" />
+                <label class="admin-label">Tarih Metni*</label>
+                <input type="text" id="j-date" class="admin-input" value="${itemToEdit ? escapeHtml(itemToEdit.date) : '12 AĞU 2026'}" required placeholder="Örn: 12 AĞU 2026" />
               </div>
               <div class="admin-form-group">
-                <label class="admin-label">Category Tag*</label>
-                <input type="text" id="j-category" class="admin-input" value="${itemToEdit ? escapeHtml(itemToEdit.category || 'ESSAY // DISCOGRAPHY') : 'ESSAY // DISCOGRAPHY'}" required />
+                <label class="admin-label">Kategori Etiketi*</label>
+                <input type="text" id="j-category" class="admin-input" value="${itemToEdit ? escapeHtml(itemToEdit.category || 'MAKALE // DİSKOGRAFİ') : 'MAKALE // DİSKOGRAFİ'}" required />
               </div>
               <div class="admin-form-group span-2">
-                <label class="admin-label">Location / Studio Meta Header</label>
-                <input type="text" id="j-meta" class="admin-input" value="${itemToEdit ? escapeHtml(itemToEdit.meta || '') : ''}" placeholder="e.g. LONDON // ANALOG SESSION 04" />
+                <label class="admin-label">Konum / Stüdyo Bilgisi</label>
+                <input type="text" id="j-meta" class="admin-input" value="${itemToEdit ? escapeHtml(itemToEdit.meta || '') : ''}" placeholder="Örn: İSTANBUL // STÜDYO SEANSI 04" />
               </div>
               <div class="admin-form-group span-2">
-                <label class="admin-label">Full Editorial Content (Use double linebreaks for paragraphs)*</label>
-                <textarea id="j-body" class="admin-input" rows="8" required placeholder="Write transmission essay or studio diary entry...">${itemToEdit ? escapeHtml(itemToEdit.body) : ''}</textarea>
+                <label class="admin-label">Yazı / Makale İçeriği (Paragraflar için çift enter kullanın)*</label>
+                <textarea id="j-body" class="admin-input" rows="8" required placeholder="Haber metnini veya stüdyo günlüğünü buraya yazın...">${itemToEdit ? escapeHtml(itemToEdit.body) : ''}</textarea>
               </div>
             </div>
           </div>
 
           <div class="admin-modal-side-col">
             <div class="admin-form-group">
-              <label class="admin-label">Hero / Cover Image URL*</label>
+              <label class="admin-label">Kapak / Görsel URL*</label>
               <input type="url" id="j-image" class="admin-input" value="${itemToEdit ? escapeHtml(itemToEdit.image || '') : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80'}" required />
               <div class="admin-img-preview-box" style="margin-top: 0.75rem;">
-                <img id="j-image-preview" src="${itemToEdit ? itemToEdit.image : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80'}" alt="Preview" />
+                <img id="j-image-preview" src="${itemToEdit ? itemToEdit.image : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80'}" alt="Önizleme" />
               </div>
             </div>
 
             <div class="admin-form-group" style="margin-top: 1.5rem;">
-              <label class="admin-label">Publication Status</label>
+              <label class="admin-label">Yayın Durumu</label>
               <select id="j-status" class="admin-input">
-                <option value="PUBLISHED" ${!itemToEdit || itemToEdit.status === 'PUBLISHED' ? 'selected' : ''}>PUBLISHED</option>
-                <option value="DRAFT" ${itemToEdit && itemToEdit.status === 'DRAFT' ? 'selected' : ''}>DRAFT (Hidden)</option>
+                <option value="PUBLISHED" ${!itemToEdit || itemToEdit.status === 'PUBLISHED' ? 'selected' : ''}>YAYINDA (Herkes Görebilir)</option>
+                <option value="DRAFT" ${itemToEdit && itemToEdit.status === 'DRAFT' ? 'selected' : ''}>TASLAK (Gizli)</option>
               </select>
             </div>
 
             <div class="admin-form-group" style="margin-top: 1rem;">
               <label class="admin-checkbox-label">
                 <input type="checkbox" id="j-featured" ${itemToEdit && itemToEdit.featured ? 'checked' : ''} />
-                <span>Featured Transmission</span>
+                <span>Öne Çıkan Yazı Olarak Belirle</span>
               </label>
             </div>
 
             <div style="margin-top: 2rem;">
-              <button type="button" id="btn-preview-modal-trigger" class="admin-btn admin-btn-secondary" style="width: 100%;">LIVE PUBLIC PREVIEW</button>
+              <button type="button" id="btn-preview-modal-trigger" class="admin-btn admin-btn-secondary" style="width: 100%;">CANLI ÖNİZLEME</button>
             </div>
           </div>
         </div>
 
         <div class="admin-modal-footer">
-          <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-primary">SAVE TRANSMISSION</button>
+          <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">İptal</button>
+          <button type="submit" class="admin-btn admin-btn-primary">YAZIYI KAYDET</button>
         </div>
       </form>
     </div>
@@ -1624,7 +1615,7 @@ function openJournalModal(itemToEdit, rootContainer) {
   const imgInput = modalOverlay.querySelector('#j-image');
   const imgPreview = modalOverlay.querySelector('#j-image-preview');
   if (imgInput && imgPreview) {
-    imgInput.oninput = (e) => imgPreview.src = e.target.value;
+    imgInput.oninput = (e) => imgPreview.src = cleanImageUrl(e.target.value);
   }
 
   const previewTrigger = modalOverlay.querySelector('#btn-preview-modal-trigger');
@@ -1636,7 +1627,7 @@ function openJournalModal(itemToEdit, rootContainer) {
         category: modalOverlay.querySelector('#j-category').value,
         meta: modalOverlay.querySelector('#j-meta').value,
         body: modalOverlay.querySelector('#j-body').value,
-        image: modalOverlay.querySelector('#j-image').value
+        image: cleanImageUrl(modalOverlay.querySelector('#j-image').value)
       };
       openTransmissionPreviewModal(previewData);
     };
@@ -1649,7 +1640,7 @@ function openJournalModal(itemToEdit, rootContainer) {
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ SAVING...';
+      submitBtn.textContent = '⏳ KAYDEDİLİYOR...';
     }
 
     const data = {
@@ -1658,7 +1649,7 @@ function openJournalModal(itemToEdit, rootContainer) {
       category: modalOverlay.querySelector('#j-category').value,
       meta: modalOverlay.querySelector('#j-meta').value,
       body: modalOverlay.querySelector('#j-body').value,
-      image: modalOverlay.querySelector('#j-image').value,
+      image: cleanImageUrl(modalOverlay.querySelector('#j-image').value),
       status: modalOverlay.querySelector('#j-status').value,
       featured: modalOverlay.querySelector('#j-featured').checked
     };
@@ -1666,16 +1657,16 @@ function openJournalModal(itemToEdit, rootContainer) {
     try {
       if (isEdit) {
         await updateJournalEntry(itemToEdit.id, data);
-        logActivity('TRANSMISSION UPDATED', `Updated transmission "${data.title}"`);
-        showAdminToast('✓ TRANSMISSION SAVED SUCCESSFULLY');
+        logActivity('YAZI GÜNCELLENDİ', `Yazı güncellendi: "${data.title}"`);
+        showAdminToast('✓ YAZI BAŞARIYLA GÜNCELLENDİ');
       } else {
         await addJournalEntry(data);
-        logActivity('TRANSMISSION CREATED', `Created transmission "${data.title}"`);
-        showAdminToast('✓ TRANSMISSION CREATED SUCCESSFULLY');
+        logActivity('YAZI OLUŞTURULDU', `Yeni yazı eklendi: "${data.title}"`);
+        showAdminToast('✓ YENİ YAZI BAŞARIYLA OLUŞTURULDU');
       }
     } catch (err) {
-      console.error('Error saving transmission:', err);
-      showAdminToast('⚠ Supabase sync error: ' + (err.message || 'Check RLS/Network'), 'danger');
+      console.error('Yazı kaydetme hatası:', err);
+      showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
     } finally {
       closeModal();
       renderAdminUpdates(rootContainer);
@@ -1692,14 +1683,14 @@ function openTransmissionPreviewModal(transmissionData) {
   modalOverlay.innerHTML = `
     <div class="admin-modal admin-modal-wide admin-preview-modal">
       <div class="admin-modal-header">
-        <h2 class="admin-modal-title">LIVE PUBLIC PREVIEW — /news</h2>
+        <h2 class="admin-modal-title">CANLI ÖNİZLEME — /news</h2>
         <button type="button" class="admin-modal-close">&times;</button>
       </div>
       <div class="admin-modal-body" style="background: #f5f3ee; color: #111113; padding: 2.5rem;">
         <div class="transmission-magazine-spread" style="margin: 0;">
           <div class="spread-left-col">
             <div class="spread-meta-header">
-              <span class="spread-cat">${escapeHtml(transmissionData.category || 'TRANSMISSION')}</span>
+              <span class="spread-cat">${escapeHtml(transmissionData.category || 'HABER')}</span>
               <span class="spread-date">${escapeHtml(transmissionData.date)}</span>
             </div>
             <h2 class="spread-title">${escapeHtml(transmissionData.title)}</h2>
@@ -1718,7 +1709,7 @@ function openTransmissionPreviewModal(transmissionData) {
         </div>
       </div>
       <div class="admin-modal-footer">
-        <button type="button" class="admin-btn admin-btn-secondary admin-modal-close-btn">CLOSE PREVIEW</button>
+        <button type="button" class="admin-btn admin-btn-secondary admin-modal-close-btn">ÖNİZLEMEYİ KAPAT</button>
       </div>
     </div>
   `;
@@ -1731,7 +1722,7 @@ function openTransmissionPreviewModal(transmissionData) {
 
 /**
  * --------------------------------------------------------------------------
- * MEDIA LIBRARY CMS VIEW (/admin/media)
+ * MEDYA KÜTÜPHANESİ GÖRÜNÜMÜ (/admin/media)
  * --------------------------------------------------------------------------
  */
 let mediaSearchQuery = '';
@@ -1757,15 +1748,15 @@ function renderAdminMedia(container) {
       <main class="admin-main-content">
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">Media Library</h1>
-            <p class="admin-page-desc">Centralized Image Assets Store for Tour, Music and Transmissions</p>
+            <h1 class="admin-page-title">Medya Kütüphanesi</h1>
+            <p class="admin-page-desc">Turne, Müzik ve Yazılar İçin Merkezi Görsel ve Dosya Deposu</p>
           </div>
-          <button id="btn-add-media" class="admin-btn admin-btn-primary">+ UPLOAD ASSET</button>
+          <button id="btn-add-media" class="admin-btn admin-btn-primary">+ YENİ MEDYA EKLE</button>
         </div>
 
         <div class="admin-toolbar">
           <div class="admin-search-box">
-            <input type="text" id="media-search-input" class="admin-input" placeholder="Search asset name or URL..." value="${escapeHtml(mediaSearchQuery)}" />
+            <input type="text" id="media-search-input" class="admin-input" placeholder="Dosya adı veya link ara..." value="${escapeHtml(mediaSearchQuery)}" />
           </div>
         </div>
 
@@ -1779,12 +1770,12 @@ function renderAdminMedia(container) {
                 <div class="media-name" title="${escapeHtml(item.name)}">${escapeHtml(item.name)}</div>
                 <div class="media-meta">${item.size} • ${item.dimensions}</div>
                 <div class="media-card-actions">
-                  <button type="button" class="admin-action-btn btn-copy-url" data-url="${escapeHtml(item.url)}">Copy URL</button>
-                  <button type="button" class="admin-action-btn btn-danger btn-delete-media" data-id="${item.id}">Delete</button>
+                  <button type="button" class="admin-action-btn btn-copy-url" data-url="${escapeHtml(item.url)}">Linki Kopyala</button>
+                  <button type="button" class="admin-action-btn btn-danger btn-delete-media" data-id="${item.id}">Sil</button>
                 </div>
               </div>
             </div>
-          `).join('') : '<div class="admin-empty-state">No media assets found.</div>'}
+          `).join('') : '<div class="admin-empty-state">Medya dosyası bulunamadı.</div>'}
         </div>
       </main>
     </div>
@@ -1808,8 +1799,8 @@ function renderAdminMedia(container) {
     btn.onclick = () => {
       const url = btn.getAttribute('data-url');
       navigator.clipboard.writeText(url).then(() => {
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.textContent = 'Copy URL', 2000);
+        btn.textContent = 'Kopyalandı!';
+        setTimeout(() => btn.textContent = 'Linki Kopyala', 2000);
       });
     };
   });
@@ -1831,23 +1822,23 @@ function openMediaUploadModal(rootContainer) {
   modalOverlay.innerHTML = `
     <div class="admin-modal">
       <div class="admin-modal-header">
-        <h2 class="admin-modal-title">UPLOAD MEDIA ASSET</h2>
+        <h2 class="admin-modal-title">YENİ MEDYA EKLE</h2>
         <button type="button" class="admin-modal-close">&times;</button>
       </div>
       <form id="media-upload-form">
         <div class="admin-modal-body">
           <div class="admin-form-group">
-            <label class="admin-label">Asset Title / Name*</label>
-            <input type="text" id="med-name" class="admin-input" placeholder="e.g. Concert Stage Photo" required />
+            <label class="admin-label">Medya Başlığı / Dosya Adı*</label>
+            <input type="text" id="med-name" class="admin-input" placeholder="Örn: Konser Sahne Fotoğrafı" required />
           </div>
           <div class="admin-form-group" style="margin-top: 1rem;">
-            <label class="admin-label">Image URL*</label>
+            <label class="admin-label">Görsel URL (Imgur veya direkt resim linki)*</label>
             <input type="url" id="med-url" class="admin-input" placeholder="https://..." required />
           </div>
         </div>
         <div class="admin-modal-footer">
-          <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-primary">SAVE ASSET</button>
+          <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">İptal</button>
+          <button type="submit" class="admin-btn admin-btn-primary">MEDYAYI KAYDET</button>
         </div>
       </form>
     </div>
@@ -1862,11 +1853,11 @@ function openMediaUploadModal(rootContainer) {
   form.onsubmit = (e) => {
     e.preventDefault();
     const name = modalOverlay.querySelector('#med-name').value;
-    const url = modalOverlay.querySelector('#med-url').value;
+    const url = cleanImageUrl(modalOverlay.querySelector('#med-url').value);
 
     addMediaItem({ name, url });
-    logActivity('MEDIA UPLOADED', `Uploaded media asset "${name}"`);
-    showAdminToast('✓ MEDIA ASSET UPLOADED SUCCESSFULLY');
+    logActivity('MEDYA EKLENDİ', `Yeni medya yüklendi: "${name}"`);
+    showAdminToast('✓ MEDYA DOSYASI BAŞARIYLA EKLENDİ');
     closeModal();
     renderAdminMedia(rootContainer);
   };
@@ -1880,7 +1871,7 @@ function openDeleteMediaModal(mediaItem, rootContainer) {
 
   const usageHTML = usage.length > 0 ? `
     <div class="admin-warning-box">
-      <strong>⚠️ WARNING: THIS ASSET IS CURRENTLY REFERENCED BY:</strong>
+      <strong>⚠️ DİKKAT: BU MEDYA ŞU ANDA AŞAĞIDAKİ ALANLARDA KULLANILMAKTADIR:</strong>
       <ul>
         ${usage.map(u => `<li>${escapeHtml(u)}</li>`).join('')}
       </ul>
@@ -1890,16 +1881,16 @@ function openDeleteMediaModal(mediaItem, rootContainer) {
   modalOverlay.innerHTML = `
     <div class="admin-modal">
       <div class="admin-modal-header">
-        <h2 class="admin-modal-title">DELETE MEDIA ASSET</h2>
+        <h2 class="admin-modal-title">MEDYAYI SİL</h2>
         <button type="button" class="admin-modal-close">&times;</button>
       </div>
       <div class="admin-modal-body">
-        <p>Are you sure you want to permanently delete asset <strong>"${escapeHtml(mediaItem.name)}"</strong>?</p>
+        <p><strong>"${escapeHtml(mediaItem.name)}"</strong> adlı medya dosyasını kalıcı olarak silmek istediğinize emin misiniz?</p>
         ${usageHTML}
       </div>
       <div class="admin-modal-footer">
-        <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">Cancel</button>
-        <button type="button" id="btn-confirm-delete-media" class="admin-btn admin-btn-danger">DELETE ASSET</button>
+        <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">İptal</button>
+        <button type="button" id="btn-confirm-delete-media" class="admin-btn admin-btn-danger">MEDYAYI SİL</button>
       </div>
     </div>
   `;
@@ -1911,8 +1902,8 @@ function openDeleteMediaModal(mediaItem, rootContainer) {
 
   modalOverlay.querySelector('#btn-confirm-delete-media').onclick = () => {
     deleteMediaItem(mediaItem.id);
-    logActivity('MEDIA DELETED', `Deleted media asset "${mediaItem.name}"`);
-    showAdminToast('✓ MEDIA ASSET DELETED', 'danger');
+    logActivity('MEDYA SİLİNDİ', `Medya dosyası silindi: "${mediaItem.name}"`);
+    showAdminToast('✓ MEDYA DOSYASI SİLİNDİ', 'danger');
     closeModal();
     renderAdminMedia(rootContainer);
   };
@@ -1920,91 +1911,7 @@ function openDeleteMediaModal(mediaItem, rootContainer) {
 
 /**
  * --------------------------------------------------------------------------
- * SYSTEM SETTINGS CMS VIEW (/admin/settings)
- * --------------------------------------------------------------------------
- */
-function renderAdminSettings(container) {
-  const settings = getSettings();
-
-  container.innerHTML = `
-    <div class="admin-cms-layout">
-      <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
-        <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
-      </div>
-
-      ${getAdminSidebarHTML('/admin/settings')}
-
-      <main class="admin-main-content">
-        <div class="admin-page-header">
-          <div>
-            <h1 class="admin-page-title">CMS System Settings</h1>
-            <p class="admin-page-desc">Global Site Configurations & Default Settings</p>
-          </div>
-        </div>
-
-        <form id="cms-settings-form" style="max-width: 650px;">
-          <div class="admin-form-group">
-            <label class="admin-label">Official Site Title</label>
-            <input type="text" id="set-title" class="admin-input" value="${escapeHtml(settings.siteTitle)}" required />
-          </div>
-
-          <div class="admin-form-group" style="margin-top: 1.25rem;">
-            <label class="admin-label">Artist / Band Name</label>
-            <input type="text" id="set-artist" class="admin-input" value="${escapeHtml(settings.artistName)}" required />
-          </div>
-
-          <div class="admin-form-group" style="margin-top: 1.25rem;">
-            <label class="admin-label">Contact / Booking Email</label>
-            <input type="email" id="set-email" class="admin-input" value="${escapeHtml(settings.contactEmail)}" required />
-          </div>
-
-          <div class="admin-form-group" style="margin-top: 1.5rem;">
-            <label class="admin-checkbox-label">
-              <input type="checkbox" id="set-maintenance" ${settings.maintenanceMode ? 'checked' : ''} />
-              <span>Enable Maintenance Mode (System Notice)</span>
-            </label>
-          </div>
-
-          <div style="margin-top: 2rem;">
-            <button type="submit" class="admin-btn admin-btn-primary">SAVE SYSTEM SETTINGS</button>
-            <span id="settings-saved-msg" class="admin-success-msg"></span>
-          </div>
-        </form>
-      </main>
-    </div>
-  `;
-
-  bindAdminNavEvents(container);
-
-  const form = container.querySelector('#cms-settings-form');
-  const msgEl = container.querySelector('#settings-saved-msg');
-
-  if (form) {
-    form.onsubmit = (e) => {
-      e.preventDefault();
-      const updated = {
-        siteTitle: container.querySelector('#set-title').value,
-        artistName: container.querySelector('#set-artist').value,
-        contactEmail: container.querySelector('#set-email').value,
-        maintenanceMode: container.querySelector('#set-maintenance').checked
-      };
-
-      saveSettings(updated);
-      logActivity('SETTINGS UPDATED', 'CMS System settings updated');
-      showAdminToast('✓ SYSTEM SETTINGS SAVED SUCCESSFULLY');
-
-      if (msgEl) {
-        msgEl.textContent = 'Settings saved successfully!';
-        setTimeout(() => msgEl.textContent = '', 3000);
-      }
-    };
-  }
-}
-
-/**
- * --------------------------------------------------------------------------
- * ABOUT PAGE CMS VIEW (/admin/about)
+ * HAKKIMIZDA & SLAYTLAR YÖNETİMİ GÖRÜNÜMÜ (/admin/about)
  * --------------------------------------------------------------------------
  */
 function renderAdminAbout(container) {
@@ -2022,22 +1929,22 @@ function renderAdminAbout(container) {
       <main class="admin-main-content">
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">About / WHØ CMS</h1>
-            <p class="admin-page-desc">Manage Cinematic Slideshow Images & Editorial Bio Paragraphs</p>
+            <h1 class="admin-page-title">Hakkımızda & Slayt Yönetimi</h1>
+            <p class="admin-page-desc">Sinematik Slayt Görselleri ve Biyografi Paragrafları</p>
           </div>
-          <button id="btn-add-slide" class="admin-btn admin-btn-primary">+ ADD SLIDE IMAGE</button>
+          <button id="btn-add-slide" class="admin-btn admin-btn-primary">+ YENİ SLAYT GÖRSELİ EKLE</button>
         </div>
 
         <div class="admin-content-section">
-          <h2 class="admin-section-subtitle">CINEMATIC HERO SLIDESHOW (${aboutData.slides.length} SLIDES)</h2>
+          <h2 class="admin-section-subtitle">SİNEMATİK SLAYT GÖRSELLERİ (${aboutData.slides.length} SLAYT)</h2>
           <div class="admin-table-container">
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>PREVIEW</th>
-                  <th>CAPTION</th>
-                  <th>SLIDE ID</th>
-                  <th>ACTIONS</th>
+                  <th>ÖNİZLEME</th>
+                  <th>AÇIKLAMA / BAŞLIK</th>
+                  <th>SLAYT ID</th>
+                  <th>İŞLEMLER</th>
                 </tr>
               </thead>
               <tbody>
@@ -2048,13 +1955,13 @@ function renderAdminAbout(container) {
         </div>
 
         <div class="admin-content-section" style="margin-top: 3rem;">
-          <h2 class="admin-section-subtitle">EDITORIAL BIOGRAPHY PARAGRAPHS</h2>
+          <h2 class="admin-section-subtitle">BİYOGRAFİ METNİ / PARAGRAFLAR</h2>
           <form id="about-bio-form">
             <div class="admin-form-group">
               <textarea id="about-bio-textarea" class="admin-input" rows="10" required>${escapeHtml(aboutData.bioParagraphs.join('\n\n'))}</textarea>
             </div>
             <div style="margin-top: 1rem;">
-              <button type="submit" class="admin-btn admin-btn-primary">SAVE BIOGRAPHY</button>
+              <button type="submit" class="admin-btn admin-btn-primary">BİYOGRAFİYİ KAYDET</button>
             </div>
           </form>
         </div>
@@ -2082,10 +1989,10 @@ function renderAdminAbout(container) {
       const id = btn.getAttribute('data-id');
       try {
         await deleteSlide(id);
-        logActivity('ABOUT SLIDE DELETED', `Deleted about slide ${id}`);
-        showAdminToast('✓ SLIDE DELETED', 'danger');
+        logActivity('SLAYT SİLİNDİ', `Slayt silindi: ${id}`);
+        showAdminToast('✓ SLAYT BAŞARIYLA SİLİNDİ', 'danger');
       } catch (err) {
-        showAdminToast('⚠ Slide silinirken hata: ' + (err.message || 'Supabase error'), 'danger');
+        showAdminToast('⚠ Slayt silinirken hata: ' + (err.message || 'Supabase hatası'), 'danger');
       }
       renderAdminAbout(container);
     };
@@ -2098,7 +2005,7 @@ function renderAdminAbout(container) {
       const submitBtn = bioForm.querySelector('button[type="submit"]');
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ SAVING...';
+        submitBtn.textContent = '⏳ KAYDEDİLİYOR...';
       }
 
       const rawText = container.querySelector('#about-bio-textarea').value;
@@ -2106,11 +2013,11 @@ function renderAdminAbout(container) {
 
       try {
         await updateBioParagraphs(paragraphs);
-        logActivity('ABOUT BIO UPDATED', 'Updated editorial biography text');
-        showAdminToast('✓ EDITORIAL BIOGRAPHY SAVED');
+        logActivity('BİYOGRAFİ GÜNCELLENDİ', 'Grup biyografi metni güncellendi');
+        showAdminToast('✓ BİYOGRAFİ METNİ BAŞARIYLA KAYDEDİLDİ');
       } catch (err) {
-        console.error('Bio update error:', err);
-        showAdminToast('⚠ Biography kaydedilemedi: ' + (err.message || 'Supabase error'), 'danger');
+        console.error('Biyografi kaydetme hatası:', err);
+        showAdminToast('⚠ Biyografi kaydedilemedi: ' + (err.message || 'Supabase hatası'), 'danger');
       } finally {
         renderAdminAbout(container);
       }
@@ -2120,17 +2027,17 @@ function renderAdminAbout(container) {
 
 function renderAboutSlideAdminRows(slides) {
   if (slides.length === 0) {
-    return `<tr><td colspan="4" class="admin-empty-cell">No slides in slideshow.</td></tr>`;
+    return `<tr><td colspan="4" class="admin-empty-cell">Henüz eklenmiş slayt görseli bulunmuyor.</td></tr>`;
   }
   return slides.map(slide => `
     <tr>
-      <td><img src="${slide.url}" class="admin-thumb-img" alt="Slide" /></td>
+      <td><img src="${slide.url}" class="admin-thumb-img" alt="Slayt" /></td>
       <td><strong>${escapeHtml(slide.caption)}</strong></td>
       <td><code>${slide.id}</code></td>
       <td>
         <div class="admin-action-btns">
-          <button class="admin-action-btn btn-edit-slide" data-id="${slide.id}">Edit</button>
-          <button class="admin-action-btn btn-danger btn-delete-slide" data-id="${slide.id}">Delete</button>
+          <button class="admin-action-btn btn-edit-slide" data-id="${slide.id}">Düzenle</button>
+          <button class="admin-action-btn btn-danger btn-delete-slide" data-id="${slide.id}">Sil</button>
         </div>
       </td>
     </tr>
@@ -2146,31 +2053,31 @@ function openSlideModal(slideItem, rootContainer) {
   modalOverlay.innerHTML = `
     <div class="admin-modal">
       <div class="admin-modal-header">
-        <h2 class="admin-modal-title">${isEdit ? 'EDIT SLIDE IMAGE' : 'ADD SLIDE IMAGE'}</h2>
+        <h2 class="admin-modal-title">${isEdit ? 'SLAYT GÖRSELİNİ DÜZENLE' : 'YENİ SLAYT GÖRSELİ EKLE'}</h2>
         <button type="button" class="admin-modal-close">&times;</button>
       </div>
       <form id="slide-form">
         <div class="admin-modal-body">
           <div class="admin-form-group">
-            <label class="admin-label">Image URL (Imgur veya direkt görsel linki)*</label>
+            <label class="admin-label">Görsel URL (Imgur veya doğrudan resim bağlantısı)*</label>
             <input type="url" id="slide-url" class="admin-input" value="${escapeHtml(initialUrl)}" placeholder="https://i.imgur.com/... veya https://imgur.com/..." required />
             <p class="admin-input-help" style="font-size: 0.75rem; color: #888; margin-top: 4px;">Imgur sayfa linkleri otomatik olarak direkt resim linkine dönüştürülür.</p>
           </div>
           <div class="admin-form-group" style="margin-top: 1rem;">
-            <label class="admin-label">Caption / Tagline*</label>
-            <input type="text" id="slide-caption" class="admin-input" value="${slideItem ? escapeHtml(slideItem.caption) : ''}" placeholder="e.g. STUDIO TRANSMISSIONS" required />
+            <label class="admin-label">Başlık / Açıklama*</label>
+            <input type="text" id="slide-caption" class="admin-input" value="${slideItem ? escapeHtml(slideItem.caption) : ''}" placeholder="Örn: STÜDYO KAYITLARI" required />
           </div>
           <div class="admin-form-group" style="margin-top: 1rem;">
             <label class="admin-label">Görsel Önizleme</label>
             <div class="admin-img-preview-box" style="width: 100%; height: 160px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; position: relative;">
-              <img id="slide-preview-img" src="${initialUrl}" style="width: 100%; height: 100%; object-fit: cover; ${initialUrl ? '' : 'display: none;'}" alt="Slide Preview" />
+              <img id="slide-preview-img" src="${initialUrl}" style="width: 100%; height: 100%; object-fit: cover; ${initialUrl ? '' : 'display: none;'}" alt="Slayt Önizleme" />
               <span id="slide-preview-placeholder" style="color: #666; font-size: 0.78rem; font-family: monospace; ${initialUrl ? 'display: none;' : ''}">// GÖRSEL ÖNİZLEMESİ</span>
             </div>
           </div>
         </div>
         <div class="admin-modal-footer">
-          <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-primary">SAVE SLIDE</button>
+          <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">İptal</button>
+          <button type="submit" class="admin-btn admin-btn-primary">SLAYTI KAYDET</button>
         </div>
       </form>
     </div>
@@ -2232,7 +2139,7 @@ function openSlideModal(slideItem, rootContainer) {
     const submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ SAVING...';
+      submitBtn.textContent = '⏳ KAYDEDİLİYOR...';
     }
 
     const rawUrl = urlInput.value.trim();
@@ -2242,16 +2149,16 @@ function openSlideModal(slideItem, rootContainer) {
     try {
       if (isEdit) {
         await updateSlide(slideItem.id, { url: cleanedUrl, caption });
-        logActivity('ABOUT SLIDE UPDATED', `Updated slide ${slideItem.id}`);
-        showAdminToast('✓ SLIDE IMAGE SAVED');
+        logActivity('SLAYT GÜNCELLENDİ', `Slayt güncellendi: ${slideItem.id}`);
+        showAdminToast('✓ SLAYT GÖRSELİ GÜNCELLENDİ');
       } else {
         await addSlide({ url: cleanedUrl, caption });
-        logActivity('ABOUT SLIDE CREATED', `Added new slide "${caption}"`);
-        showAdminToast('✓ NEW SLIDE CREATED');
+        logActivity('SLAYT EKLENDİ', `Yeni slayt eklendi: "${caption}"`);
+        showAdminToast('✓ YENİ SLAYT BAŞARIYLA OLUŞTURULDU');
       }
     } catch (err) {
-      console.error('Error saving slide:', err);
-      showAdminToast('⚠ Supabase sync error: ' + (err.message || 'Check RLS/Network'), 'danger');
+      console.error('Slayt kaydetme hatası:', err);
+      showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
     } finally {
       closeModal();
       renderAdminAbout(rootContainer);
@@ -2261,7 +2168,7 @@ function openSlideModal(slideItem, rootContainer) {
 
 /**
  * --------------------------------------------------------------------------
- * SOCIAL LINKS CMS VIEW (/admin/socials)
+ * SOSYAL MEDYA LİNKLERİ GÖRÜNÜMÜ (/admin/socials)
  * --------------------------------------------------------------------------
  */
 function renderAdminSocials(container) {
@@ -2279,10 +2186,10 @@ function renderAdminSocials(container) {
       <main class="admin-main-content">
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">Social Links Management</h1>
-            <p class="admin-page-desc">Manage Header & Footer Social Icons, Labels and External URLs</p>
+            <h1 class="admin-page-title">Sosyal Medya Linkleri</h1>
+            <p class="admin-page-desc">Header ve Footer Sosyal Medya İkonları ve Linkleri</p>
           </div>
-          <button id="btn-add-social" class="admin-btn admin-btn-primary">+ ADD SOCIAL LINK</button>
+          <button id="btn-add-social" class="admin-btn admin-btn-primary">+ YENİ SOSYAL MEDYA LİNKİ EKLE</button>
         </div>
 
         <div class="admin-table-container">
@@ -2291,8 +2198,8 @@ function renderAdminSocials(container) {
               <tr>
                 <th>PLATFORM</th>
                 <th>URL</th>
-                <th>VISIBILITY</th>
-                <th>ACTIONS</th>
+                <th>GÖRÜNÜRLÜK</th>
+                <th>İŞLEMLER</th>
               </tr>
             </thead>
             <tbody>
@@ -2323,8 +2230,8 @@ function renderAdminSocials(container) {
     btn.onclick = () => {
       const id = btn.getAttribute('data-id');
       deleteSocialLink(id);
-      logActivity('SOCIAL LINK DELETED', `Deleted social link ${id}`);
-      showAdminToast('✓ SOCIAL LINK DELETED', 'danger');
+      logActivity('SOSYAL LİNK SİLİNDİ', `Sosyal medya linki silindi: ${id}`);
+      showAdminToast('✓ SOSYAL MEDYA LİNKİ SİLİNDİ', 'danger');
       renderAdminSocials(container);
     };
   });
@@ -2332,17 +2239,17 @@ function renderAdminSocials(container) {
 
 function renderSocialLinkAdminRows(links) {
   if (links.length === 0) {
-    return `<tr><td colspan="4" class="admin-empty-cell">No social links configured.</td></tr>`;
+    return `<tr><td colspan="4" class="admin-empty-cell">Henüz eklenmiş sosyal medya linki bulunmuyor.</td></tr>`;
   }
   return links.map(item => `
     <tr>
       <td><strong>${escapeHtml(item.platform)}</strong></td>
       <td><a href="${escapeHtml(item.url)}" target="_blank" class="admin-table-link">${escapeHtml(item.url)}</a></td>
-      <td><span class="admin-badge ${item.visible !== false ? 'badge-active' : 'badge-muted'}">${item.visible !== false ? 'ACTIVE' : 'HIDDEN'}</span></td>
+      <td><span class="admin-badge ${item.visible !== false ? 'badge-active' : 'badge-muted'}">${item.visible !== false ? 'AKTİF' : 'GİZLİ'}</span></td>
       <td>
         <div class="admin-action-btns">
-          <button class="admin-action-btn btn-edit-social" data-id="${item.id}">Edit</button>
-          <button class="admin-action-btn btn-danger btn-delete-social" data-id="${item.id}">Delete</button>
+          <button class="admin-action-btn btn-edit-social" data-id="${item.id}">Düzenle</button>
+          <button class="admin-action-btn btn-danger btn-delete-social" data-id="${item.id}">Sil</button>
         </div>
       </td>
     </tr>
@@ -2357,23 +2264,23 @@ function openSocialModal(item, rootContainer) {
   modalOverlay.innerHTML = `
     <div class="admin-modal">
       <div class="admin-modal-header">
-        <h2 class="admin-modal-title">${isEdit ? 'EDIT SOCIAL LINK' : 'ADD SOCIAL LINK'}</h2>
+        <h2 class="admin-modal-title">${isEdit ? 'SOSYAL MEDYA LİNKİNİ DÜZENLE' : 'YENİ SOSYAL MEDYA LİNKİ EKLE'}</h2>
         <button type="button" class="admin-modal-close">&times;</button>
       </div>
       <form id="social-form">
         <div class="admin-modal-body">
           <div class="admin-form-group">
-            <label class="admin-label">Platform Name*</label>
-            <input type="text" id="soc-platform" class="admin-input" value="${item ? escapeHtml(item.platform) : ''}" placeholder="e.g. Instagram" required />
+            <label class="admin-label">Platform Adı*</label>
+            <input type="text" id="soc-platform" class="admin-input" value="${item ? escapeHtml(item.platform) : ''}" placeholder="Örn: Instagram, Spotify, YouTube" required />
           </div>
           <div class="admin-form-group" style="margin-top: 1rem;">
-            <label class="admin-label">Full Profile URL*</label>
+            <label class="admin-label">Profil / Sayfa Bağlantısı (URL)*</label>
             <input type="url" id="soc-url" class="admin-input" value="${item ? escapeHtml(item.url) : ''}" placeholder="https://..." required />
           </div>
         </div>
         <div class="admin-modal-footer">
-          <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">Cancel</button>
-          <button type="submit" class="admin-btn admin-btn-primary">SAVE SOCIAL LINK</button>
+          <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">İptal</button>
+          <button type="submit" class="admin-btn admin-btn-primary">KAYDET</button>
         </div>
       </form>
     </div>
@@ -2392,12 +2299,12 @@ function openSocialModal(item, rootContainer) {
 
     if (isEdit) {
       updateSocialLink(item.id, { platform, url });
-      logActivity('SOCIAL LINK UPDATED', `Updated social link ${platform}`);
-      showAdminToast('✓ SOCIAL LINK SAVED');
+      logActivity('SOSYAL LİNK GÜNCELLENDİ', `Sosyal link güncellendi: ${platform}`);
+      showAdminToast('✓ SOSYAL MEDYA LİNKİ GÜNCELLENDİ');
     } else {
       addSocialLink({ platform, url });
-      logActivity('SOCIAL LINK CREATED', `Added social link ${platform}`);
-      showAdminToast('✓ NEW SOCIAL LINK CREATED');
+      logActivity('SOSYAL LİNK EKLENDİ', `Yeni sosyal link eklendi: ${platform}`);
+      showAdminToast('✓ YENİ SOSYAL MEDYA LİNKİ EKLENDİ');
     }
 
     closeModal();
@@ -2406,27 +2313,31 @@ function openSocialModal(item, rootContainer) {
 }
 
 /**
- * General Delete Confirmation Modal Helper
+ * Genel Silme Onayı Modalı
  */
 function openDeleteConfirmModal(item, type, rootContainer) {
   const modalOverlay = document.createElement('div');
   modalOverlay.className = 'admin-modal-backdrop';
 
-  const title = item.title || item.venue || item.name || 'Item';
+  const title = item.title || item.venue || item.name || 'Öğe';
+  let typeLabel = 'öğeyi';
+  if (type === 'TOUR') typeLabel = 'konser etkinliğini';
+  else if (type === 'RELEASE') typeLabel = 'müzik yayınını';
+  else if (type === 'TRANSMISSION') typeLabel = 'yazı kaydını';
 
   modalOverlay.innerHTML = `
     <div class="admin-modal">
       <div class="admin-modal-header">
-        <h2 class="admin-modal-title">DELETE CONFIRMATION</h2>
+        <h2 class="admin-modal-title">SİLME ONAYI</h2>
         <button type="button" class="admin-modal-close">&times;</button>
       </div>
       <div class="admin-modal-body">
-        <p>Are you sure you want to permanently delete ${type.toLowerCase()} <strong>"${escapeHtml(title)}"</strong>?</p>
-        <p class="admin-sub-text" style="margin-top: 0.5rem;">This action will immediately update the public website.</p>
+        <p><strong>"${escapeHtml(title)}"</strong> adlı ${typeLabel} kalıcı olarak silmek istediğinize emin misiniz?</p>
+        <p class="admin-sub-text" style="margin-top: 0.5rem;">Bu işlem geri alınamaz ve sitede anında güncellenir.</p>
       </div>
       <div class="admin-modal-footer">
-        <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">Cancel</button>
-        <button type="button" id="btn-confirm-delete" class="admin-btn admin-btn-danger">PERMANENTLY DELETE</button>
+        <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">İptal</button>
+        <button type="button" id="btn-confirm-delete" class="admin-btn admin-btn-danger">KALICI OLARAK SİL</button>
       </div>
     </div>
   `;
@@ -2439,18 +2350,18 @@ function openDeleteConfirmModal(item, type, rootContainer) {
   modalOverlay.querySelector('#btn-confirm-delete').onclick = async () => {
     if (type === 'TOUR') {
       await deleteTourEvent(item.id);
-      logActivity('TOUR EVENT DELETED', `Deleted tour event ${item.id}`);
-      showAdminToast('✓ TOUR EVENT DELETED', 'danger');
+      logActivity('KONSER SİLİNDİ', `Konser silindi: ${item.id}`);
+      showAdminToast('✓ KONSER ETKİNLİĞİ SİLİNDİ', 'danger');
       renderAdminTour(rootContainer);
     } else if (type === 'RELEASE') {
-      deleteRelease(item.id);
-      logActivity('RELEASE DELETED', `Deleted release "${title}"`);
-      showAdminToast('✓ RELEASE DELETED', 'danger');
+      await deleteRelease(item.id);
+      logActivity('YAYIN SİLİNDİ', `Müzik yayını silindi: "${title}"`);
+      showAdminToast('✓ MÜZİK YAYINI SİLİNDİ', 'danger');
       renderAdminMusic(rootContainer);
     } else if (type === 'TRANSMISSION') {
       await deleteJournalEntry(item.id);
-      logActivity('TRANSMISSION DELETED', `Deleted transmission "${title}"`);
-      showAdminToast('✓ TRANSMISSION DELETED', 'danger');
+      logActivity('YAZI SİLİNDİ', `Yazı kaydı silindi: "${title}"`);
+      showAdminToast('✓ YAZI KAYDI SİLİNDİ', 'danger');
       renderAdminUpdates(rootContainer);
     }
     closeModal();
@@ -2466,7 +2377,9 @@ function escapeHtml(str) {
 }
 
 /**
- * Render Admin Footer Management Screen
+ * --------------------------------------------------------------------------
+ * ALT BİLGİ (FOOTER) YÖNETİMİ GÖRÜNÜMÜ (/admin/footer)
+ * --------------------------------------------------------------------------
  */
 function renderAdminFooter(container) {
   const currentFooter = getFooterData();
@@ -2483,33 +2396,33 @@ function renderAdminFooter(container) {
       <main class="admin-main-content">
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">Footer Management</h1>
-            <p class="admin-page-desc">Global Footer Record Label, Tagline, and Legal Copyright Text</p>
+            <h1 class="admin-page-title">Alt Bilgi (Footer) Yönetimi</h1>
+            <p class="admin-page-desc">Plak Şirketi Telif Metni, Slogan ve Yasal Bildirimler</p>
           </div>
         </div>
 
         <div class="admin-form-container">
           <form id="admin-footer-form" class="admin-form">
             <div class="admin-form-group">
-              <label class="admin-label">RECORD LABEL LINE (LINE 1)</label>
-              <input type="text" id="footer-line1-input" class="admin-input" value="${escapeHtml(currentFooter.line1)}" required placeholder="e.g. © DEVIL'S GRIN RECORDS 2026" />
-              <p class="admin-input-help">Primary record label header line shown at the top of all footers.</p>
+              <label class="admin-label">PLAK ŞİRKETİ / TELİF SATIRI (SATIR 1)</label>
+              <input type="text" id="footer-line1-input" class="admin-input" value="${escapeHtml(currentFooter.line1)}" required placeholder="Örn: © DEVIL'S GRIN RECORDS 2026" />
+              <p class="admin-input-help">Tüm alt bilgilerin en üstünde yer alan birincil plak şirketi başlığı.</p>
             </div>
 
             <div class="admin-form-group">
-              <label class="admin-label">TAGLINE / QUOTE (LINE 2)</label>
-              <textarea id="footer-line2-input" class="admin-textarea" rows="2" required placeholder="e.g. MADE OF SIN">${escapeHtml(currentFooter.line2)}</textarea>
-              <p class="admin-input-help">Sub-header quote tagline shown directly under the record label line.</p>
+              <label class="admin-label">SLOGAN / ALINTI (SATIR 2)</label>
+              <textarea id="footer-line2-input" class="admin-textarea" rows="2" required placeholder="Örn: MADE OF SIN">${escapeHtml(currentFooter.line2)}</textarea>
+              <p class="admin-input-help">Plak şirketi satırının hemen altında yer alan alt başlık sloganı.</p>
             </div>
 
             <div class="admin-form-group">
-              <label class="admin-label">COPYRIGHT HOLDER LINE (LINE 4)</label>
-              <input type="text" id="footer-line4-input" class="admin-input" value="${escapeHtml(currentFooter.line4)}" required placeholder="e.g. © 2026 The Sinners" />
-              <p class="admin-input-help">Legal copyright notice line shown above the Privacy & Terms links.</p>
+              <label class="admin-label">TELİF HAKKI SAHİBİ SATIRI (SATIR 4)</label>
+              <input type="text" id="footer-line4-input" class="admin-input" value="${escapeHtml(currentFooter.line4)}" required placeholder="Örn: © 2026 The Sinners" />
+              <p class="admin-input-help">Gizlilik ve Koşullar linklerinin üstündeki yasal telif hakkı bildirimi.</p>
             </div>
 
             <div class="admin-form-actions">
-              <button type="submit" class="admin-btn admin-btn-primary">SAVE FOOTER SETTINGS</button>
+              <button type="submit" class="admin-btn admin-btn-primary">FOOTER AYARLARINI KAYDET</button>
             </div>
           </form>
         </div>
@@ -2533,8 +2446,92 @@ function renderAdminFooter(container) {
         line4
       });
 
-      logActivity('FOOTER UPDATED', `Updated record label "${line1}" & tagline`);
-      showAdminToast('✓ FOOTER SETTINGS SAVED', 'success');
+      logActivity('FOOTER GÜNCELLENDİ', `Alt bilgi güncellendi: "${line1}"`);
+      showAdminToast('✓ FOOTER AYARLARI BAŞARIYLA KAYDEDİLDİ', 'success');
+    });
+  }
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * GENEL SİTE AYARLARI GÖRÜNÜMÜ (/admin/settings)
+ * --------------------------------------------------------------------------
+ */
+function renderAdminSettings(container) {
+  const settings = getSettings();
+
+  container.innerHTML = `
+    <div class="admin-cms-layout">
+      <div class="admin-mobile-header">
+        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
+      </div>
+
+      ${getAdminSidebarHTML('/admin/settings')}
+
+      <main class="admin-main-content">
+        <div class="admin-page-header">
+          <div>
+            <h1 class="admin-page-title">Genel Site Ayarları</h1>
+            <p class="admin-page-desc">Site Başlığı, Grup Adı ve Sistem Tercihleri</p>
+          </div>
+        </div>
+
+        <form id="cms-settings-form" style="max-width: 650px;">
+          <div class="admin-form-group">
+            <label class="admin-label">Resmi Site Başlığı (Sekme Başlığı)</label>
+            <input type="text" id="set-title" class="admin-input" value="${escapeHtml(settings.siteTitle)}" required />
+          </div>
+
+          <div class="admin-form-group" style="margin-top: 1.25rem;">
+            <label class="admin-label">Sanatçı / Grup Adı</label>
+            <input type="text" id="set-artist" class="admin-input" value="${escapeHtml(settings.artistName)}" required />
+          </div>
+
+          <div class="admin-form-group" style="margin-top: 1.25rem;">
+            <label class="admin-label">İletişim & Booking E-Postası</label>
+            <input type="email" id="set-email" class="admin-input" value="${escapeHtml(settings.contactEmail)}" required />
+          </div>
+
+          <div class="admin-form-group" style="margin-top: 1.5rem;">
+            <label class="admin-checkbox-label">
+              <input type="checkbox" id="set-maintenance" ${settings.maintenanceMode ? 'checked' : ''} />
+              <span>Bakım Modunu Aktif Et (Sistem Bildirimi)</span>
+            </label>
+          </div>
+
+          <div style="margin-top: 2rem;">
+            <button type="submit" class="admin-btn admin-btn-primary">SİSTEM AYARLARINI KAYDET</button>
+            <span id="settings-saved-msg" class="admin-success-msg"></span>
+          </div>
+        </form>
+      </main>
+    </div>
+  `;
+
+  bindAdminNavEvents(container);
+
+  const form = container.querySelector('#cms-settings-form');
+  const msgEl = container.querySelector('#settings-saved-msg');
+
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const updated = {
+        siteTitle: container.querySelector('#set-title').value,
+        artistName: container.querySelector('#set-artist').value,
+        contactEmail: container.querySelector('#set-email').value,
+        maintenanceMode: container.querySelector('#set-maintenance').checked
+      };
+
+      saveSettings(updated);
+      logActivity('AYARLAR GÜNCELLENDİ', 'Genel sistem ayarları güncellendi');
+      showAdminToast('✓ SİSTEM AYARLARI BAŞARIYLA KAYDEDİLDİ');
+
+      if (msgEl) {
+        msgEl.textContent = 'Ayarlar başarıyla kaydedildi!';
+        setTimeout(() => msgEl.textContent = '', 3000);
+      }
     });
   }
 }

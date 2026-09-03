@@ -1,9 +1,9 @@
 /**
- * PARRHESIA MUSIC DATA SERVICE
- * Official Releases, Tracks, and Audio Streams Data Store.
+ * THE SINNERS MÜZİK VE DİSKOGRAFİ VERİ SERVİSİ
+ * Supabase `releases` ve `tracks` PostgreSQL Tabloları İle Canlı Entegrasyon.
  */
 
-const STORAGE_KEY = 'parrhesia_releases';
+import { supabase } from '../lib/supabase.js';
 
 export const INITIAL_RELEASES = [
   {
@@ -17,6 +17,10 @@ export const INITIAL_RELEASES = [
     description: 'The Sinners\' flagship 2026 dark alternative / gothic rock album featuring 8 raw, high-contrast tracks.',
     status: 'PUBLISHED',
     featured: true,
+    spotifyUrl: 'https://spotify.com',
+    appleUrl: 'https://apple.com',
+    youtubeUrl: 'https://youtube.com',
+    bandcampUrl: 'https://bandcamp.com',
     tracks: [
       { id: 'trk_101', title: 'Parrhesia!', duration: '03:56', durationSec: 236, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' },
       { id: 'trk_102', title: 'Wasn\'t Me', duration: '03:23', durationSec: 203, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', releaseId: 'rel_9mm_hate', releaseTitle: '9MM HATE', type: 'ALBUM' },
@@ -39,6 +43,10 @@ export const INITIAL_RELEASES = [
     description: 'Heavy guitar riffs and visceral vocals leading the Sanguivore Era.',
     status: 'PUBLISHED',
     featured: false,
+    spotifyUrl: '',
+    appleUrl: '',
+    youtubeUrl: '',
+    bandcampUrl: '',
     tracks: [
       { id: 'trk_201', title: 'Cruel', duration: '04:15', durationSec: 255, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3', releaseId: 'rel_cruel', releaseTitle: 'CRUEL', type: 'SINGLE' },
       { id: 'trk_202', title: 'Cruel (Instrumental)', duration: '04:15', durationSec: 255, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', releaseId: 'rel_cruel', releaseTitle: 'CRUEL', type: 'SINGLE' }
@@ -55,6 +63,10 @@ export const INITIAL_RELEASES = [
     description: 'Atmospheric post-punk anthem with sweeping synth basslines.',
     status: 'PUBLISHED',
     featured: false,
+    spotifyUrl: '',
+    appleUrl: '',
+    youtubeUrl: '',
+    bandcampUrl: '',
     tracks: [
       { id: 'trk_301', title: 'It\'s the Way', duration: '03:48', durationSec: 228, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3', releaseId: 'rel_its_the_way', releaseTitle: 'IT\'S THE WAY', type: 'SINGLE' }
     ]
@@ -70,6 +82,10 @@ export const INITIAL_RELEASES = [
     description: 'The foundational 3-track EP defining The Sinners\' signature gothic sound.',
     status: 'PUBLISHED',
     featured: false,
+    spotifyUrl: '',
+    appleUrl: '',
+    youtubeUrl: '',
+    bandcampUrl: '',
     tracks: [
       { id: 'trk_401', title: 'Survive', duration: '04:02', durationSec: 242, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3', releaseId: 'rel_survive', releaseTitle: 'SURVIVE', type: 'EP' },
       { id: 'trk_402', title: 'Darkness Echoes', duration: '03:50', durationSec: 230, audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3', releaseId: 'rel_survive', releaseTitle: 'SURVIVE', type: 'EP' },
@@ -78,51 +94,155 @@ export const INITIAL_RELEASES = [
   }
 ];
 
-export const RELEASES = getReleases();
+let inMemoryReleases = [...INITIAL_RELEASES];
 
-export function getReleases() {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_RELEASES));
-    return INITIAL_RELEASES;
-  }
+export const RELEASES = inMemoryReleases;
+
+/**
+ * Supabase `releases` ve `tracks` tablolarından verileri çeker
+ */
+export async function fetchMusicFromSupabase() {
+  if (!supabase) return inMemoryReleases;
+
   try {
-    const parsed = JSON.parse(stored);
-    if (!Array.isArray(parsed) || parsed.length === 0 || !parsed[0].tracks || parsed[0].tracks.length === 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_RELEASES));
-      return INITIAL_RELEASES;
+    const { data: releasesData, error: relError } = await supabase
+      .from('releases')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (relError) {
+      console.warn('Supabase releases tablosu okunamadı:', relError.message);
+      return inMemoryReleases;
     }
-    let updated = false;
-    parsed.forEach(rel => {
-      if (rel.artist === 'PARRHESIA') {
-        rel.artist = 'THE SINNERS';
-        updated = true;
-      }
-      if (rel.description && rel.description.includes('Parrhesia')) {
-        rel.description = rel.description.replace(/Parrhesia/g, 'The Sinners');
-        updated = true;
-      }
-    });
-    if (updated) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+
+    const { data: tracksData, error: trkError } = await supabase
+      .from('tracks')
+      .select('*')
+      .order('track_order', { ascending: true });
+
+    if (trkError) {
+      console.warn('Supabase tracks tablosu okunamadı:', trkError.message);
     }
-    return parsed;
-  } catch (e) {
-    console.error('Error parsing music releases:', e);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_RELEASES));
-    return INITIAL_RELEASES;
+
+    if (releasesData && releasesData.length > 0) {
+      inMemoryReleases = releasesData.map(r => {
+        const matchingTracks = (tracksData || [])
+          .filter(t => t.release_id === r.id || t.releaseId === r.id)
+          .map(t => ({
+            id: t.id,
+            title: t.title,
+            duration: t.duration,
+            durationSec: t.duration_sec || 210,
+            audioUrl: t.audio_url,
+            releaseId: r.id,
+            releaseTitle: r.title,
+            type: r.type,
+            trackOrder: t.track_order || 1
+          }));
+
+        return {
+          id: r.id,
+          title: r.title,
+          artist: r.artist || 'THE SINNERS',
+          year: r.year || '',
+          releaseDate: r.release_date || '',
+          type: r.type || 'SINGLE',
+          coverUrl: r.cover_url || '',
+          description: r.description || '',
+          status: r.status || 'PUBLISHED',
+          featured: !!r.featured,
+          spotifyUrl: r.spotify_url || '',
+          appleUrl: r.apple_url || '',
+          youtubeUrl: r.youtube_url || '',
+          bandcampUrl: r.bandcamp_url || '',
+          tracks: matchingTracks
+        };
+      });
+
+      window.dispatchEvent(new CustomEvent('music-data-updated'));
+    }
+  } catch (err) {
+    console.error('Supabase Müzik Veri Çekme Hatası:', err);
   }
+
+  return inMemoryReleases;
 }
 
-export function saveReleases(releases) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(releases));
+// Uygulama başlangıcında Supabase'den çek
+fetchMusicFromSupabase();
+
+export function getReleases() {
+  return inMemoryReleases;
+}
+
+/**
+ * Doğrudan Supabase `tracks` tablosundan şarkıyı siler
+ */
+export async function deleteTrack(trackId) {
+  if (supabase) {
+    try {
+      const { error } = await supabase
+        .from('tracks')
+        .delete()
+        .eq('id', trackId);
+
+      if (error) {
+        console.error('Supabase track silme hatası:', error);
+      } else {
+        console.log('Supabase Şarkı Başarıyla Silindi:', trackId);
+      }
+    } catch (err) {
+      console.error('Supabase track delete exception:', err);
+    }
+  }
+
+  // Yerel hafızadaki state'den de hemen çıkar
+  inMemoryReleases.forEach(rel => {
+    if (rel.tracks) {
+      rel.tracks = rel.tracks.filter(t => t.id !== trackId);
+    }
+  });
+
   window.dispatchEvent(new CustomEvent('music-data-updated'));
 }
 
-export function addRelease(releaseData) {
-  const releases = getReleases();
+/**
+ * Doğrudan Supabase `releases` ve bağlı `tracks` kayıtlarını siler
+ */
+export async function deleteRelease(id) {
+  if (supabase) {
+    try {
+      // Önce tracks tablosundaki şarkıları sil
+      await supabase.from('tracks').delete().eq('release_id', id);
+      
+      // Ardından releases tablosundan albümü sil
+      const { error } = await supabase
+        .from('releases')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Supabase release silme hatası:', error);
+      } else {
+        console.log('Supabase Yayın Başarıyla Silindi:', id);
+      }
+    } catch (err) {
+      console.error('Supabase release delete exception:', err);
+    }
+  }
+
+  inMemoryReleases = inMemoryReleases.filter(r => r.id !== id);
+  window.dispatchEvent(new CustomEvent('music-data-updated'));
+}
+
+/**
+ * Yeni Albüm / Single ve şarkılarını Supabase'e ekler
+ */
+export async function addRelease(releaseData) {
+  const newId = releaseData.id || ('rel_' + Date.now());
+
   const newRelease = {
-    id: 'rel_' + Date.now(),
+    id: newId,
     title: releaseData.title || 'UNTITLED RELEASE',
     artist: releaseData.artist || 'THE SINNERS',
     year: releaseData.year || new Date().getFullYear().toString(),
@@ -132,43 +252,152 @@ export function addRelease(releaseData) {
     description: releaseData.description || '',
     status: releaseData.status || 'PUBLISHED',
     featured: releaseData.featured || false,
-    tracks: releaseData.tracks || []
+    spotifyUrl: releaseData.spotifyUrl || '',
+    appleUrl: releaseData.appleUrl || '',
+    youtubeUrl: releaseData.youtubeUrl || '',
+    bandcampUrl: releaseData.bandcampUrl || '',
+    tracks: (releaseData.tracks || []).map((t, idx) => ({
+      id: t.id || ('trk_' + (Date.now() + idx)),
+      title: t.title || 'Yeni Şarkı',
+      duration: t.duration || '03:30',
+      durationSec: t.durationSec || 210,
+      audioUrl: t.audioUrl || '',
+      releaseId: newId,
+      releaseTitle: releaseData.title || 'UNTITLED RELEASE',
+      type: releaseData.type || 'SINGLE',
+      trackOrder: idx + 1
+    }))
   };
 
-  if (newRelease.featured) {
-    releases.forEach(r => r.featured = false);
+  if (supabase) {
+    try {
+      if (newRelease.featured) {
+        await supabase.from('releases').update({ featured: false }).neq('id', newId);
+      }
+
+      const { error: relError } = await supabase.from('releases').insert([{
+        id: newRelease.id,
+        title: newRelease.title,
+        artist: newRelease.artist,
+        year: newRelease.year,
+        release_date: newRelease.releaseDate,
+        type: newRelease.type,
+        cover_url: newRelease.coverUrl,
+        description: newRelease.description,
+        status: newRelease.status,
+        featured: newRelease.featured
+      }]);
+
+      if (relError) console.error('Supabase addRelease error:', relError);
+
+      if (newRelease.tracks.length > 0) {
+        const tracksToInsert = newRelease.tracks.map((t, idx) => ({
+          id: t.id,
+          release_id: newId,
+          title: t.title,
+          duration: t.duration,
+          duration_sec: t.durationSec || 210,
+          audio_url: t.audioUrl,
+          track_order: idx + 1
+        }));
+
+        const { error: trkError } = await supabase.from('tracks').insert(tracksToInsert);
+        if (trkError) console.error('Supabase addTracks error:', trkError);
+      }
+    } catch (err) {
+      console.error('Supabase addRelease exception:', err);
+    }
   }
 
-  releases.unshift(newRelease);
-  saveReleases(releases);
+  if (newRelease.featured) {
+    inMemoryReleases.forEach(r => r.featured = false);
+  }
+
+  inMemoryReleases.unshift(newRelease);
+  window.dispatchEvent(new CustomEvent('music-data-updated'));
   return newRelease;
 }
 
-export function updateRelease(id, updatedData) {
-  const releases = getReleases();
-  const index = releases.findIndex(r => r.id === id);
-  if (index !== -1) {
-    if (updatedData.featured) {
-      releases.forEach(r => r.featured = false);
-    }
-    releases[index] = { ...releases[index], ...updatedData };
-    saveReleases(releases);
-    return releases[index];
-  }
-  return null;
-}
+/**
+ * Varolan Albüm ve şarkılarını Supabase üzerinde günceller / silinen şarkıları siler
+ */
+export async function updateRelease(id, updatedData, deletedTrackIds = []) {
+  const index = inMemoryReleases.findIndex(r => r.id === id);
+  if (index === -1) return null;
 
-export function deleteRelease(id) {
-  let releases = getReleases();
-  releases = releases.filter(r => r.id !== id);
-  saveReleases(releases);
+  // Silinmesi istenen şarkıları doğrudan Supabase tracks tablosundan sil
+  if (deletedTrackIds && deletedTrackIds.length > 0) {
+    for (const trackId of deletedTrackIds) {
+      await deleteTrack(trackId);
+    }
+  }
+
+  if (supabase) {
+    try {
+      if (updatedData.featured) {
+        await supabase.from('releases').update({ featured: false }).neq('id', id);
+      }
+
+      const releasePayload = {};
+      if (updatedData.title !== undefined) releasePayload.title = updatedData.title;
+      if (updatedData.artist !== undefined) releasePayload.artist = updatedData.artist;
+      if (updatedData.year !== undefined) releasePayload.year = updatedData.year;
+      if (updatedData.releaseDate !== undefined) releasePayload.release_date = updatedData.releaseDate;
+      if (updatedData.type !== undefined) releasePayload.type = updatedData.type;
+      if (updatedData.coverUrl !== undefined) releasePayload.cover_url = updatedData.coverUrl;
+      if (updatedData.description !== undefined) releasePayload.description = updatedData.description;
+      if (updatedData.status !== undefined) releasePayload.status = updatedData.status;
+      if (updatedData.featured !== undefined) releasePayload.featured = updatedData.featured;
+
+      if (Object.keys(releasePayload).length > 0) {
+        const { error: relError } = await supabase
+          .from('releases')
+          .update(releasePayload)
+          .eq('id', id);
+        if (relError) console.error('Supabase updateRelease error:', relError);
+      }
+
+      // Güncellenen veya yeni eklenen şarkıları kaydet
+      if (updatedData.tracks) {
+        for (let i = 0; i < updatedData.tracks.length; i++) {
+          const t = updatedData.tracks[i];
+          const trackPayload = {
+            id: t.id || ('trk_' + Date.now() + '_' + i),
+            release_id: id,
+            title: t.title,
+            duration: t.duration || '03:30',
+            duration_sec: t.durationSec || 210,
+            audio_url: t.audioUrl || '',
+            track_order: i + 1
+          };
+
+          const { error: trkUpsertErr } = await supabase
+            .from('tracks')
+            .upsert(trackPayload, { onConflict: 'id' });
+
+          if (trkUpsertErr) {
+            console.error('Supabase track upsert error:', trkUpsertErr);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Supabase updateRelease exception:', err);
+    }
+  }
+
+  if (updatedData.featured) {
+    inMemoryReleases.forEach(r => r.featured = false);
+  }
+
+  inMemoryReleases[index] = { ...inMemoryReleases[index], ...updatedData };
+  window.dispatchEvent(new CustomEvent('music-data-updated'));
+  return inMemoryReleases[index];
 }
 
 // Helper to flatten all published tracks across releases for the Music Archive
 export function getAllTracks() {
-  const releases = getReleases();
   const tracks = [];
-  releases.forEach(rel => {
+  inMemoryReleases.forEach(rel => {
     if (rel.status === 'DRAFT') return;
     (rel.tracks || []).forEach(trk => {
       tracks.push({
