@@ -587,31 +587,31 @@ function renderPublicTourDates() {
 }
 
 function parseEditorialDate(dateStr) {
-  if (!dateStr) return { day: '00', month: 'OCT', year: '2026' };
+  if (!dateStr) return { day: '00', month: 'EKİ', year: '2026' };
   try {
     const d = new Date(dateStr + 'T00:00:00');
     const day = String(d.getDate()).padStart(2, '0');
-    const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-    const month = monthNames[d.getMonth()] || 'OCT';
+    const monthNames = ['OCA', 'ŞUB', 'MAR', 'NİS', 'MAY', 'HAZ', 'TEM', 'AĞU', 'EYL', 'EKİ', 'KAS', 'ARA'];
+    const month = monthNames[d.getMonth()] || 'EKİ';
     const year = d.getFullYear();
     return { day, month, year };
   } catch (e) {
-    return { day: '24', month: 'OCT', year: '2026' };
+    return { day: '24', month: 'EKİ', year: '2026' };
   }
 }
 
 function formatExactTourDate(dateStr) {
-  if (!dateStr) return 'August 14, 2026';
+  if (!dateStr) return '14 Ağustos 2026';
   try {
     const d = new Date(dateStr + 'T00:00:00');
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
     ];
-    const month = monthNames[d.getMonth()] || 'August';
+    const month = monthNames[d.getMonth()] || 'Ağustos';
     const day = d.getDate();
     const year = d.getFullYear();
-    return `${month} ${day}, ${year}`;
+    return `${day} ${month} ${year}`;
   } catch (e) {
     return dateStr;
   }
@@ -1158,13 +1158,7 @@ let ghostTextTimer = null;
 let ghostTextActiveTimeouts = [];
 
 const GHOST_WORDS_POOL = [
-  '9mm Hate',
-  'For the Night',
-  'Way to Heaven',
-  'Betrayal',
-  'Parrhesia',
-  'I am Not Okay',
-  'Silence'
+  'The Sinners'
 ];
 
 const RANDOM_QUADRANTS = [
