@@ -1,6 +1,6 @@
 /**
- * BARRIERSIA MERCH STORE APPLICATION ENGINE
- * High-Fashion Brutalist E-Commerce Engine & Reactive Store UI
+ * THE SINNERS — SANGUIVORE VAULT (MERCH STORE ENGINE)
+ * High-Animation Gothic Occult & Brutalist Merch Experience
  */
 import {
   getProducts,
@@ -25,7 +25,7 @@ let isCartOpen = false;
 let isSearchOpen = false;
 
 /**
- * Initialize and Mount Store to container element
+ * Initialize and Mount Gothic Merch Store to container element
  */
 export function mountMerchStore(container) {
   if (!container) return;
@@ -35,6 +35,7 @@ export function mountMerchStore(container) {
   renderProductGrid();
   updateCartBadgeUI();
   initHeaderScrollListener();
+  init3DCardTiltEffect();
 }
 
 /**
@@ -42,30 +43,35 @@ export function mountMerchStore(container) {
  */
 function renderStoreSkeleton(container) {
   container.innerHTML = `
-    <!-- Controlled Analog Scanline Overlay -->
+    <!-- Gothic Occult Scanlines & Fog Background Atmosphere -->
     <div class="store-scanlines-overlay" aria-hidden="true"></div>
+    <div class="gothic-store-ambient-fog" aria-hidden="true">
+      <div class="gothic-fog-1"></div>
+      <div class="gothic-fog-2"></div>
+    </div>
 
-    <!-- 1. STORE HEADER & NAVIGATION -->
+    <!-- 1. GOTHIC STORE HEADER & NAVIGATION -->
     <header id="store-header" class="store-header">
       <div class="store-header-inner">
         <!-- Brand Group -->
         <div class="store-brand-group">
           <a href="/merch" class="store-brand-logo" data-store-route="/merch">
-            THE SINNERS
-            <span class="store-brand-badge">MAĞAZA</span>
+            <span class="gothic-sigil-icon">☠</span>
+            <span class="gothic-brand-text">THE SINNERS</span>
+            <span class="store-brand-badge">VAULT // FW26</span>
           </a>
           <a href="/" class="store-back-to-band" data-route="/">
             <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            GRUP SİTESİ
+            ANA SİTEYE DÖN
           </a>
         </div>
 
         <!-- Center Category Nav Links (Desktop) -->
         <ul class="store-nav-menu">
-          <li><a class="store-nav-link ${activeCategory === 'ALL' ? 'active' : ''}" data-cat="ALL">TÜMÜ</a></li>
+          <li><a class="store-nav-link ${activeCategory === 'ALL' ? 'active' : ''}" data-cat="ALL"><span class="gothic-nav-cross">†</span> TÜMÜ</a></li>
           <li><a class="store-nav-link ${activeCategory === 'T-SHIRTS' ? 'active' : ''}" data-cat="T-SHIRTS">TİŞÖRT</a></li>
           <li><a class="store-nav-link ${activeCategory === 'HOODIES' ? 'active' : ''}" data-cat="HOODIES">KAPÜŞONLU</a></li>
-          <li><a class="store-nav-link ${activeCategory === 'VINYL' ? 'active' : ''}" data-cat="VINYL">PLAK</a></li>
+          <li><a class="store-nav-link ${activeCategory === 'VINYL' ? 'active' : ''}" data-cat="VINYL">12" PLAK</a></li>
           <li><a class="store-nav-link ${activeCategory === 'CASSETTES' ? 'active' : ''}" data-cat="CASSETTES">KASET</a></li>
           <li><a class="store-nav-link ${activeCategory === 'ACCESSORIES' ? 'active' : ''}" data-cat="ACCESSORIES">AKSESUAR</a></li>
         </ul>
@@ -76,7 +82,7 @@ function renderStoreSkeleton(container) {
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <span>ARA</span>
           </button>
-          <button id="store-cart-trigger" class="store-action-btn" title="Sepeti Görüntüle">
+          <button id="store-cart-trigger" class="store-action-btn gothic-cart-btn" title="Sepeti Görüntüle">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
             <span>SEPET</span>
             <span id="store-cart-count-badge" class="store-cart-badge">0</span>
@@ -86,96 +92,152 @@ function renderStoreSkeleton(container) {
       </div>
     </header>
 
-    <!-- 2. EDITORIAL HERO CAMPAIGN BANNER -->
-    <section class="store-hero">
-      <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1920&q=80" alt="The Sinners Koleksiyon" class="store-hero-bg" />
-      <div class="store-hero-overlay"></div>
-      <div class="store-hero-content">
-        <span class="store-hero-eyebrow">// RESMİ KOLEKSİYON VE ÜRÜNLER</span>
-        <h1 class="store-hero-title">THE SINNERS / MERCH</h1>
-        <p class="store-hero-desc">GİYİM / PLAKLAR / KASETLER / ÖZEL KOLEKSİYON PARÇALARI. YÜKSEK KALİTE EDİTORYAL TASARIMLAR VE SINIRLI FİZİKSEL BASKILAR.</p>
-        <a href="#store-vitrine" id="store-hero-shop-btn" class="store-hero-cta">KOLEKSİYONU İNCELE &rarr;</a>
+    <!-- 2. HIGH-ANIMATION DUAL GOTHIC MARQUEE TICKERS -->
+    <div class="gothic-marquee-container" aria-hidden="true">
+      <div class="gothic-marquee-row gothic-marquee-forward">
+        <div class="gothic-marquee-track">
+          <span>⚡ THE SINNERS MERCH ARCHIVE ⚡ LIMITED ARTIFACTS ⚡ WORLDWIDE DISPATCH ⚡ SIN REIGN ⚡ HEAVYWEIGHT COTTON ⚡ DARKROOM PROOFS ⚡ TYPE II CHROME ⚡ MADE OF SIN ⚡</span>
+          <span>⚡ THE SINNERS MERCH ARCHIVE ⚡ LIMITED ARTIFACTS ⚡ WORLDWIDE DISPATCH ⚡ SIN REIGN ⚡ HEAVYWEIGHT COTTON ⚡ DARKROOM PROOFS ⚡ TYPE II CHROME ⚡ MADE OF SIN ⚡</span>
+        </div>
+      </div>
+      <div class="gothic-marquee-row gothic-marquee-reverse">
+        <div class="gothic-marquee-track-rev">
+          <span>☠ 180G VINYL PRESSINGS ☠ SANGUIVORE ERA ☠ NO COMPROMISE ☠ LIMITED EDITION ☠ HEAVYWEIGHT STREETWEAR ☠ ANALOG TAPE ☠ OCCULT DESIGNS ☠</span>
+          <span>☠ 180G VINYL PRESSINGS ☠ SANGUIVORE ERA ☠ NO COMPROMISE ☠ LIMITED EDITION ☠ HEAVYWEIGHT STREETWEAR ☠ ANALOG TAPE ☠ OCCULT DESIGNS ☠</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. GOTHIC MASTHEAD & VAULT TITLE SECTION -->
+    <section class="gothic-masthead-section">
+      <div class="gothic-masthead-backdrop"></div>
+      <div class="gothic-masthead-content">
+        <div class="gothic-sigil-pulse">✦ ☩ ☠ ☩ ✦</div>
+        <h1 class="gothic-masthead-glitch-title" data-text="SANGUIVORE VAULT">
+          SANGUIVORE VAULT
+        </h1>
+        <div class="gothic-masthead-tech-strip">
+          <span class="gothic-tech-item">[ FW26 OFFICIAL ARTIFACTS ]</span>
+          <span class="gothic-tech-item">[ RAW HEAVYWEIGHT FABRIC ]</span>
+          <span class="gothic-tech-item">[ 100% ANALOG MEDIA ]</span>
+        </div>
       </div>
     </section>
 
-    <!-- 3. CATEGORY FILTER BAR -->
+    <!-- 4. GOTHIC BRUTALIST CATEGORY FILTER BAR -->
     <nav class="store-filter-bar" id="store-vitrine">
       <div class="store-filter-inner">
         <div class="store-categories-list">
           ${STORE_CATEGORIES.map(cat => `
-            <button class="store-cat-pill ${activeCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
-              ${cat.label}
+            <button class="store-cat-pill gothic-pill ${activeCategory === cat.id ? 'active' : ''}" data-cat="${cat.id}">
+              <span class="gothic-pill-bullet">†</span>
+              <span class="gothic-pill-label">${cat.label}</span>
             </button>
           `).join('')}
         </div>
-        <div id="store-results-counter" class="store-results-count">8 ÜRÜN GÖSTERİLİYOR</div>
+        <div id="store-results-counter" class="store-results-count gothic-counter-badge">
+          <span class="pulse-dot"></span>
+          <span id="store-counter-text">8 ARTIFACT GÖSTERİLİYOR</span>
+        </div>
       </div>
     </nav>
 
-    <!-- 4. PRODUCT VITRINE GRID -->
+    <!-- 5. DYNAMIC PRODUCT VITRINE GRID -->
     <main class="store-main-layout">
       <div id="store-products-feed" class="store-product-grid">
-        <!-- Dynamically rendered product cards -->
+        <!-- Dynamically rendered product cards with 3D and glitch states -->
       </div>
     </main>
 
-    <!-- 5. LIMITED DROP EDITORIAL CAMPAIGN BANNER -->
+    <!-- 6. HIGH-IMPACT LIMITED DROP GOTHIC BANNER -->
     <section class="store-drop-banner">
-      <div class="store-drop-card">
+      <div class="store-drop-card gothic-drop-card">
         <div class="store-drop-content">
-          <span class="store-drop-tag">// SINIRLI ÖZEL SERİ</span>
-          <h2 class="store-drop-title">MADE OF SIN</h2>
-          <p class="store-drop-desc">Kayıt dönemine özel ağır gramajlı giysiler ve analog kasetler. Özel antika detaylarla sınırlı sayıda üretim.</p>
-          <button class="store-hero-cta btn-drop-filter" data-cat="HOODIES">SERİYİ KEŞFET &rarr;</button>
+          <div class="gothic-blood-badge">[ SINIRLI ÖZEL SERİ // OCCULT DROP ]</div>
+          <h2 class="store-drop-title gothic-dripping-title">MADE OF SIN</h2>
+          <p class="store-drop-desc">
+            Sanguivore kayıt dönemine özel 380gsm ağır gramajlı giysiler, asit yıkama efektleri ve Type II analog kasetler. Her parça numaralandırılmış koleksiyonluk prova negatifi içerir.
+          </p>
+          <div class="gothic-drop-actions">
+            <button class="gothic-action-cta btn-drop-filter" data-cat="HOODIES">
+              <span>SERİYİ İNCELE</span>
+              <span class="gothic-cta-arrow">&rarr;</span>
+            </button>
+          </div>
         </div>
         <div class="store-drop-media">
+          <div class="gothic-frame-decor"></div>
           <img src="https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=1200&q=80" alt="Made of Sin Koleksiyonu" class="store-drop-img" />
         </div>
       </div>
     </section>
 
-    <!-- 6. PHYSICAL MEDIA COLLECTOR'S SECTION -->
+    <!-- 7. INTERACTIVE PHYSICAL MEDIA COLLECTOR'S SECTION -->
     <section class="store-media-section">
       <div class="store-media-header">
         <div>
-          <h2 class="store-media-title">FİZİKSEL ALBÜMLER</h2>
-          <span class="store-media-sub">PLAKLAR / KASETLER / ÖZEL BASKILAR</span>
+          <span class="gothic-media-tag">// ANALOG SOUND ARCHIVE</span>
+          <h2 class="store-media-title gothic-serif-title">FİZİKSEL ALBÜMLER & BASKILAR</h2>
+          <span class="store-media-sub">180G AĞIR PLAKLAR / KROM KASETLER / KARANLIK ODA PROVALARI</span>
         </div>
       </div>
       <div class="store-media-grid">
-        <!-- Vinyl Spotlight -->
-        <div class="store-media-card">
-          <img src="https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=800&q=80" alt="Plak" class="store-media-thumb" />
+        <!-- Vinyl Interactive Spotlight -->
+        <div class="store-media-card gothic-media-card vinyl-card-interactive">
+          <div class="vinyl-sleeve-wrapper">
+            <img src="https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=800&q=80" alt="Plak Kapak" class="store-media-thumb vinyl-sleeve-img" />
+            <div class="interactive-vinyl-disc" aria-hidden="true">
+              <div class="vinyl-grooves"></div>
+              <div class="vinyl-center-label">THE SINNERS</div>
+            </div>
+          </div>
           <div class="store-media-details">
-            <span class="store-card-category">12" LP PLAK // 180G</span>
+            <span class="store-card-category gothic-tech-tag">12" GATEFOLD LP // 180G VINYL</span>
             <h3 class="store-card-title">THE SINNERS — MADE OF SIN</h3>
             <div class="store-card-price" style="margin-bottom: 0.75rem;">€35</div>
-            <p style="font-size: 0.8rem; color: #8A8A8E; line-height: 1.6; margin-bottom: 1.5rem;">16 sayfalık büyük boy editoryal sanat kitapçığı içeren, çift açılır kapaklı 180g ağır plak baskısı.</p>
-            <button class="store-quick-add-btn btn-view-product" data-product-id="prod_vinyl_maybe_sin" style="margin-top: auto;">DETAYLARI GÖR &rarr;</button>
+            <p style="font-size: 0.8rem; color: #8A8A8E; line-height: 1.6; margin-bottom: 1.5rem;">
+              16 sayfalık büyük boy editoryal sanat kitapçığı ve karanlık oda negatif prova baskısı içeren, çift açılır kapaklı 180g ağır siyah plak baskısı.
+            </p>
+            <button class="store-quick-add-btn btn-view-product gothic-media-btn" data-product-id="prod_vinyl_maybe_sin" style="margin-top: auto;">
+              <span>ÜRÜN DETAYINI AÇ</span>
+              <span>&rarr;</span>
+            </button>
           </div>
         </div>
-        <!-- Cassette Spotlight -->
-        <div class="store-media-card">
-          <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=800&q=80" alt="Kaset" class="store-media-thumb" />
+        
+        <!-- Cassette Interactive Spotlight -->
+        <div class="store-media-card gothic-media-card cassette-card-interactive">
+          <div class="cassette-sleeve-wrapper">
+            <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=800&q=80" alt="Kaset" class="store-media-thumb" />
+            <div class="cassette-tape-overlay">
+              <div class="tape-reel reel-left"></div>
+              <div class="tape-reel reel-right"></div>
+            </div>
+          </div>
           <div class="store-media-details">
-            <span class="store-card-category">SINIRLI BASKI KASET</span>
+            <span class="store-card-category gothic-tech-tag">LIMITED CASSETTE // TYPE II CHROME</span>
             <h3 class="store-card-title">THE SINNERS — MADE OF SIN</h3>
             <div class="store-card-price" style="margin-bottom: 0.75rem;">€18</div>
-            <p style="font-size: 0.8rem; color: #8A8A8E; line-height: 1.6; margin-bottom: 1.5rem;">Dumanlı yarı şeffaf kaset gövdesi, Type II Krom bant, elle numaralandırılmış 200 adet sınırlı baskı.</p>
-            <button class="store-quick-add-btn btn-view-product" data-product-id="prod_cassette_maybe_sin" style="margin-top: auto;">DETAYLARI GÖR &rarr;</button>
+            <p style="font-size: 0.8rem; color: #8A8A8E; line-height: 1.6; margin-bottom: 1.5rem;">
+              Dumanlı yarı şeffaf kabuk, yüksek dinamik aralıklı Type II Krom manyetik bant, elle mühürlenmiş ve 200 adet ile sınırlandırılmış özel fiziksel baskı.
+            </p>
+            <button class="store-quick-add-btn btn-view-product gothic-media-btn" data-product-id="prod_cassette_maybe_sin" style="margin-top: auto;">
+              <span>ÜRÜN DETAYINI AÇ</span>
+              <span>&rarr;</span>
+            </button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 7. STORE FOOTER -->
+    <!-- 8. GOTHIC STORE FOOTER -->
     <footer class="store-footer">
       <div class="store-footer-inner">
         <div>
           <div class="store-footer-brand-title">THE SINNERS</div>
           <div class="store-footer-brand-sub">RESMİ ÜRÜN VE KOLEKSİYON MAĞAZASI</div>
-          <p style="font-size: 0.78rem; color: #666; max-width: 320px; line-height: 1.6;">
-            Doğrudan müzik grubundan sokak giyimi, plaklar, kasetler ve resmi koleksiyon ürünleri.
+          <p style="font-size: 0.78rem; color: #777; max-width: 320px; line-height: 1.6; margin-top: 0.5rem;">
+            Doğrudan müzik grubundan sokak giyimi, plaklar, kasetler ve resmi editoryal arşiv ürünleri.
           </p>
         </div>
 
@@ -212,15 +274,18 @@ function renderStoreSkeleton(container) {
 
       <div class="store-footer-bottom">
         <div>© 2026 THE SINNERS. TÜM HAKLARI SAKLIDIR.</div>
-        <div>UNDERGROUND İÇİN TASARLANDI VE ÜRETİLDİ</div>
+        <div class="gothic-footer-credo">UNDERGROUND SANAT & AYKIRI ESTETİK İÇİN ÜRETİLDİ</div>
       </div>
     </footer>
 
-    <!-- 8. SLIDE-OVER CART DRAWER -->
+    <!-- 9. GOTHIC SLIDE-OVER CART DRAWER -->
     <div id="store-cart-drawer-backdrop" class="store-cart-drawer-backdrop" aria-hidden="true">
-      <aside class="store-cart-drawer">
+      <aside class="store-cart-drawer gothic-cart-drawer">
         <div class="store-cart-header">
-          <h2 class="store-cart-title">SEPETİNİZ</h2>
+          <div class="gothic-cart-header-title">
+            <span class="gothic-cart-icon">☠</span>
+            <h2 class="store-cart-title">SEPETİNİZ</h2>
+          </div>
           <button id="store-cart-close-btn" class="store-cart-close" aria-label="Sepeti Kapat">&times;</button>
         </div>
 
@@ -234,20 +299,19 @@ function renderStoreSkeleton(container) {
       </aside>
     </div>
 
-    <!-- 9. FULLSCREEN SEARCH OVERLAY -->
+    <!-- 10. FULLSCREEN GOTHIC SEARCH OVERLAY -->
     <div id="store-search-overlay" class="store-search-overlay" aria-hidden="true">
       <div class="store-search-header">
-        <h2 class="store-search-heading">MAĞAZADA ARAYIN</h2>
+        <h2 class="store-search-heading gothic-serif-title">MAĞAZA ARŞİVİNDE ARAYIN</h2>
         <button id="store-search-close-btn" class="store-search-close" aria-label="Aramayı Kapat">&times;</button>
       </div>
       <div class="store-search-input-wrapper">
         <input 
           type="text" 
           id="store-search-input-field" 
-          class="store-search-input" 
-          placeholder="ÜRÜN, KATEGORİ VEYA KOLEKSİYON ARAYIN..." 
+          class="store-search-input gothic-search-input" 
+          placeholder="ÜRÜN, KATEGORİ VEYA KOLEKSİYON YAZIN..." 
           autocomplete="off" 
-          autofocus 
         />
       </div>
       <div id="store-search-results-feed" class="store-search-results-area">
@@ -255,23 +319,23 @@ function renderStoreSkeleton(container) {
       </div>
     </div>
 
-    <!-- 10. PRODUCT DETAIL MODAL / VIEW -->
+    <!-- 11. PRODUCT DETAIL MODAL / QUICK VIEW -->
     <div id="store-detail-modal-backdrop" class="store-modal-backdrop" aria-hidden="true">
-      <div id="store-detail-modal-content" class="store-detail-modal">
+      <div id="store-detail-modal-content" class="store-detail-modal gothic-detail-modal">
         <!-- Rendered detail view -->
       </div>
     </div>
 
-    <!-- 11. CHECKOUT PROTOTYPE CONFIRMATION MODAL -->
+    <!-- 12. CHECKOUT PROTOTYPE CONFIRMATION MODAL -->
     <div id="store-checkout-modal-backdrop" class="store-checkout-modal-backdrop" aria-hidden="true">
-      <div class="store-checkout-modal">
+      <div class="store-checkout-modal gothic-checkout-modal">
         <div class="store-checkout-icon">✓</div>
-        <h2 class="store-checkout-title">SİPARİŞ ÖNİZLEMESİ HAZIR</h2>
+        <h2 class="store-checkout-title gothic-serif-title">SİPARİŞ ÖNİZLEMESİ HAZIR</h2>
         <p class="store-checkout-text">
-          The Sinners Mağazasını ziyaret ettiğiniz için teşekkürler! Sepetinizdeki ürünler başarıyla doğrulandı, vergi ve teslimat detayları hesaplandı.
+          The Sinners Vault Mağazasını ziyaret ettiğiniz için teşekkürler! Sepetinizdeki ürünler başarıyla doğrulandı, vergi ve kargo detayları hesaplandı.
         </p>
-        <div id="store-checkout-summary-box" style="background:#050505; border:1px solid rgba(255,255,255,0.1); padding:1.25rem; margin-bottom:1.5rem; text-align:left; font-size:0.8rem;"></div>
-        <button id="store-checkout-modal-close" class="store-hero-cta" style="width:100%;">ALIŞVERİŞE DEVAM ET</button>
+        <div id="store-checkout-summary-box" class="gothic-checkout-summary"></div>
+        <button id="store-checkout-modal-close" class="gothic-action-cta" style="width:100%;">ALIŞVERİŞE DEVAM ET</button>
       </div>
     </div>
 
@@ -285,7 +349,7 @@ function renderStoreSkeleton(container) {
  */
 function renderProductGrid() {
   const feed = document.getElementById('store-products-feed');
-  const counter = document.getElementById('store-results-counter');
+  const counter = document.getElementById('store-counter-text');
   if (!feed) return;
 
   const allProducts = getProducts();
@@ -300,14 +364,14 @@ function renderProductGrid() {
   });
 
   if (counter) {
-    counter.textContent = `${filtered.length} ÜRÜN GÖSTERİLİYOR`;
+    counter.textContent = `${filtered.length} ARTIFACT GÖSTERİLİYOR`;
   }
 
   if (filtered.length === 0) {
     feed.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 5rem 2rem; color: #8A8A8E;">
         <p style="font-size: 0.9rem; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1.5rem;">ARAMANIZLA EŞLEŞEN ÜRÜN BULUNAMADI</p>
-        <button class="store-cat-pill active" id="btn-reset-filters">TÜM ÜRÜNLERİ GÖSTER</button>
+        <button class="store-cat-pill gothic-pill active" id="btn-reset-filters">TÜM ÜRÜNLERİ GÖSTER</button>
       </div>
     `;
     const resetBtn = document.getElementById('btn-reset-filters');
@@ -329,11 +393,11 @@ function renderProductGrid() {
 
     let badgeHTML = '';
     if (isSoldOut) {
-      badgeHTML = `<span class="store-card-badge badge-sold">TÜKENDİ</span>`;
+      badgeHTML = `<span class="store-card-badge badge-sold">☠ TÜKENDİ</span>`;
     } else if (isLowStock) {
-      badgeHTML = `<span class="store-card-badge badge-low">${prod.stockLabel || 'SON ADETLER'}</span>`;
+      badgeHTML = `<span class="store-card-badge badge-low">⚡ ${prod.stockLabel || 'SON ADETLER'}</span>`;
     } else {
-      badgeHTML = `<span class="store-card-badge">STOKTA VAR</span>`;
+      badgeHTML = `<span class="store-card-badge badge-live">● STOKTA</span>`;
     }
 
     const sizesHTML = (prod.sizes || []).map(s => {
@@ -353,22 +417,31 @@ function renderProductGrid() {
     }).join('');
 
     return `
-      <article class="store-card" data-product-id="${prod.id}">
-        <!-- Media / Images -->
+      <article class="store-card gothic-product-card" data-product-id="${prod.id}">
+        <!-- Media / Images with Glitch & 3D Layer -->
         <div class="store-card-media btn-open-detail" data-product-id="${prod.id}">
+          <div class="gothic-card-corner tl"></div>
+          <div class="gothic-card-corner tr"></div>
+          <div class="gothic-card-corner bl"></div>
+          <div class="gothic-card-corner br"></div>
           ${badgeHTML}
+          <div class="gothic-spec-stamp">[ ${prod.category} ]</div>
           <img src="${prod.primaryImage}" alt="${escapeHtml(prod.name)}" class="store-card-img" loading="lazy" />
           ${prod.secondaryImage ? `<img src="${prod.secondaryImage}" alt="${escapeHtml(prod.name)}" class="store-card-img store-card-img-secondary" loading="lazy" />` : ''}
+          <div class="gothic-scanline-glitch-layer" aria-hidden="true"></div>
         </div>
 
         <!-- Info Area -->
         <div class="store-card-info">
-          <span class="store-card-category">${prod.category}</span>
+          <div class="gothic-card-cat-row">
+            <span class="store-card-category">${prod.category}</span>
+            <span class="gothic-fw-tag">FW26 // RAW</span>
+          </div>
           <h3 class="store-card-title btn-open-detail" data-product-id="${prod.id}">${escapeHtml(prod.name)}</h3>
           
           <div class="store-card-price-row">
             <span class="store-card-price">${prod.currency}${prod.price}</span>
-            <span style="font-size: 0.68rem; color: #888; letter-spacing: 0.08em;">${prod.stockLabel}</span>
+            <span class="gothic-stock-meta">${prod.stockLabel}</span>
           </div>
 
           <!-- Size Selector -->
@@ -378,21 +451,53 @@ function renderProductGrid() {
             </div>
           ` : '<div style="margin-bottom: 0.5rem;"></div>'}
 
-          <!-- Quick Add Button -->
+          <!-- Quick Add Button with Blood Glow -->
           <div class="store-card-actions">
             <button 
               type="button" 
-              class="store-quick-add-btn btn-quick-add" 
+              class="store-quick-add-btn btn-quick-add gothic-quick-add" 
               data-product-id="${prod.id}" 
               ${isSoldOut ? 'disabled' : ''}
             >
-              ${isSoldOut ? 'TÜKENDİ' : '+ SEPETE EKLE'}
+              <span>${isSoldOut ? 'TÜKENDİ' : '+ SEPETE EKLE'}</span>
             </button>
           </div>
         </div>
       </article>
     `;
   }).join('');
+}
+
+/**
+ * 3D Card Tilt Micro-Animation on Mouse Move
+ */
+function init3DCardTiltEffect() {
+  const container = document.getElementById('store-products-feed');
+  if (!container) return;
+
+  container.addEventListener('mousemove', (e) => {
+    const card = e.target.closest('.gothic-product-card');
+    if (!card) return;
+
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -5;
+    const rotateY = ((x - centerX) / centerX) * 5;
+
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
+  });
+
+  container.addEventListener('mouseleave', (e) => {
+    const cards = container.querySelectorAll('.gothic-product-card');
+    cards.forEach(c => {
+      c.style.transform = '';
+    });
+  }, true);
 }
 
 /**
@@ -418,7 +523,10 @@ function openProductDetailModal(productId) {
     
     <!-- LEFT: GALLERY -->
     <div class="store-detail-gallery">
-      <img id="detail-active-img" src="${galleryImages[0]}" alt="${escapeHtml(prod.name)}" class="store-detail-main-img" />
+      <div class="detail-main-img-wrap">
+        <img id="detail-active-img" src="${galleryImages[0]}" alt="${escapeHtml(prod.name)}" class="store-detail-main-img" />
+        <div class="gothic-scanline-glitch-layer"></div>
+      </div>
       
       ${galleryImages.length > 1 ? `
         <div class="store-detail-thumbnails">
@@ -433,8 +541,8 @@ function openProductDetailModal(productId) {
 
     <!-- RIGHT: INFORMATION & PURCHASING -->
     <div class="store-detail-info">
-      <span class="store-detail-season">${prod.season || 'SONBAHAR/KIŞ 2026'}</span>
-      <h1 class="store-detail-title">${escapeHtml(prod.name)}</h1>
+      <span class="store-detail-season">${prod.season || 'SONBAHAR/KIŞ 2026 // VAULT EDITION'}</span>
+      <h1 class="store-detail-title gothic-serif-title">${escapeHtml(prod.name)}</h1>
       <div class="store-detail-price">${prod.currency}${prod.price} <span style="font-size:0.75rem; color:#888; font-weight:normal; letter-spacing:0.1em; margin-left:0.5rem;">KDV DAHİLDİR</span></div>
       
       <p class="store-detail-short-desc">${escapeHtml(prod.description)}</p>
@@ -470,10 +578,10 @@ function openProductDetailModal(productId) {
         <button 
           type="button" 
           id="detail-add-cart-btn" 
-          class="store-detail-add-btn" 
+          class="store-detail-add-btn gothic-action-cta" 
           ${prod.stockStatus === 'SOLD_OUT' ? 'disabled' : ''}
         >
-          ${prod.stockStatus === 'SOLD_OUT' ? 'TÜKENDİ' : 'SEPETE EKLE'}
+          <span>${prod.stockStatus === 'SOLD_OUT' ? 'TÜKENDİ' : 'SEPETE EKLE +'}</span>
         </button>
       </div>
 
@@ -482,7 +590,7 @@ function openProductDetailModal(productId) {
         <div class="store-accordion-item is-open">
           <button type="button" class="store-accordion-header">
             <span>ÜRÜN ÖZELLİKLERİ VE MATERYAL</span>
-            <span>+</span>
+            <span class="acc-symbol">+</span>
           </button>
           <div class="store-accordion-content" style="display:block;">
             <p>${escapeHtml(prod.material)}</p>
@@ -493,7 +601,7 @@ function openProductDetailModal(productId) {
         <div class="store-accordion-item">
           <button type="button" class="store-accordion-header">
             <span>BEDEN VE KALIP REHBERİ</span>
-            <span>+</span>
+            <span class="acc-symbol">+</span>
           </button>
           <div class="store-accordion-content">
             <p>${escapeHtml(prod.sizeGuide)}</p>
@@ -503,7 +611,7 @@ function openProductDetailModal(productId) {
         <div class="store-accordion-item">
           <button type="button" class="store-accordion-header">
             <span>KARGO VE TESLİMAT BİLGİSİ</span>
-            <span>+</span>
+            <span class="acc-symbol">+</span>
           </button>
           <div class="store-accordion-content">
             <p>${escapeHtml(prod.shippingInfo)}</p>
@@ -513,7 +621,7 @@ function openProductDetailModal(productId) {
         <div class="store-accordion-item">
           <button type="button" class="store-accordion-header">
             <span>İADE VE DEĞİŞİM KOŞULLARI</span>
-            <span>+</span>
+            <span class="acc-symbol">+</span>
           </button>
           <div class="store-accordion-content">
             <p>${escapeHtml(prod.returnsInfo)}</p>
@@ -602,174 +710,210 @@ function openProductDetailModal(productId) {
   });
 
   backdrop.classList.add('is-open');
-  backdrop.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 }
 
 function closeProductDetailModal() {
   const backdrop = document.getElementById('store-detail-modal-backdrop');
-  if (backdrop) {
-    backdrop.classList.remove('is-open');
-    backdrop.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
-  }
+  if (backdrop) backdrop.classList.remove('is-open');
+  document.body.style.overflow = '';
 }
 
 /**
- * Slide-over Cart Drawer Renderer
+ * Slide-Over Cart Drawer Controller
  */
-export function openCartDrawer() {
-  renderCartDrawerContents();
+function openCartDrawer() {
+  isCartOpen = true;
   const backdrop = document.getElementById('store-cart-drawer-backdrop');
   if (backdrop) {
     backdrop.classList.add('is-open');
-    backdrop.setAttribute('aria-hidden', 'false');
-    isCartOpen = true;
     document.body.style.overflow = 'hidden';
+    renderCartDrawer();
   }
 }
 
-export function closeCartDrawer() {
+function closeCartDrawer() {
+  isCartOpen = false;
   const backdrop = document.getElementById('store-cart-drawer-backdrop');
   if (backdrop) {
     backdrop.classList.remove('is-open');
-    backdrop.setAttribute('aria-hidden', 'true');
-    isCartOpen = false;
     document.body.style.overflow = '';
   }
 }
 
-function renderCartDrawerContents() {
+function renderCartDrawer() {
   const feed = document.getElementById('store-cart-items-feed');
   const footerArea = document.getElementById('store-cart-footer-area');
   if (!feed || !footerArea) return;
 
+  const cart = getCart();
   const summary = getCartSummary();
 
-  if (summary.items.length === 0) {
+  if (cart.length === 0) {
     feed.innerHTML = `
       <div class="store-cart-empty">
-        <div style="font-size:2.5rem; margin-bottom:1rem; opacity:0.3;">∅</div>
-        <div class="store-cart-empty-text">SEPETİNİZDE HENÜZ ÜRÜN BULUNMUYOR.</div>
-        <button type="button" class="store-cart-continue-btn" id="btn-cart-continue">
-          ALIŞVERİŞE DEVAM ET &rarr;
+        <div class="gothic-empty-cross">☠</div>
+        <p class="store-cart-empty-text">SEPETİNİZDE HENÜZ ÜRÜN BULUNMUYOR</p>
+        <button class="gothic-action-cta" id="btn-cart-empty-browse" style="margin-top:1.5rem;">
+          <span>ARŞİVİ KEŞFET</span>
         </button>
       </div>
     `;
     footerArea.innerHTML = '';
-
-    const continueBtn = document.getElementById('btn-cart-continue');
-    if (continueBtn) continueBtn.onclick = closeCartDrawer;
+    const browseBtn = document.getElementById('btn-cart-empty-browse');
+    if (browseBtn) {
+      browseBtn.onclick = () => {
+        closeCartDrawer();
+      };
+    }
     return;
   }
 
-  feed.innerHTML = summary.items.map(item => `
-    <div class="store-cart-item" data-cart-id="${item.id}">
-      <img src="${item.image}" alt="${escapeHtml(item.name)}" class="store-cart-item-img" />
-      <div class="store-cart-item-details">
-        <span class="store-cart-item-name">${escapeHtml(item.name)}</span>
-        <span class="store-cart-item-meta">BEDEN: ${item.size}</span>
-        <span class="store-cart-item-price">${item.currency}${item.price}</span>
-        <div class="store-cart-qty-ctrl">
-          <button type="button" class="store-cart-qty-btn btn-cart-minus" data-id="${item.id}">−</button>
-          <span class="store-cart-qty-count">${item.quantity}</span>
-          <button type="button" class="store-cart-qty-btn btn-cart-plus" data-id="${item.id}">+</button>
+  feed.innerHTML = cart.map(item => {
+    return `
+      <div class="store-cart-item gothic-cart-item" data-cart-key="${item.id}-${item.size}">
+        <img src="${item.primaryImage}" alt="${escapeHtml(item.name)}" class="store-cart-item-img" />
+        
+        <div class="store-cart-item-info">
+          <div class="store-cart-item-title">${escapeHtml(item.name)}</div>
+          <div class="store-cart-item-meta">BEDEN: <strong>${item.size}</strong> • ${item.currency}${item.price}</div>
+          
+          <div class="store-cart-item-controls">
+            <div class="store-qty-stepper-sm">
+              <button type="button" class="btn-cart-qty-minus" data-id="${item.id}" data-size="${item.size}">−</button>
+              <span class="store-qty-val-sm">${item.quantity}</span>
+              <button type="button" class="btn-cart-qty-plus" data-id="${item.id}" data-size="${item.size}">+</button>
+            </div>
+            
+            <button type="button" class="store-cart-remove-btn btn-cart-remove" data-id="${item.id}" data-size="${item.size}">
+              SİL
+            </button>
+          </div>
+        </div>
+
+        <div class="store-cart-item-total">
+          ${item.currency}${(item.price * item.quantity).toFixed(2)}
         </div>
       </div>
-      <button type="button" class="store-cart-remove-btn btn-cart-remove" data-id="${item.id}" title="Ürünü Kaldır">&times;</button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   footerArea.innerHTML = `
-    <div class="store-cart-summary-row">
+    <div class="store-cart-summary-line">
       <span>ARA TOPLAM</span>
-      <span>${summary.currency}${summary.subtotal.toFixed(2)}</span>
+      <span>€${summary.subtotal.toFixed(2)}</span>
     </div>
-    <div class="store-cart-summary-row">
+    <div class="store-cart-summary-line">
       <span>TAHMİNİ KARGO</span>
-      <span>${summary.shipping === 0 ? 'ÜCRETSİZ' : summary.currency + summary.shipping.toFixed(2)}</span>
+      <span>${summary.shipping === 0 ? '<strong style="color:#d92b2b;">ÜCRETSİZ</strong>' : '€' + summary.shipping.toFixed(2)}</span>
     </div>
-    <div class="store-cart-total-row">
-      <span>TOPLAM</span>
-      <span>${summary.currency}${summary.total.toFixed(2)}</span>
+    <div class="store-cart-summary-line total-line">
+      <span>GENEL TOPLAM</span>
+      <span class="gothic-cart-total">€${summary.total.toFixed(2)}</span>
     </div>
-    <button type="button" id="store-btn-checkout" class="store-checkout-btn">
-      SİPARİŞİ TAMAMLA &rarr;
+    <button id="btn-start-checkout" class="gothic-action-cta" style="width:100%; margin-top:1rem;">
+      <span>ÖDEMEYE GEÇ (CHECKOUT)</span>
+      <span>&rarr;</span>
     </button>
   `;
 
-  // Bind Steppers & Removal
-  feed.querySelectorAll('.btn-cart-minus').forEach(btn => {
-    btn.onclick = () => {
-      const id = btn.getAttribute('data-id');
-      updateCartQuantity(id, -1);
-      renderCartDrawerContents();
+  // Bind Steppers & Remove
+  feed.querySelectorAll('.btn-cart-qty-minus').forEach(b => {
+    b.onclick = () => {
+      const id = b.getAttribute('data-id');
+      const size = b.getAttribute('data-size');
+      const item = cart.find(x => x.id === id && x.size === size);
+      if (item) {
+        updateCartQuantity(id, size, item.quantity - 1);
+        renderCartDrawer();
+        updateCartBadgeUI();
+      }
+    };
+  });
+
+  feed.querySelectorAll('.btn-cart-qty-plus').forEach(b => {
+    b.onclick = () => {
+      const id = b.getAttribute('data-id');
+      const size = b.getAttribute('data-size');
+      const item = cart.find(x => x.id === id && x.size === size);
+      if (item) {
+        updateCartQuantity(id, size, item.quantity + 1);
+        renderCartDrawer();
+        updateCartBadgeUI();
+      }
+    };
+  });
+
+  feed.querySelectorAll('.btn-cart-remove').forEach(b => {
+    b.onclick = () => {
+      const id = b.getAttribute('data-id');
+      const size = b.getAttribute('data-size');
+      removeFromCart(id, size);
+      renderCartDrawer();
       updateCartBadgeUI();
     };
   });
 
-  feed.querySelectorAll('.btn-cart-plus').forEach(btn => {
-    btn.onclick = () => {
-      const id = btn.getAttribute('data-id');
-      updateCartQuantity(id, 1);
-      renderCartDrawerContents();
-      updateCartBadgeUI();
-    };
-  });
-
-  feed.querySelectorAll('.btn-cart-remove').forEach(btn => {
-    btn.onclick = () => {
-      const id = btn.getAttribute('data-id');
-      removeFromCart(id);
-      renderCartDrawerContents();
-      updateCartBadgeUI();
-      showStoreToast('Ürün sepetten kaldırıldı.');
-    };
-  });
-
-  // Checkout Prototype
-  const checkoutBtn = footerArea.querySelector('#store-btn-checkout');
+  const checkoutBtn = footerArea.querySelector('#btn-start-checkout');
   if (checkoutBtn) {
     checkoutBtn.onclick = () => {
-      openCheckoutPrototypeModal(summary);
+      closeCartDrawer();
+      openCheckoutConfirmationModal();
     };
-  }
-}
-
-function updateCartBadgeUI() {
-  const badge = document.getElementById('store-cart-count-badge');
-  if (badge) {
-    const summary = getCartSummary();
-    badge.textContent = summary.count;
-    badge.style.display = summary.count > 0 ? 'inline-block' : 'none';
   }
 }
 
 /**
- * Search Overlay Engine
+ * Open Checkout Confirmation Modal
+ */
+function openCheckoutConfirmationModal() {
+  const backdrop = document.getElementById('store-checkout-modal-backdrop');
+  const summaryBox = document.getElementById('store-checkout-summary-box');
+  if (!backdrop || !summaryBox) return;
+
+  const cart = getCart();
+  const summary = getCartSummary();
+
+  summaryBox.innerHTML = `
+    <div style="font-weight:bold; margin-bottom:0.75rem; color:#fff; font-family:var(--font-serif-editorial); letter-spacing:0.1em;">SEPET DETAYLARI (${summary.totalItems} PARÇA)</div>
+    ${cart.map(i => `
+      <div style="display:flex; justify-content:space-between; margin-bottom:0.4rem; color:#aaa;">
+        <span>${escapeHtml(i.name)} (${i.size}) x${i.quantity}</span>
+        <span>€${(i.price * i.quantity).toFixed(2)}</span>
+      </div>
+    `).join('')}
+    <div style="border-top:1px solid rgba(255,255,255,0.1); margin-top:0.75rem; padding-top:0.75rem; display:flex; justify-content:space-between; font-weight:bold; color:#d92b2b;">
+      <span>ÖDENECEK TOPLAM</span>
+      <span>€${summary.total.toFixed(2)}</span>
+    </div>
+  `;
+
+  backdrop.classList.add('is-open');
+}
+
+/**
+ * Fullscreen Search Overlay Controller
  */
 function openSearchOverlay() {
+  isSearchOpen = true;
   const overlay = document.getElementById('store-search-overlay');
   const input = document.getElementById('store-search-input-field');
   if (overlay) {
     overlay.classList.add('is-open');
-    overlay.setAttribute('aria-hidden', 'false');
-    isSearchOpen = true;
     document.body.style.overflow = 'hidden';
     if (input) {
       input.value = activeSearchQuery;
-      setTimeout(() => input.focus(), 100);
+      input.focus();
       renderSearchResults(activeSearchQuery);
     }
   }
 }
 
 function closeSearchOverlay() {
+  isSearchOpen = false;
   const overlay = document.getElementById('store-search-overlay');
   if (overlay) {
     overlay.classList.remove('is-open');
-    overlay.setAttribute('aria-hidden', 'true');
-    isSearchOpen = false;
     document.body.style.overflow = '';
   }
 }
@@ -778,18 +922,18 @@ function renderSearchResults(query) {
   const feed = document.getElementById('store-search-results-feed');
   if (!feed) return;
 
-  if (!query || query.trim() === '') {
+  const q = (query || '').toLowerCase().trim();
+  if (!q) {
     feed.innerHTML = `
-      <div style="text-align: center; padding: 3rem; color: #666;">
-        <p style="font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase;">ARAMAK İSTEDİĞİNİZ TİŞÖRT, HOODIE, PLAK VEYA KASET ADINI YAZIN...</p>
+      <div style="color:#666; font-size:0.85rem; letter-spacing:0.1em; text-align:center; padding:3rem 0;">
+        // ARAMAK İSTEDİĞİNİZ ÜRÜN VEYA KATEGORİ ADINI GİRİN
       </div>
     `;
     return;
   }
 
-  const products = getProducts();
-  const q = query.toLowerCase().trim();
-  const results = products.filter(p => 
+  const allProducts = getProducts();
+  const results = allProducts.filter(p => 
     p.name.toLowerCase().includes(q) ||
     p.category.toLowerCase().includes(q) ||
     (p.tagline && p.tagline.toLowerCase().includes(q))
@@ -797,8 +941,8 @@ function renderSearchResults(query) {
 
   if (results.length === 0) {
     feed.innerHTML = `
-      <div style="text-align: center; padding: 4rem; color: #8A8A8E;">
-        <p style="font-size: 0.85rem; letter-spacing: 0.18em; text-transform: uppercase;">"${escapeHtml(query)}" İLE EŞLEŞEN ÜRÜN BULUNAMADI</p>
+      <div style="color:#888; font-size:0.85rem; letter-spacing:0.1em; text-align:center; padding:3rem 0;">
+        "${escapeHtml(query)}" İLE EŞLEŞEN ÜRÜN BULUNAMADI.
       </div>
     `;
     return;
@@ -807,23 +951,21 @@ function renderSearchResults(query) {
   feed.innerHTML = `
     <div class="store-search-grid">
       ${results.map(prod => `
-        <div class="store-card" style="background:#0a0a0a;">
-          <div class="store-card-media btn-search-item" data-product-id="${prod.id}" style="aspect-ratio: 4/5;">
-            <img src="${prod.primaryImage}" alt="${escapeHtml(prod.name)}" class="store-card-img" />
-          </div>
-          <div class="store-card-info">
-            <span class="store-card-category">${prod.category}</span>
-            <h4 class="store-card-title btn-search-item" data-product-id="${prod.id}">${escapeHtml(prod.name)}</h4>
-            <div class="store-card-price">${prod.currency}${prod.price}</div>
+        <div class="store-search-card btn-open-detail" data-product-id="${prod.id}">
+          <img src="${prod.primaryImage}" alt="${escapeHtml(prod.name)}" class="store-search-thumb" />
+          <div class="store-search-meta">
+            <span style="font-size:0.65rem; color:#888; letter-spacing:0.15em;">${prod.category}</span>
+            <h4 style="font-size:0.9rem; color:#fff; margin:0.25rem 0;">${escapeHtml(prod.name)}</h4>
+            <div style="color:#d92b2b; font-weight:bold; font-size:0.85rem;">${prod.currency}${prod.price}</div>
           </div>
         </div>
       `).join('')}
     </div>
   `;
 
-  feed.querySelectorAll('.btn-search-item').forEach(el => {
-    el.onclick = () => {
-      const id = el.getAttribute('data-product-id');
+  feed.querySelectorAll('.store-search-card').forEach(card => {
+    card.onclick = () => {
+      const id = card.getAttribute('data-product-id');
       closeSearchOverlay();
       openProductDetailModal(id);
     };
@@ -831,139 +973,148 @@ function renderSearchResults(query) {
 }
 
 /**
- * Checkout Prototype Modal
+ * Open Customer Care Info Modal
  */
-function openCheckoutPrototypeModal(summary) {
-  const backdrop = document.getElementById('store-checkout-modal-backdrop');
-  const summaryBox = document.getElementById('store-checkout-summary-box');
-  if (!backdrop) return;
-
-  if (summaryBox) {
-    summaryBox.innerHTML = `
-      <div style="font-weight:700; color:#fff; margin-bottom:0.5rem; letter-spacing:0.1em;">SİPARİŞ ÖZETİ (${summary.count} ÜRÜN)</div>
-      ${summary.items.map(it => `
-        <div style="display:flex; justify-content:space-between; margin-bottom:0.35rem; color:#aaa;">
-          <span>${escapeHtml(it.name)} (${it.size}) × ${it.quantity}</span>
-          <span>${it.currency}${(it.price * it.quantity).toFixed(2)}</span>
-        </div>
-      `).join('')}
-      <div style="border-top:1px solid #333; margin-top:0.75rem; padding-top:0.75rem; display:flex; justify-content:space-between; color:#fff; font-weight:700;">
-        <span>GENEL TOPLAM:</span>
-        <span>${summary.currency}${summary.total.toFixed(2)}</span>
-      </div>
-    `;
-  }
-
-  backdrop.classList.add('is-open');
-  backdrop.setAttribute('aria-hidden', 'false');
-  closeCartDrawer();
-}
-
-function closeCheckoutPrototypeModal() {
-  const backdrop = document.getElementById('store-checkout-modal-backdrop');
-  if (backdrop) {
-    backdrop.classList.remove('is-open');
-    backdrop.setAttribute('aria-hidden', 'true');
-  }
-}
-
-/**
- * Care Modal Handler
- */
-function openCareInfoModal(type) {
-  let title = 'MÜŞTERİ BİLGİLENDİRME';
-  let body = '';
+function openCareModal(type) {
+  let title = 'MÜŞTERİ HİZMETLERİ';
+  let content = '';
 
   if (type === 'shipping') {
     title = 'KARGO VE TESLİMAT POLİTİKASI';
-    body = `
-      <p style="margin-bottom: 1rem;"><strong>Teslimat Süresi:</strong> Siparişleriniz 2-4 iş günü içerisinde hazırlanıp takip numaralı kargo ile tarafınıza ulaştırılır.</p>
-      <p style="margin-bottom: 1rem;"><strong>Ücretsiz Kargo:</strong> 120€ ve üzeri tüm siparişlerde kargo ücretsizdir.</p>
-      <p><strong>Paketleme:</strong> Plaklar özel darbe emici sert karton ambalajlarda, giysiler ise su geçirmez mat koruma kılıflarında özenle paketlenir.</p>
+    content = `
+      <p>The Sinners resmi siparişleri özel mühürlü kutularda tüm dünyaya gönderilmektedir.</p>
+      <ul style="margin-top:0.75rem; padding-left:1.25rem; line-height:1.8; color:#bbb;">
+        <li><strong>Türkiye İçi:</strong> 1-3 iş günü (Yurtiçi Kargo güvencesiyle). 50€ üzeri siparişlerde kargo ücretsizdir.</li>
+        <li><strong>Avrupa:</strong> 3-6 iş günü (DHL Express Tracking).</li>
+        <li><strong>Dünya Geneli:</strong> 5-10 iş günü.</li>
+      </ul>
     `;
   } else if (type === 'returns') {
     title = 'İADE VE DEĞİŞİM KOŞULLARI';
-    body = `
-      <p style="margin-bottom: 1rem;"><strong>14 Gün İade Hakkı:</strong> Ürünü teslim aldığınız tarihten itibaren 14 gün içinde koşulsuz iade veya değişim talep edebilirsiniz.</p>
-      <p style="margin-bottom: 1rem;"><strong>Koşullar:</strong> Giysi ürünlerinin kullanılmamış, yıkanmamış ve etiketlerinin sökülmemiş olması gerekmektedir.</p>
-      <p><strong>Fiziksel Medya:</strong> Plak ve kasetlerin orijinal jelatin ambalajının açılmamış olması zorunludur.</p>
+    content = `
+      <p>Siparişinizi teslim aldığınız tarihten itibaren 14 gün içerisinde iade veya değişim hakkınız bulunmaktadır.</p>
+      <p style="margin-top:0.5rem; color:#bbb;">Ürünlerin orijinal etiketlerinin sökülmemiş, kullanılmamış ve hasarsız olması gerekmektedir. Plak ve kaset gibi analog medya ürünlerinde koruma bandı açılmamış olmalıdır.</p>
     `;
   } else if (type === 'sizeguide') {
     title = 'BEDEN VE KALIP REHBERİ';
-    body = `
-      <p style="margin-bottom: 1rem;"><strong>Tişörtler (Boxy Fit):</strong> Sokak modasına uygun rahat ve dökümlü kutu kesimdir. Standart rahatlık için kendi bedeninizi, ekstra oversized görünüm için 1 beden büyük seçebilirsiniz.</p>
-      <p style="margin-bottom: 1rem;"><strong>Hoodieler (Oversized):</strong> 480 GSM ağır gramaj kumaş ile geniş göğüs ve düşük omuz kalıbına sahiptir.</p>
-      <p><strong>Beden Tablosu:</strong> S (Genişlik: 54cm, Boy: 70cm) | M (Genişlik: 57cm, Boy: 72cm) | L (Genişlik: 60cm, Boy: 75cm) | XL (Genişlik: 63cm, Boy: 78cm)</p>
+    content = `
+      <p>The Sinners sokak giyimi ve editoryal koleksiyonları özel <strong>Custom Oversize</strong> kalıptır.</p>
+      <table style="width:100%; border-collapse:collapse; margin-top:1rem; font-size:0.8rem; color:#ccc;">
+        <thead>
+          <tr style="border-bottom:1px solid #333; text-align:left;">
+            <th style="padding:0.5rem;">Beden</th>
+            <th style="padding:0.5rem;">Göğüs (cm)</th>
+            <th style="padding:0.5rem;">Boy (cm)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #222;"><td style="padding:0.5rem;">S</td><td style="padding:0.5rem;">58 cm</td><td style="padding:0.5rem;">72 cm</td></tr>
+          <tr style="border-bottom:1px solid #222;"><td style="padding:0.5rem;">M</td><td style="padding:0.5rem;">61 cm</td><td style="padding:0.5rem;">74 cm</td></tr>
+          <tr style="border-bottom:1px solid #222;"><td style="padding:0.5rem;">L</td><td style="padding:0.5rem;">64 cm</td><td style="padding:0.5rem;">76 cm</td></tr>
+          <tr><td style="padding:0.5rem;">XL</td><td style="padding:0.5rem;">67 cm</td><td style="padding:0.5rem;">78 cm</td></tr>
+        </tbody>
+      </table>
     `;
   }
 
-  const modalBackdrop = document.getElementById('store-checkout-modal-backdrop');
-  const modal = modalBackdrop ? modalBackdrop.querySelector('.store-checkout-modal') : null;
-  if (!modalBackdrop || !modal) return;
+  const modalContainer = document.getElementById('store-detail-modal-content');
+  const backdrop = document.getElementById('store-detail-modal-backdrop');
+  if (!modalContainer || !backdrop) return;
 
-  modal.innerHTML = `
-    <button id="btn-close-care" class="store-modal-close-btn" style="top:1rem; right:1rem;">&times;</button>
-    <div style="font-size: 1.5rem; margin-bottom: 0.75rem; color: #fff;">ℹ</div>
-    <h2 class="store-checkout-title" style="font-size:1.15rem; margin-bottom:1rem;">${title}</h2>
-    <div style="text-align:left; font-size:0.85rem; color:#ccc; line-height:1.6; margin-bottom:1.5rem;">
-      ${body}
+  modalContainer.innerHTML = `
+    <button id="store-detail-close-btn" class="store-modal-close-btn" aria-label="Kapat">&times;</button>
+    <div style="padding: 2.5rem; max-width:600px; margin:0 auto;">
+      <h2 style="font-family:var(--font-serif-editorial); font-size:1.3rem; letter-spacing:0.1em; color:#fff; margin-bottom:1.5rem;">${title}</h2>
+      <div style="font-size:0.85rem; line-height:1.7; color:#aaa;">${content}</div>
+      <button class="gothic-action-cta" id="btn-close-care" style="margin-top:2rem; width:100%;">ANLADIM</button>
     </div>
-    <button id="btn-close-care-cta" class="store-hero-cta" style="width:100%;">ANLADIM & KAPAT</button>
   `;
 
-  const closeCare = () => {
-    modalBackdrop.classList.remove('is-open');
-    modalBackdrop.setAttribute('aria-hidden', 'true');
-    // Restore default checkout structure
-    modal.innerHTML = `
-      <div class="store-checkout-icon">✓</div>
-      <h2 class="store-checkout-title">SİPARİŞ ÖNİZLEMESİ HAZIR</h2>
-      <p class="store-checkout-text">
-        The Sinners Mağazasını ziyaret ettiğiniz için teşekkürler! Sepetinizdeki ürünler başarıyla doğrulandı, vergi ve teslimat detayları hesaplandı.
-      </p>
-      <div id="store-checkout-summary-box" style="background:#050505; border:1px solid rgba(255,255,255,0.1); padding:1.25rem; margin-bottom:1.5rem; text-align:left; font-size:0.8rem;"></div>
-      <button id="store-checkout-modal-close" class="store-hero-cta" style="width:100%;">ALIŞVERİŞE DEVAM ET</button>
-    `;
-    const btn = modal.querySelector('#store-checkout-modal-close');
-    if (btn) btn.onclick = closeCheckoutPrototypeModal;
-  };
+  const closeBtn = modalContainer.querySelector('#store-detail-close-btn');
+  const btnCloseCare = modalContainer.querySelector('#btn-close-care');
+  if (closeBtn) closeBtn.onclick = closeProductDetailModal;
+  if (btnCloseCare) btnCloseCare.onclick = closeProductDetailModal;
 
-  const c1 = modal.querySelector('#btn-close-care');
-  const c2 = modal.querySelector('#btn-close-care-cta');
-  if (c1) c1.onclick = closeCare;
-  if (c2) c2.onclick = closeCare;
-
-  modalBackdrop.classList.add('is-open');
-  modalBackdrop.setAttribute('aria-hidden', 'false');
+  backdrop.classList.add('is-open');
 }
 
 /**
- * Toast Notification Utility
+ * Toast Feedback Notification
  */
-export function showStoreToast(message) {
+function showStoreToast(message) {
   const container = document.getElementById('store-toast-container');
   if (!container) return;
 
   const toast = document.createElement('div');
-  toast.className = 'store-toast';
-  toast.innerHTML = `<span>✓</span> <span>${escapeHtml(message)}</span>`;
+  toast.className = 'store-toast gothic-toast';
+  toast.innerHTML = `
+    <span class="store-toast-icon">☠</span>
+    <span class="store-toast-msg">${escapeHtml(message)}</span>
+  `;
   container.appendChild(toast);
 
   setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateY(10px)';
-    toast.style.transition = 'all 0.3s ease';
-    setTimeout(() => toast.remove(), 300);
-  }, 2800);
+    toast.classList.add('show');
+  }, 10);
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
+  }, 3200);
 }
 
 /**
- * Scroll Reactive Header Listener
+ * Update Cart Badge Counters
+ */
+function updateCartBadgeUI() {
+  const badge = document.getElementById('store-cart-count-badge');
+  const summary = getCartSummary();
+  if (badge) {
+    badge.textContent = summary.totalItems;
+    badge.style.display = summary.totalItems > 0 ? 'inline-flex' : 'none';
+    
+    // Animate badge pulse
+    badge.classList.remove('badge-pop');
+    void badge.offsetWidth; // trigger reflow
+    badge.classList.add('badge-pop');
+  }
+}
+
+/**
+ * Update Filter Pills UI
+ */
+function updateCategoryPillsUI() {
+  const pills = document.querySelectorAll('.store-cat-pill');
+  pills.forEach(p => {
+    const cat = p.getAttribute('data-cat');
+    if (cat === activeCategory) {
+      p.classList.add('active');
+    } else {
+      p.classList.remove('active');
+    }
+  });
+
+  const navLinks = document.querySelectorAll('.store-nav-link');
+  navLinks.forEach(l => {
+    const cat = l.getAttribute('data-cat');
+    if (cat === activeCategory) {
+      l.classList.add('active');
+    } else {
+      l.classList.remove('active');
+    }
+  });
+}
+
+/**
+ * Sticky Header Scroll Observer
  */
 function initHeaderScrollListener() {
+  const header = document.getElementById('store-header');
+  if (!header) return;
+
   window.addEventListener('scroll', () => {
-    const header = document.getElementById('store-header');
-    if (!header) return;
     if (window.scrollY > 40) {
       header.classList.add('is-scrolled');
     } else {
@@ -973,162 +1124,174 @@ function initHeaderScrollListener() {
 }
 
 /**
- * Update Category UI Selection
+ * Bind Delegated Global Events for Store
  */
-function updateCategoryPillsUI() {
-  document.querySelectorAll('.store-cat-pill, .store-nav-link').forEach(el => {
-    const cat = el.getAttribute('data-cat');
-    if (cat === activeCategory) {
-      el.classList.add('active');
-    } else {
-      el.classList.remove('active');
-    }
-  });
-}
-
-/**
- * Global Event Delegation for Store
- */
-function bindStoreGlobalEvents(root) {
-  // Category Filtering
-  root.addEventListener('click', (e) => {
-    const catBtn = e.target.closest('[data-cat]');
-    if (catBtn) {
-      activeCategory = catBtn.getAttribute('data-cat') || 'ALL';
+function bindStoreGlobalEvents(container) {
+  // Category Pill Clicks
+  container.addEventListener('click', (e) => {
+    const catBtn = e.target.closest('.store-cat-pill, .store-nav-link, .store-footer-link');
+    if (catBtn && catBtn.hasAttribute('data-cat')) {
+      e.preventDefault();
+      activeCategory = catBtn.getAttribute('data-cat');
       activeSearchQuery = '';
       updateCategoryPillsUI();
       renderProductGrid();
+
       const vitrine = document.getElementById('store-vitrine');
-      if (vitrine && window.scrollY > 400) {
+      if (vitrine && catBtn.classList.contains('store-footer-link')) {
         vitrine.scrollIntoView({ behavior: 'smooth' });
       }
     }
-  });
 
-  // Size Button Pick inside Cards
-  root.addEventListener('click', (e) => {
+    // Drop filter button
+    const dropBtn = e.target.closest('.btn-drop-filter');
+    if (dropBtn && dropBtn.hasAttribute('data-cat')) {
+      activeCategory = dropBtn.getAttribute('data-cat');
+      updateCategoryPillsUI();
+      renderProductGrid();
+      const vitrine = document.getElementById('store-vitrine');
+      if (vitrine) vitrine.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Care Modal Openers
+    const careBtn = e.target.closest('.btn-open-care-modal');
+    if (careBtn) {
+      e.preventDefault();
+      const type = careBtn.getAttribute('data-type');
+      openCareModal(type);
+    }
+
+    // Size Selector on Cards
     const sizeBtn = e.target.closest('.store-size-btn');
-    if (sizeBtn && !sizeBtn.disabled) {
+    if (sizeBtn) {
       const prodId = sizeBtn.getAttribute('data-product-id');
       const size = sizeBtn.getAttribute('data-size');
       selectedSizesMap[prodId] = size;
-      const parent = sizeBtn.closest('.store-card-sizes');
-      if (parent) {
-        parent.querySelectorAll('.store-size-btn').forEach(b => b.classList.remove('selected'));
+      const card = sizeBtn.closest('.store-card');
+      if (card) {
+        card.querySelectorAll('.store-size-btn').forEach(b => b.classList.remove('selected'));
         sizeBtn.classList.add('selected');
       }
     }
-  });
 
-  // Quick Add Button
-  root.addEventListener('click', (e) => {
-    const addBtn = e.target.closest('.btn-quick-add');
-    if (addBtn && !addBtn.disabled) {
-      const prodId = addBtn.getAttribute('data-product-id');
+    // Quick Add on Cards
+    const quickAddBtn = e.target.closest('.btn-quick-add');
+    if (quickAddBtn) {
+      const prodId = quickAddBtn.getAttribute('data-product-id');
       const prod = getProductById(prodId);
-      if (prod) {
-        const size = selectedSizesMap[prodId] || prod.defaultSize || 'M';
+      if (prod && prod.stockStatus !== 'SOLD_OUT') {
+        const size = selectedSizesMap[prodId] || prod.defaultSize || (prod.sizes[0] ? prod.sizes[0].size : 'STANDART');
         addToCart(prodId, size, 1);
-        updateCartBadgeUI();
         showStoreToast(`"${prod.name}" (${size}) sepete eklendi.`);
+        updateCartBadgeUI();
         openCartDrawer();
       }
     }
-  });
 
-  // Open Product Detail Modal
-  root.addEventListener('click', (e) => {
-    const trigger = e.target.closest('.btn-open-detail, .btn-view-product');
-    if (trigger) {
-      const prodId = trigger.getAttribute('data-product-id');
+    // Open Product Detail Modal
+    const detailTrigger = e.target.closest('.btn-open-detail, .btn-view-product');
+    if (detailTrigger) {
+      const prodId = detailTrigger.getAttribute('data-product-id');
       if (prodId) openProductDetailModal(prodId);
     }
-  });
 
-  // Care Modals in Footer
-  root.addEventListener('click', (e) => {
-    const careLink = e.target.closest('.btn-open-care-modal');
-    if (careLink) {
-      e.preventDefault();
-      const type = careLink.getAttribute('data-type');
-      openCareInfoModal(type);
+    // Open Cart Drawer
+    const cartTrigger = e.target.closest('#store-cart-trigger');
+    if (cartTrigger) {
+      openCartDrawer();
+    }
+
+    // Close Cart Drawer
+    const cartClose = e.target.closest('#store-cart-close-btn');
+    if (cartClose) {
+      closeCartDrawer();
+    }
+
+    // Open Search
+    const searchTrigger = e.target.closest('#store-search-trigger');
+    if (searchTrigger) {
+      openSearchOverlay();
+    }
+
+    // Close Search
+    const searchClose = e.target.closest('#store-search-close-btn');
+    if (searchClose) {
+      closeSearchOverlay();
+    }
+
+    // Mobile Menu Toggle
+    const mobMenuBtn = e.target.closest('#store-mobile-menu-btn');
+    if (mobMenuBtn) {
+      const navMenu = container.querySelector('.store-nav-menu');
+      if (navMenu) {
+        navMenu.classList.toggle('mobile-open');
+      }
+    }
+
+    // Close Checkout Modal
+    const checkoutClose = e.target.closest('#store-checkout-modal-close');
+    if (checkoutClose) {
+      const backdrop = document.getElementById('store-checkout-modal-backdrop');
+      if (backdrop) backdrop.classList.remove('is-open');
     }
   });
 
-  // Cart Trigger
-  const cartTrigger = root.querySelector('#store-cart-trigger');
-  if (cartTrigger) cartTrigger.onclick = openCartDrawer;
-
-  const cartCloseBtn = root.querySelector('#store-cart-close-btn');
-  if (cartCloseBtn) cartCloseBtn.onclick = closeCartDrawer;
-
-  const cartBackdrop = root.querySelector('#store-cart-drawer-backdrop');
-  if (cartBackdrop) {
-    cartBackdrop.onclick = (e) => {
-      if (e.target === cartBackdrop) closeCartDrawer();
-    };
-  }
-
-  // Search Trigger
-  const searchTrigger = root.querySelector('#store-search-trigger');
-  if (searchTrigger) searchTrigger.onclick = openSearchOverlay;
-
-  const searchCloseBtn = root.querySelector('#store-search-close-btn');
-  if (searchCloseBtn) searchCloseBtn.onclick = closeSearchOverlay;
-
-  const searchOverlay = root.querySelector('#store-search-overlay');
-  if (searchOverlay) {
-    searchOverlay.onclick = (e) => {
-      if (e.target === searchOverlay) closeSearchOverlay();
-    };
-  }
-
-  const searchInput = root.querySelector('#store-search-input-field');
+  // Search Live Typing
+  const searchInput = container.querySelector('#store-search-input-field');
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
-      renderSearchResults(e.target.value);
+      activeSearchQuery = e.target.value;
+      renderSearchResults(activeSearchQuery);
     });
   }
 
-  // Detail Modal Backdrop Close
-  const detailBackdrop = root.querySelector('#store-detail-modal-backdrop');
+  // Backdrop clicks
+  const cartBackdrop = container.querySelector('#store-cart-drawer-backdrop');
+  if (cartBackdrop) {
+    cartBackdrop.addEventListener('click', (e) => {
+      if (e.target === cartBackdrop) closeCartDrawer();
+    });
+  }
+
+  const detailBackdrop = container.querySelector('#store-detail-modal-backdrop');
   if (detailBackdrop) {
-    detailBackdrop.onclick = (e) => {
+    detailBackdrop.addEventListener('click', (e) => {
       if (e.target === detailBackdrop) closeProductDetailModal();
-    };
+    });
   }
 
-  // Checkout Prototype Modal Close
-  const checkoutModalClose = root.querySelector('#store-checkout-modal-close');
-  if (checkoutModalClose) checkoutModalClose.onclick = closeCheckoutPrototypeModal;
+  const searchBackdrop = container.querySelector('#store-search-overlay');
+  if (searchBackdrop) {
+    searchBackdrop.addEventListener('click', (e) => {
+      if (e.target === searchBackdrop) closeSearchOverlay();
+    });
+  }
 
-  const checkoutBackdrop = root.querySelector('#store-checkout-modal-backdrop');
+  const checkoutBackdrop = container.querySelector('#store-checkout-modal-backdrop');
   if (checkoutBackdrop) {
-    checkoutBackdrop.onclick = (e) => {
-      if (e.target === checkoutBackdrop) closeCheckoutPrototypeModal();
-    };
+    checkoutBackdrop.addEventListener('click', (e) => {
+      if (e.target === checkoutBackdrop) checkoutBackdrop.classList.remove('is-open');
+    });
   }
 
-  // Escape key global close
+  // ESC key
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (isCartOpen) closeCartDrawer();
-      if (isSearchOpen) closeSearchOverlay();
       closeProductDetailModal();
-      closeCheckoutPrototypeModal();
+      closeCartDrawer();
+      closeSearchOverlay();
+      const checkoutBackdrop = document.getElementById('store-checkout-modal-backdrop');
+      if (checkoutBackdrop) checkoutBackdrop.classList.remove('is-open');
     }
-  });
-
-  // Listen to external cart sync events
-  window.addEventListener('store-cart-updated', () => {
-    updateCartBadgeUI();
   });
 }
 
 function escapeHtml(str) {
-  return String(str || '')
+  if (!str) return '';
+  return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
