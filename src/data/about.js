@@ -1,6 +1,6 @@
 /**
  * THE SINNERS / PARRHESIA - ABOUT & SLIDESHOW DATA SERVICE
- * Fully powered by Supabase PostgreSQL about_slides table (LocalStorage removed).
+ * Fully powered by Supabase PostgreSQL about_slides & site_settings tables.
  */
 import { supabase } from '../lib/supabase.js';
 
@@ -23,7 +23,7 @@ export function cleanImageUrl(url) {
   return cleaned;
 }
 
-// In-memory cache for fast UI rendering
+// In-memory cache for instant UI rendering
 let inMemorySlides = [];
 let inMemoryBioParagraphs = [
   "The Sinners is an alternative / gothic rock entity existing at the intersection of raw sonic aggression, atmospheric textures, and uncompromising artistic expression.",
@@ -42,40 +42,50 @@ export function getAboutData() {
 }
 
 /**
- * Fetches latest about slides from Supabase PostgreSQL about_slides table
+ * Fetches latest about slides & biography paragraphs from Supabase
  */
-export async function fetchAboutSlidesFromSupabase() {
+export async function fetchAboutDataFromSupabase() {
   if (!supabase) {
-    console.error('Supabase Slide Hatası: Supabase client is not initialized.');
+    console.error('Supabase About Hatası: Supabase client is not initialized.');
     return getAboutData();
   }
 
   try {
-    const { data, error } = await supabase
+    // 1. Fetch Slides
+    const { data: slidesData, error: slidesError } = await supabase
       .from('about_slides')
       .select('*')
       .order('slide_order', { ascending: true });
 
-    if (error) {
-      console.error('Supabase Slide Hatası:', error);
-      return getAboutData();
-    }
-
-    if (Array.isArray(data)) {
-      inMemorySlides = data.map(row => ({
+    if (slidesError) {
+      console.error('Supabase About Slides Hatası:', slidesError);
+    } else if (Array.isArray(slidesData)) {
+      inMemorySlides = slidesData.map(row => ({
         id: String(row.id),
         url: cleanImageUrl(row.url),
         caption: row.caption || '',
         slideOrder: row.slide_order || 1,
         createdAt: row.created_at || new Date().toISOString()
       }));
-
-      window.dispatchEvent(new CustomEvent('about-data-updated'));
     }
 
+    // 2. Fetch Biography Paragraphs from site_settings
+    const { data: settingsData, error: settingsError } = await supabase
+      .from('site_settings')
+      .select('bio_paragraphs')
+      .limit(1)
+      .maybeSingle();
+
+    if (settingsError) {
+      console.error('Supabase About Bio Hatası:', settingsError);
+    } else if (settingsData && Array.isArray(settingsData.bio_paragraphs) && settingsData.bio_paragraphs.length > 0) {
+      inMemoryBioParagraphs = settingsData.bio_paragraphs;
+    }
+
+    window.dispatchEvent(new CustomEvent('about-data-updated'));
     return getAboutData();
   } catch (err) {
-    console.error('Supabase Slide Hatası (Network):', err);
+    console.error('Supabase About Hatası (Network):', err);
     return getAboutData();
   }
 }
@@ -211,12 +221,49 @@ export async function deleteSlide(id) {
 }
 
 /**
- * Updates in-memory editorial biography paragraphs
+ * Updates and saves editorial biography paragraphs directly to Supabase site_settings table
  */
-export function updateBioParagraphs(paragraphs) {
-  inMemoryBioParagraphs = paragraphs;
+export async function updateBioParagraphs(paragraphs) {
+  const cleanParagraphs = Array.isArray(paragraphs) ? paragraphs.filter(Boolean) : [];
+
+  inMemoryBioParagraphs = cleanParagraphs;
   window.dispatchEvent(new CustomEvent('about-data-updated'));
+
+  if (!supabase) {
+    const err = new Error('Supabase client is not initialized.');
+    console.error('Supabase Bio Hatası:', err);
+    throw err;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .upsert({
+        id: 'default',
+        bio_paragraphs: cleanParagraphs,
+        updated_at: new Date().toISOString()
+      })
+      .select('bio_paragraphs')
+      .single();
+
+    if (error) {
+      console.error('Supabase Bio Hatası:', error);
+      throw error;
+    }
+
+    console.log('Supabase Bio Kaydedildi:', data);
+
+    if (data && Array.isArray(data.bio_paragraphs)) {
+      inMemoryBioParagraphs = data.bio_paragraphs;
+      window.dispatchEvent(new CustomEvent('about-data-updated'));
+    }
+
+    return inMemoryBioParagraphs;
+  } catch (err) {
+    console.error('Supabase Bio Hatası:', err);
+    throw err;
+  }
 }
 
 // Initial fetch from Supabase on startup
-fetchAboutSlidesFromSupabase();
+fetchAboutDataFromSupabase();

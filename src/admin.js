@@ -36,7 +36,7 @@ import {
   deleteSlide,
   updateBioParagraphs,
   cleanImageUrl,
-  fetchAboutSlidesFromSupabase
+  fetchAboutDataFromSupabase
 } from './data/about.js';
 
 import {
@@ -2012,14 +2012,27 @@ function renderAdminAbout(container) {
 
   const bioForm = container.querySelector('#about-bio-form');
   if (bioForm) {
-    bioForm.onsubmit = (e) => {
+    bioForm.onsubmit = async (e) => {
       e.preventDefault();
+      const submitBtn = bioForm.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ SAVING...';
+      }
+
       const rawText = container.querySelector('#about-bio-textarea').value;
       const paragraphs = rawText.split('\n\n').map(p => p.trim()).filter(Boolean);
-      updateBioParagraphs(paragraphs);
-      logActivity('ABOUT BIO UPDATED', 'Updated editorial biography text');
-      showAdminToast('✓ EDITORIAL BIOGRAPHY SAVED');
-      renderAdminAbout(container);
+
+      try {
+        await updateBioParagraphs(paragraphs);
+        logActivity('ABOUT BIO UPDATED', 'Updated editorial biography text');
+        showAdminToast('✓ EDITORIAL BIOGRAPHY SAVED');
+      } catch (err) {
+        console.error('Bio update error:', err);
+        showAdminToast('⚠ Biography kaydedilemedi: ' + (err.message || 'Supabase error'), 'danger');
+      } finally {
+        renderAdminAbout(container);
+      }
     };
   }
 }
