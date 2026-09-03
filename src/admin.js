@@ -1780,7 +1780,12 @@ function renderAdminStore(container) {
             <h1 class="admin-page-title">Mağaza & Ürün Yönetimi</h1>
             <p class="admin-page-desc">Resmi Giyim, Plaklar, Kasetler, Bedenler ve Stok Durumunu Yönetin</p>
           </div>
-          <button id="btn-add-product" class="admin-btn admin-btn-primary">+ YENİ ÜRÜN EKLE</button>
+          <div class="admin-header-actions" style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="/store-vault" target="_blank" class="admin-btn admin-btn-secondary" style="border-color: #d92b2b; color: #ffffff; background: rgba(217, 43, 43, 0.15); text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+              <span>👁 MAĞAZAYI CANLI ÖNİZLE</span>
+            </a>
+            <button id="btn-add-product" class="admin-btn admin-btn-primary">+ YENİ ÜRÜN EKLE</button>
+          </div>
         </div>
 
         <div class="admin-toolbar">
