@@ -1,16 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
-                    import.meta.env.VITE_SUPABASE_ANON_KEY || 
-                    import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
-                    import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
+const supabaseKey = (
+  import.meta.env.VITE_SUPABASE_ANON_KEY || 
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 
+  import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 
+  import.meta.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 
+  ''
+).trim();
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseKey);
 
 if (!isSupabaseConfigured) {
   console.warn(
-    '[Supabase] Environment variables missing. Please set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your .env file or Vercel settings.'
+    '[Supabase Warning] Environment variables are missing or not loaded yet by Vite.\n' +
+    'Eğer .env dosyasını yeni eklediyseniz terminalde "npm run dev" sunucusunu durdurup (Ctrl+C) tekrar başlatmanız gerekir.\n' +
+    'Beklenen değişkenler: VITE_SUPABASE_URL ve VITE_SUPABASE_ANON_KEY (veya VITE_SUPABASE_PUBLISHABLE_KEY)'
   );
 }
 
@@ -37,18 +42,18 @@ export async function testSupabaseConnection() {
   }
 
   try {
-    const { error } = await supabase.from('_test_connection').select('*').limit(1);
-    // Even if table does not exist (PGRST116/42P01), getting a response from PostgREST confirms connection to Supabase endpoint
-    if (error && error.code !== '42P01' && error.code !== 'PGRST204') {
+    const { data, error } = await supabase.from('tours').select('id').limit(1);
+    if (error) {
       return {
-        success: true,
-        message: 'Connected to Supabase endpoint successfully.',
-        details: error.message
+        success: false,
+        message: 'Supabase error: ' + error.message,
+        error
       };
     }
     return {
       success: true,
-      message: 'Supabase client connected successfully.'
+      message: 'Supabase client connected successfully.',
+      data
     };
   } catch (err) {
     return {
