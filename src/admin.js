@@ -707,8 +707,14 @@ function openEventModal(eventToEdit, rootContainer, defaultPeriod = 'UPCOMING') 
   updateModalFieldsByPeriod();
 
   const form = modalOverlay.querySelector('#tour-event-form');
-  form.onsubmit = (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ KAYDEDİLİYOR...';
+    }
 
     const selectedPeriod = modalOverlay.querySelector('#evt-period-category').value;
     let dateVal = modalOverlay.querySelector('#evt-date').value;
@@ -739,18 +745,23 @@ function openEventModal(eventToEdit, rootContainer, defaultPeriod = 'UPCOMING') 
       images: imagesList
     };
 
-    if (isEdit) {
-      updateTourEvent(eventToEdit.id, data);
-      logActivity('TOUR EVENT UPDATED', `Updated ${selectedPeriod} event "${data.venue}" (${data.city})`);
-      showAdminToast('✓ TOUR EVENT SAVED SUCCESSFULLY');
-    } else {
-      addTourEvent(data);
-      logActivity('TOUR EVENT CREATED', `Created ${selectedPeriod} event "${data.venue}" (${data.city})`);
-      showAdminToast('✓ TOUR EVENT CREATED SUCCESSFULLY');
+    try {
+      if (isEdit) {
+        await updateTourEvent(eventToEdit.id, data);
+        logActivity('TOUR EVENT UPDATED', `Updated ${selectedPeriod} event "${data.venue}" (${data.city})`);
+        showAdminToast('✓ TOUR EVENT SAVED SUCCESSFULLY');
+      } else {
+        await addTourEvent(data);
+        logActivity('TOUR EVENT CREATED', `Created ${selectedPeriod} event "${data.venue}" (${data.city})`);
+        showAdminToast('✓ TOUR EVENT CREATED SUCCESSFULLY');
+      }
+    } catch (err) {
+      console.error('Error saving tour event:', err);
+      showAdminToast('⚠ Saved locally, Supabase sync error: ' + (err.message || 'Check RLS/Network'), 'danger');
+    } finally {
+      closeModal();
+      renderAdminTour(rootContainer);
     }
-
-    closeModal();
-    renderAdminTour(rootContainer);
   };
 }
 

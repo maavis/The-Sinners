@@ -1,12 +1,13 @@
 /**
- * PARRHESIA TOUR DATES DATA SERVICE
- * Handles Tour Event CRUD and LocalStorage Synchronization.
+ * THE SINNERS / PARRHESIA - TOUR DATES DATA SERVICE
+ * Handles Tour Event CRUD with Supabase PostgreSQL integration and LocalStorage fallback/caching.
  */
+import { supabase, isSupabaseConfigured } from '../lib/supabase.js';
 
 const STORAGE_KEY = 'parrhesia_tour_events';
 
-// Default initial sample tour dates
-const INITIAL_TOUR_EVENTS = [
+// Default initial sample tour dates (fallback if table is empty / offline)
+export const INITIAL_TOUR_EVENTS = [
   {
     id: 'evt_101',
     date: '2026-10-24',
@@ -96,6 +97,54 @@ const INITIAL_TOUR_EVENTS = [
   }
 ];
 
+/**
+ * Transforms PostgreSQL snake_case row to frontend camelCase JavaScript object
+ */
+export function mapTourFromDB(row) {
+  if (!row) return null;
+  return {
+    id: String(row.id),
+    date: row.date || '',
+    time: row.time || '20:00',
+    venue: row.venue || '',
+    city: row.city || '',
+    country: row.country || '',
+    status: row.status || 'SATIŞTA',
+    ticketUrl: row.ticket_url || '',
+    rsvpUrl: row.rsvp_url || '',
+    description: row.description || '',
+    images: Array.isArray(row.images) ? row.images : [],
+    isFeatured: Boolean(row.is_featured),
+    visible: row.visible !== false,
+    createdAt: row.created_at || new Date().toISOString()
+  };
+}
+
+/**
+ * Transforms frontend camelCase JavaScript object to PostgreSQL snake_case row
+ */
+export function mapTourToDB(eventData) {
+  return {
+    id: eventData.id || ('evt_' + Date.now()),
+    date: eventData.date || new Date().toISOString().split('T')[0],
+    time: eventData.time || '20:00',
+    venue: eventData.venue || '',
+    city: eventData.city || '',
+    country: eventData.country || '',
+    status: eventData.status || 'SATIŞTA',
+    ticket_url: eventData.ticketUrl || '',
+    rsvp_url: eventData.rsvpUrl || '',
+    description: eventData.description || '',
+    images: Array.isArray(eventData.images) ? eventData.images : [],
+    is_featured: Boolean(eventData.isFeatured),
+    visible: eventData.visible !== false,
+    created_at: eventData.createdAt || new Date().toISOString()
+  };
+}
+
+/**
+ * Reads cached tour events synchronously (for instant UI render)
+ */
 export function getTourEvents() {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (!stored) {
@@ -103,23 +152,61 @@ export function getTourEvents() {
     return INITIAL_TOUR_EVENTS;
   }
   try {
-    return JSON.parse(stored);
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed : INITIAL_TOUR_EVENTS;
   } catch (err) {
     console.error('Error parsing tour events:', err);
     return INITIAL_TOUR_EVENTS;
   }
 }
 
+/**
+ * Saves tour events to local cache and broadcasts update event
+ */
 export function saveTourEvents(events) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
-  // Dispatch custom event for real-time reactive sync across app
   window.dispatchEvent(new CustomEvent('tour-data-updated'));
 }
 
-export function addTourEvent(eventData) {
-  const events = getTourEvents();
+/**
+ * Fetches latest tour events from Supabase PostgreSQL tours table
+ */
+export async function fetchTourEventsFromSupabase() {
+  if (!isSupabaseConfigured || !supabase) {
+    return getTourEvents();
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('tours')
+      .select('*')
+      .order('date', { ascending: true });
+
+    if (error) {
+      console.warn('[Supabase] Error fetching tours:', error.message);
+      return getTourEvents();
+    }
+
+    if (Array.isArray(data) && data.length > 0) {
+      const mappedEvents = data.map(mapTourFromDB);
+      saveTourEvents(mappedEvents);
+      return mappedEvents;
+    }
+
+    return getTourEvents();
+  } catch (err) {
+    console.error('[Supabase] Network error fetching tours:', err);
+    return getTourEvents();
+  }
+}
+
+/**
+ * Inserts a new Tour Event directly into Supabase tours table
+ */
+export async function addTourEvent(eventData) {
+  const newEvtId = eventData.id || ('evt_' + Date.now());
   const newEvt = {
-    id: 'evt_' + Date.now(),
+    id: newEvtId,
     date: eventData.date || new Date().toISOString().split('T')[0],
     time: eventData.time || '20:00',
     venue: eventData.venue || '',
@@ -127,46 +214,147 @@ export function addTourEvent(eventData) {
     country: eventData.country || '',
     status: eventData.status || 'SATIŞTA',
     ticketUrl: eventData.ticketUrl || '',
-    rsvpUrl: '',
+    rsvpUrl: eventData.rsvpUrl || '',
     description: eventData.description || '',
     images: Array.isArray(eventData.images) ? eventData.images : [],
-    isFeatured: !!eventData.isFeatured,
+    isFeatured: Boolean(eventData.isFeatured),
     visible: eventData.visible !== false,
     createdAt: new Date().toISOString()
   };
+
+  // 1. Direct Supabase PostgreSQL INSERT
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const dbPayload = mapTourToDB(newEvt);
+      const { data, error } = await supabase
+        .from('tours')
+        .insert([dbPayload])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Supabase] Failed to INSERT tour event:', error.message);
+        throw error;
+      }
+
+      if (data) {
+        const savedEvent = mapTourFromDB(data);
+        const currentEvents = getTourEvents().filter(e => e.id !== savedEvent.id);
+        currentEvents.push(savedEvent);
+        saveTourEvents(currentEvents);
+        return savedEvent;
+      }
+    } catch (err) {
+      console.error('[Supabase] Insert exception:', err);
+      // Fallback: save to local cache if insert fails
+      const events = getTourEvents();
+      events.push(newEvt);
+      saveTourEvents(events);
+      throw err;
+    }
+  }
+
+  // Fallback if Supabase is not configured
+  const events = getTourEvents();
   events.push(newEvt);
   saveTourEvents(events);
   return newEvt;
 }
 
-export function updateTourEvent(id, updatedData) {
+/**
+ * Updates a Tour Event in Supabase PostgreSQL tours table
+ */
+export async function updateTourEvent(id, updatedData) {
   const events = getTourEvents();
   const index = events.findIndex(e => e.id === id);
+  const merged = index !== -1 ? { ...events[index], ...updatedData } : { id, ...updatedData };
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const dbPayload = mapTourToDB(merged);
+      const { data, error } = await supabase
+        .from('tours')
+        .update(dbPayload)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[Supabase] Failed to UPDATE tour event:', error.message);
+      } else if (data) {
+        const saved = mapTourFromDB(data);
+        if (index !== -1) events[index] = saved;
+        else events.push(saved);
+        saveTourEvents(events);
+        return saved;
+      }
+    } catch (err) {
+      console.error('[Supabase] Update exception:', err);
+    }
+  }
+
   if (index !== -1) {
-    events[index] = { ...events[index], ...updatedData };
+    events[index] = merged;
     saveTourEvents(events);
     return events[index];
   }
   return null;
 }
 
-export function deleteTourEvent(id) {
+/**
+ * Deletes a Tour Event from Supabase PostgreSQL tours table
+ */
+export async function deleteTourEvent(id) {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { error } = await supabase
+        .from('tours')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('[Supabase] Failed to DELETE tour event:', error.message);
+      }
+    } catch (err) {
+      console.error('[Supabase] Delete exception:', err);
+    }
+  }
+
   let events = getTourEvents();
   events = events.filter(e => e.id !== id);
   saveTourEvents(events);
 }
 
-export function toggleTourEventVisibility(id) {
+/**
+ * Toggles Tour Event visibility in Supabase PostgreSQL tours table
+ */
+export async function toggleTourEventVisibility(id) {
   const events = getTourEvents();
   const evt = events.find(e => e.id === id);
-  if (evt) {
-    evt.visible = !evt.visible;
-    saveTourEvents(events);
+  if (!evt) return;
+
+  const newVisibility = !evt.visible;
+  evt.visible = newVisibility;
+  saveTourEvents(events);
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { error } = await supabase
+        .from('tours')
+        .update({ visible: newVisibility })
+        .eq('id', id);
+
+      if (error) {
+        console.error('[Supabase] Failed to update tour visibility:', error.message);
+      }
+    } catch (err) {
+      console.error('[Supabase] Toggle visibility exception:', err);
+    }
   }
 }
 
 /**
- * Filter and sort events into Upcoming and Past
+ * Filters and sorts events into Upcoming and Past
  */
 export function getCategorizedTourEvents() {
   const allEvents = getTourEvents();
@@ -182,3 +370,6 @@ export function getCategorizedTourEvents() {
 
   return { upcoming, past };
 }
+
+// Automatically fetch latest tours from Supabase on startup
+fetchTourEventsFromSupabase();
