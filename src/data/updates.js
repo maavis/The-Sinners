@@ -1,112 +1,105 @@
 /**
- * PARRHESIA DIGITAL JOURNAL / CREATIVE ARCHIVE DATA SERVICE
- * Manages raw studio records, photos, thoughts, and timestamps.
+ * THE SINNERS / PARRHESIA - DIGITAL JOURNAL / UPDATES DATA SERVICE
+ * Fully powered by Supabase PostgreSQL updates table (LocalStorage removed).
  */
+import { supabase } from '../lib/supabase.js';
 
-const STORAGE_KEY = 'parrhesia_journal_entries';
+// In-memory journal entries cache for instant UI rendering
+let inMemoryUpdates = [];
 
-const INITIAL_JOURNAL_ENTRIES = [
-  {
-    id: 'upd_104',
-    date: '12 AUG 2026',
-    category: 'ESSAY // DISCOGRAPHY',
-    title: 'THE ANALOG RESONANCE OF 9MM HATE',
-    body: `The tape machine doesn't forgive. In an era dominated by surgical digital precision, 9MM HATE was built on physical friction, magnetic tape saturation, and room spill. Every track was tracked live through custom valve preamps directly to a vintage 24-track 2-inch tape machine.
+/**
+ * Transforms PostgreSQL snake_case row to frontend camelCase JavaScript object
+ */
+export function mapUpdateFromDB(row) {
+  if (!row) return null;
+  return {
+    id: String(row.id),
+    date: row.date || '',
+    category: row.category || 'TRANSMISSION // JOURNAL',
+    title: row.title || '',
+    body: row.body || '',
+    image: row.image || '',
+    meta: row.meta || '',
+    status: row.status || 'PUBLISHED',
+    featured: Boolean(row.featured),
+    tracklist: Array.isArray(row.tracklist) ? row.tracklist : [],
+    links: Array.isArray(row.links) ? row.links : [],
+    createdAt: row.created_at || new Date().toISOString()
+  };
+}
 
-We spent weeks tuning the room to reflect raw low-frequency pressure without losing the high-register guitar decay. What you hear on the record is the unedited sonic footprint of three human beings occupying the same room at midnight.`,
-    image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80',
-    meta: 'LONDON // ANALOG SESSION 04',
-    tracklist: ['01 Parrhesia!', '02 Wasn\'t Me', '03 Betrayal', '04 I\'m Not Okay'],
-    links: [
-      { name: 'SPOTIFY', url: 'https://spotify.com' },
-      { name: 'APPLE MUSIC', url: 'https://apple.com' },
-      { name: 'BANDCAMP', url: 'https://bandcamp.com' }
-    ],
-    createdAt: '2026-08-12T10:00:00.000Z'
-  },
-  {
-    id: 'upd_101',
-    date: '11 AUG 2026',
-    category: 'STUDIO DIARY',
-    title: "WE'RE STILL HERE. ROOM LOUDNESS & SPECTRUM.",
-    body: `The room has been getting louder. Tape reels spinning late into the morning. Analog synths warming up for the upcoming European tour cycle. We built this space to test sound pressure limits and emotional boundaries.
+/**
+ * Transforms frontend camelCase JavaScript object to PostgreSQL snake_case row
+ */
+export function mapUpdateToDB(entryData) {
+  const payload = {};
+  if (entryData.id) payload.id = entryData.id;
+  if (entryData.date !== undefined) payload.date = entryData.date;
+  if (entryData.category !== undefined) payload.category = entryData.category;
+  if (entryData.title !== undefined) payload.title = entryData.title;
+  if (entryData.body !== undefined) payload.body = entryData.body;
+  if (entryData.image !== undefined) payload.image = entryData.image;
+  if (entryData.meta !== undefined) payload.meta = entryData.meta;
+  if (entryData.status !== undefined) payload.status = entryData.status;
+  if (entryData.featured !== undefined) payload.featured = Boolean(entryData.featured);
+  if (entryData.tracklist !== undefined) payload.tracklist = Array.isArray(entryData.tracklist) ? entryData.tracklist : [];
+  if (entryData.links !== undefined) payload.links = Array.isArray(entryData.links) ? entryData.links : [];
+  if (entryData.createdAt !== undefined) payload.created_at = entryData.createdAt;
+  return payload;
+}
 
-No pitch correction, no quantization grids. Just heavy bass frequencies bouncing off brutalist concrete walls.`,
-    image: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80',
-    meta: '01:42 // THE SINNERS STUDIO',
-    tracklist: ['01 Sound Test Alpha', '02 Sub-bass Feedback'],
-    links: [
-      { name: 'SPOTIFY', url: 'https://spotify.com' },
-      { name: 'SOUNDCLOUD', url: 'https://soundcloud.com' }
-    ],
-    createdAt: '2026-08-11T01:42:00.000Z'
-  },
-  {
-    id: 'upd_102',
-    date: '04 AUG 2026',
-    category: 'ESSAY // NOISE ARCHIVE',
-    title: 'NO NEWS. JUST PURE UNFILTERED NOISE.',
-    body: `Reflections on modern music aesthetics, feedback loops, and dynamic tension. Why raw noise remains the purest expression of unfiltered truth in recorded audio.
-
-When silence breaks, it shouldn't apologize. It should demand full presence.`,
-    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80',
-    meta: '03:15 // NIGHT TRANSMISSION',
-    tracklist: ['01 Feedback Loop I', '02 Industrial Decay'],
-    links: [
-      { name: 'BANDCAMP', url: 'https://bandcamp.com' }
-    ],
-    createdAt: '2026-08-04T03:15:00.000Z'
-  },
-  {
-    id: 'upd_103',
-    date: '28 JUL 2026',
-    category: 'PHOTOGRAPHY // FIELD RECORDINGS',
-    title: 'BERLIN INDUSTRIAL SOUNDSCAPE SESSIONS',
-    body: `Field recordings captured across abandoned industrial complexes in East Berlin. Low-frequency hums, resonant acoustic cavities, and metallic decay merged into the atmospheric layers of our upcoming releases.`,
-    image: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80',
-    meta: 'BERLIN // FIELD RECORDINGS',
-    tracklist: ['01 Berlin Ambient Decay'],
-    links: [
-      { name: 'YOUTUBE', url: 'https://youtube.com' }
-    ],
-    createdAt: '2026-07-28T22:00:00.000Z'
-  }
-];
-
+/**
+ * Returns current in-memory journal entries
+ */
 export function getJournalEntries() {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_JOURNAL_ENTRIES));
-    return INITIAL_JOURNAL_ENTRIES;
+  return inMemoryUpdates;
+}
+
+/**
+ * Fetches latest journal entries from Supabase PostgreSQL updates table
+ */
+export async function fetchJournalEntriesFromSupabase() {
+  if (!supabase) {
+    console.error('Supabase Update Hatası: Supabase client is not initialized.');
+    return inMemoryUpdates;
   }
+
   try {
-    const parsed = JSON.parse(stored);
-    let updated = false;
-    parsed.forEach(entry => {
-      if (entry.meta && entry.meta.includes('PARRHESIA')) {
-        entry.meta = entry.meta.replace(/PARRHESIA/g, 'THE SINNERS');
-        updated = true;
-      }
-    });
-    if (updated) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+    const { data, error } = await supabase
+      .from('updates')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase Update Hatası:', error);
+      return inMemoryUpdates;
     }
-    return parsed;
-  } catch (e) {
-    console.error('Error parsing journal entries:', e);
-    return INITIAL_JOURNAL_ENTRIES;
+
+    if (Array.isArray(data)) {
+      inMemoryUpdates = data.map(mapUpdateFromDB);
+      window.dispatchEvent(new CustomEvent('updates-data-updated'));
+      return inMemoryUpdates;
+    }
+
+    return inMemoryUpdates;
+  } catch (err) {
+    console.error('Supabase Update Hatası (Network):', err);
+    return inMemoryUpdates;
   }
 }
 
-export function saveJournalEntries(entries) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  window.dispatchEvent(new CustomEvent('updates-data-updated'));
-}
+/**
+ * Inserts a new Journal/Update entry directly into Supabase updates table
+ */
+export async function addJournalEntry(entryData) {
+  if (!supabase) {
+    const err = new Error('Supabase client is not initialized.');
+    console.error('Supabase Update Hatası:', err);
+    throw err;
+  }
 
-export function addJournalEntry(entryData) {
-  const entries = getJournalEntries();
   const newEntry = {
-    id: 'upd_' + Date.now(),
+    id: entryData.id || ('upd_' + Date.now()),
     date: entryData.date || new Date().toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase(),
     category: entryData.category || 'TRANSMISSION // JOURNAL',
     title: entryData.title || '',
@@ -114,37 +107,112 @@ export function addJournalEntry(entryData) {
     image: entryData.image || '',
     meta: entryData.meta || '',
     status: entryData.status || 'PUBLISHED',
-    featured: entryData.featured || false,
-    tracklist: entryData.tracklist || [],
-    links: entryData.links || [],
-    createdAt: new Date().toISOString()
+    featured: Boolean(entryData.featured),
+    tracklist: Array.isArray(entryData.tracklist) ? entryData.tracklist : [],
+    links: Array.isArray(entryData.links) ? entryData.links : [],
+    created_at: new Date().toISOString()
   };
 
-  if (newEntry.featured) {
-    entries.forEach(e => e.featured = false);
-  }
+  try {
+    const { data, error } = await supabase
+      .from('updates')
+      .insert([newEntry])
+      .select()
+      .single();
 
-  entries.unshift(newEntry);
-  saveJournalEntries(entries);
-  return newEntry;
-}
-
-export function updateJournalEntry(id, updatedData) {
-  const entries = getJournalEntries();
-  const index = entries.findIndex(e => e.id === id);
-  if (index !== -1) {
-    if (updatedData.featured) {
-      entries.forEach(e => e.featured = false);
+    if (error) {
+      console.error('Supabase Update Hatası:', error);
+      throw error;
     }
-    entries[index] = { ...entries[index], ...updatedData };
-    saveJournalEntries(entries);
-    return entries[index];
+
+    console.log('Supabase Tour Kaydedildi:', data); // Log pattern
+    console.log('Supabase Update Kaydedildi:', data);
+
+    const saved = mapUpdateFromDB(data);
+    inMemoryUpdates.unshift(saved);
+    window.dispatchEvent(new CustomEvent('updates-data-updated'));
+
+    return saved;
+  } catch (err) {
+    console.error('Supabase Update Hatası:', err);
+    throw err;
   }
-  return null;
 }
 
-export function deleteJournalEntry(id) {
-  let entries = getJournalEntries();
-  entries = entries.filter(e => e.id !== id);
-  saveJournalEntries(entries);
+/**
+ * Updates an existing Journal/Update entry directly in Supabase updates table
+ */
+export async function updateJournalEntry(id, updatedData) {
+  if (!supabase) {
+    const err = new Error('Supabase client is not initialized.');
+    console.error('Supabase Update Hatası:', err);
+    throw err;
+  }
+
+  try {
+    const dbPayload = mapUpdateToDB(updatedData);
+    delete dbPayload.id; // Primary key should not be modified
+
+    const { data, error } = await supabase
+      .from('updates')
+      .update(dbPayload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase Update Hatası:', error);
+      throw error;
+    }
+
+    console.log('Supabase Update Güncellendi:', data);
+
+    const saved = mapUpdateFromDB(data);
+    const index = inMemoryUpdates.findIndex(e => e.id === id);
+    if (index !== -1) {
+      inMemoryUpdates[index] = saved;
+    } else {
+      inMemoryUpdates.unshift(saved);
+    }
+    window.dispatchEvent(new CustomEvent('updates-data-updated'));
+
+    return saved;
+  } catch (err) {
+    console.error('Supabase Update Hatası:', err);
+    throw err;
+  }
 }
+
+/**
+ * Deletes a Journal/Update entry directly from Supabase updates table
+ */
+export async function deleteJournalEntry(id) {
+  if (!supabase) {
+    const err = new Error('Supabase client is not initialized.');
+    console.error('Supabase Update Hatası:', err);
+    throw err;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('updates')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Supabase Update Hatası:', error);
+      throw error;
+    }
+
+    console.log('Supabase Update Silindi:', id);
+
+    inMemoryUpdates = inMemoryUpdates.filter(e => e.id !== id);
+    window.dispatchEvent(new CustomEvent('updates-data-updated'));
+  } catch (err) {
+    console.error('Supabase Update Hatası:', err);
+    throw err;
+  }
+}
+
+// Automatically fetch from Supabase on startup
+fetchJournalEntriesFromSupabase();

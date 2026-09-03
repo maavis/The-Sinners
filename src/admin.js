@@ -25,7 +25,8 @@ import {
   getJournalEntries,
   addJournalEntry,
   updateJournalEntry,
-  deleteJournalEntry
+  deleteJournalEntry,
+  fetchJournalEntriesFromSupabase
 } from './data/updates.js';
 
 import {
@@ -1559,8 +1560,14 @@ function openJournalModal(itemToEdit, rootContainer) {
   }
 
   const form = modalOverlay.querySelector('#journal-entry-form');
-  form.onsubmit = (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ SAVING...';
+    }
 
     const data = {
       title: modalOverlay.querySelector('#j-title').value,
@@ -1573,18 +1580,23 @@ function openJournalModal(itemToEdit, rootContainer) {
       featured: modalOverlay.querySelector('#j-featured').checked
     };
 
-    if (isEdit) {
-      updateJournalEntry(itemToEdit.id, data);
-      logActivity('TRANSMISSION UPDATED', `Updated transmission "${data.title}"`);
-      showAdminToast('✓ TRANSMISSION SAVED SUCCESSFULLY');
-    } else {
-      addJournalEntry(data);
-      logActivity('TRANSMISSION CREATED', `Created transmission "${data.title}"`);
-      showAdminToast('✓ TRANSMISSION CREATED SUCCESSFULLY');
+    try {
+      if (isEdit) {
+        await updateJournalEntry(itemToEdit.id, data);
+        logActivity('TRANSMISSION UPDATED', `Updated transmission "${data.title}"`);
+        showAdminToast('✓ TRANSMISSION SAVED SUCCESSFULLY');
+      } else {
+        await addJournalEntry(data);
+        logActivity('TRANSMISSION CREATED', `Created transmission "${data.title}"`);
+        showAdminToast('✓ TRANSMISSION CREATED SUCCESSFULLY');
+      }
+    } catch (err) {
+      console.error('Error saving transmission:', err);
+      showAdminToast('⚠ Supabase sync error: ' + (err.message || 'Check RLS/Network'), 'danger');
+    } finally {
+      closeModal();
+      renderAdminUpdates(rootContainer);
     }
-
-    closeModal();
-    renderAdminUpdates(rootContainer);
   };
 }
 
@@ -2270,7 +2282,7 @@ function openDeleteConfirmModal(item, type, rootContainer) {
       showAdminToast('✓ RELEASE DELETED', 'danger');
       renderAdminMusic(rootContainer);
     } else if (type === 'TRANSMISSION') {
-      deleteJournalEntry(item.id);
+      await deleteJournalEntry(item.id);
       logActivity('TRANSMISSION DELETED', `Deleted transmission "${title}"`);
       showAdminToast('✓ TRANSMISSION DELETED', 'danger');
       renderAdminUpdates(rootContainer);
