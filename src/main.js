@@ -1571,17 +1571,34 @@ function renderPublicMusicPage() {
 
   const allReleases = getReleases();
   const publishedReleases = allReleases.filter(r => r.status === 'PUBLISHED');
-  const mainRelease = publishedReleases.find(r => r.featured) || publishedReleases[0];
+  
+  // 1) Find the explicit featured release (e.g. 9MM HATE)
+  // 2) If not explicitly featured, find the main ALBUM release
+  // 3) Fallback to the first published release
+  const mainRelease = publishedReleases.find(r => r.featured) || 
+                      publishedReleases.find(r => r.type === 'ALBUM') || 
+                      publishedReleases[0];
 
-  // Update Hero Release Info UI if elements exist
+  // Update Hero Release Info UI
   if (mainRelease) {
-    const heroTitleEl = document.querySelector('#music .music-hero-title, #music .featured-album-title');
-    const heroCoverEl = document.querySelector('#music .music-hero-cover, #music .featured-album-cover');
-    const heroMetaEl = document.querySelector('#music .music-hero-meta, #music .featured-album-meta');
+    const heroTitleEl = document.querySelector('#music .current-release-album-title, #music .music-hero-title, #music .featured-album-title');
+    const heroCoverEl = document.querySelector('#music .current-artwork-img, #music .music-hero-cover, #music .featured-album-cover');
+    const heroMetaEl = document.querySelector('#music .current-release-meta-tag, #music .music-hero-meta, #music .featured-album-meta');
+    const heroArtistEl = document.querySelector('#music .current-release-artist-name');
+    const tracklistHeaderLabelEl = document.querySelector('#music .tracklist-header-label');
 
     if (heroTitleEl) heroTitleEl.textContent = mainRelease.title;
-    if (heroCoverEl) heroCoverEl.src = mainRelease.coverUrl;
-    if (heroMetaEl) heroMetaEl.textContent = `${mainRelease.year} // ${mainRelease.type} // ${mainRelease.releaseDate}`;
+    if (heroCoverEl) {
+      heroCoverEl.src = mainRelease.coverUrl;
+      heroCoverEl.alt = `${mainRelease.title} Cover Artwork`;
+    }
+    if (heroMetaEl) heroMetaEl.textContent = `${mainRelease.year} // ${mainRelease.type} ${mainRelease.releaseDate ? '// ' + mainRelease.releaseDate : ''}`;
+    if (heroArtistEl) heroArtistEl.textContent = mainRelease.artist || 'THE SINNERS';
+    
+    const trackCount = (mainRelease.tracks || []).length;
+    if (tracklistHeaderLabelEl) {
+      tracklistHeaderLabelEl.textContent = `// TRACKLIST (${trackCount} ${trackCount === 1 ? 'TRACK' : 'TRACKS'})`;
+    }
   }
 
   // 1. Current Release Tracklist
