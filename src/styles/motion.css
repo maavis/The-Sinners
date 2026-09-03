@@ -1,0 +1,424 @@
+/**
+ * PARRHESIA MOTION SYSTEM v2
+ * EDITORIAL MOTION CHOREOGRAPHY
+ * Centralized Motion Tokens, Element-Specific Reveals, Line Width Animations, and Micro-Hover System v2
+ */
+
+:root {
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft-out: cubic-bezier(0.16, 1, 0.3, 1);
+  
+  --dur-micro: 180ms;
+  --dur-eyebrow: 380ms;
+  --dur-line: 380ms;
+  --dur-text: 480ms;
+  --dur-headline: 580ms;
+  --dur-image: 620ms;
+  --dur-page-exit: 140ms;
+  --dur-page-enter: 240ms;
+}
+
+/* Hardware Acceleration Helpers */
+.motion-gpu {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* --------------------------------------------------------------------------
+   0. FIRST PAINT / HARD REFRESH FLASH PROTECTION (Hydration Engine)
+   -------------------------------------------------------------------------- */
+html.motion-pending [data-motion],
+html.motion-pending .motion-reveal,
+html.motion-pending .motion-image,
+html.motion-pending .logo-container,
+html.motion-pending .hero-announcement {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: none !important;
+}
+
+html.motion-ready [data-motion],
+html.motion-ready .motion-reveal,
+html.motion-ready .motion-image,
+html.motion-ready .logo-container,
+html.motion-ready .hero-announcement,
+html.motion-ready #album-title-target {
+  visibility: visible !important;
+}
+
+.hero-announcement.is-visible,
+.hero-announcement.is-visible *,
+#album-title-target {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* --------------------------------------------------------------------------
+   1. REFINED FAST PAGE TRANSITION V3 STATES
+   -------------------------------------------------------------------------- */
+.page-transition-exiting {
+  animation: pageSoftExitV2 var(--dur-page-exit) var(--ease-editorial) forwards !important;
+  pointer-events: none !important;
+  will-change: opacity, transform;
+}
+
+.page-transition-entering {
+  animation: pageSoftEnterV2 var(--dur-page-enter) var(--ease-editorial) forwards !important;
+  will-change: opacity, transform;
+}
+
+@keyframes pageSoftExitV2 {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.96;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes pageSoftEnterV2 {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Latest Release GIF Layout Protection: Fixed Layout Position on Scroll */
+.home-music-section .album-artwork-box,
+.home-music-section .album-artwork-img {
+  transform: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   2. EDITORIAL LINE STYLING
+   -------------------------------------------------------------------------- */
+.editorial-line,
+.tour-editorial-line,
+.updates-editorial-line,
+.music-editorial-line,
+.about-editorial-line,
+.terms-editorial-line,
+.privacy-editorial-line,
+.footer-editorial-line {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 1rem 0 2rem 0;
+  transform-origin: left center;
+}
+
+/* --------------------------------------------------------------------------
+   3. ELEMENT-SPECIFIC EDITORIAL REVEAL UTILITIES (Refined v3)
+   -------------------------------------------------------------------------- */
+
+/* A. Eyebrow / Small Labels (e.g. // UPCOMING SHOWS, // TRANSMISSIONS) */
+[data-motion="eyebrow"] {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--dur-eyebrow) var(--ease-editorial),
+              transform var(--dur-eyebrow) var(--ease-editorial);
+}
+
+[data-motion="eyebrow"].is-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* B. Headlines (Smooth GPU-accelerated Editorial Reveal) */
+[data-motion="headline"] {
+  opacity: 0;
+  transform: translateY(12px) translateZ(0);
+  -webkit-transform: translateY(12px) translateZ(0);
+  transition: opacity var(--dur-headline) var(--ease-editorial),
+              transform var(--dur-headline) var(--ease-editorial);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+[data-motion="headline"].is-visible {
+  opacity: 1 !important;
+  transform: translateY(0) translateZ(0) !important;
+  -webkit-transform: translateY(0) translateZ(0) !important;
+  will-change: auto;
+}
+
+/* C. Editorial Line Reveals (Width 0% -> 100%, 380ms) */
+[data-motion="line"] {
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: opacity var(--dur-line) var(--ease-editorial),
+              transform var(--dur-line) var(--ease-editorial);
+}
+
+[data-motion="line"].is-visible {
+  opacity: 1 !important;
+  transform: scaleX(1) !important;
+}
+
+/* D. Body Text Paragraphs (Soft 8px upward fade) */
+[data-motion="text-reveal"] {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--dur-text) var(--ease-editorial),
+              transform var(--dur-text) var(--ease-editorial);
+}
+
+[data-motion="text-reveal"].is-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* E. Artworks & Photos (Refined Scale 1.015 -> 1.0) */
+[data-motion="image"],
+.motion-image {
+  opacity: 0;
+  transform: scale(1.015);
+  transition: opacity var(--dur-image) var(--ease-editorial),
+              transform var(--dur-image) var(--ease-editorial);
+}
+
+[data-motion="image"].is-visible,
+.motion-image.is-visible {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+}
+
+/* F. Small Metadata & Secondary Tags (Opacity Only) */
+[data-motion="meta"] {
+  opacity: 0;
+  transition: opacity 380ms var(--ease-editorial);
+}
+
+[data-motion="meta"].is-visible {
+  opacity: 1 !important;
+}
+
+/* G. Standard Scroll Reveal Fallback */
+[data-motion="reveal"],
+[data-motion="reveal-up"],
+.motion-reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity var(--dur-text) var(--ease-editorial),
+              transform var(--dur-text) var(--ease-editorial);
+}
+
+[data-motion="reveal"].is-visible,
+[data-motion="reveal-up"].is-visible,
+.motion-reveal.is-visible {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* --------------------------------------------------------------------------
+   4. STAGGERED LIST SYSTEM (40ms Stagger)
+   -------------------------------------------------------------------------- */
+[data-motion="stagger"] > * {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity var(--dur-text) var(--ease-editorial),
+              transform var(--dur-text) var(--ease-editorial);
+}
+
+[data-motion="stagger"].is-visible > * {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. NAVIGATION ACTIVE STATE MOTION
+   -------------------------------------------------------------------------- */
+.brutalist-nav .nav-link {
+  transition: opacity var(--dur-micro) var(--ease-editorial),
+              transform var(--dur-micro) var(--ease-editorial),
+              color var(--dur-micro) var(--ease-editorial) !important;
+}
+
+.brutalist-nav .nav-link .nav-label-row {
+  transition: transform var(--dur-micro) var(--ease-editorial) !important;
+}
+
+.brutalist-nav .nav-link.active .nav-label-row {
+  transform: translateX(3px);
+}
+
+.brutalist-nav .nav-link.active .nav-arrow-svg {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+/* --------------------------------------------------------------------------
+   6. MICRO-INTERACTION HOVER SYSTEM V2
+   -------------------------------------------------------------------------- */
+.motion-link-hover,
+.brutalist-nav .nav-link,
+.footer-link,
+.replica-legal-link,
+.spread-ext-link {
+  transition: opacity var(--dur-micro) var(--ease-editorial),
+              transform var(--dur-micro) var(--ease-editorial) !important;
+}
+
+.motion-link-hover:hover,
+.brutalist-nav .nav-link:hover,
+.footer-link:hover,
+.replica-legal-link:hover,
+.spread-ext-link:hover {
+  opacity: 0.72 !important;
+  transform: translateX(2px) !important;
+}
+
+.motion-arrow-hover,
+.nav-arrow-svg,
+.home-cta-btn svg,
+.event-btn svg,
+.spread-ext-link svg {
+  display: inline-block;
+  transition: transform var(--dur-micro) var(--ease-editorial) !important;
+}
+
+*:hover > .motion-arrow-hover,
+.motion-arrow-hover:hover,
+.nav-link:hover .nav-arrow-svg,
+.home-cta-btn:hover svg,
+.event-btn:hover svg,
+.spread-ext-link:hover svg {
+  transform: translateX(4px) !important;
+}
+
+/* Tour Row Hover Choreography (No Card Resize) */
+.tour-exact-row {
+  transition: background-color var(--dur-micro) var(--ease-editorial) !important;
+}
+
+.tour-exact-row:hover .tour-row-venue {
+  transform: translateX(3px);
+  transition: transform var(--dur-micro) var(--ease-editorial);
+}
+
+.tour-exact-row:hover .tour-ticket-btn {
+  transform: translateX(2px);
+  transition: transform var(--dur-micro) var(--ease-editorial);
+}
+
+.tour-exact-row:hover .tour-row-location {
+  opacity: 0.8;
+  transition: opacity var(--dur-micro) var(--ease-editorial);
+}
+
+/* Music Track Row Hover Choreography */
+.music-track-row,
+.music-archive-row {
+  transition: background-color var(--dur-micro) var(--ease-editorial) !important;
+}
+
+.music-track-row:hover .track-title-text,
+.music-archive-row:hover .archive-track-title {
+  transform: translateX(2px);
+  transition: transform var(--dur-micro) var(--ease-editorial);
+}
+
+.music-track-row:hover .play-svg-icon,
+.music-archive-row:hover .play-svg-icon {
+  transform: translateX(2px);
+  transition: transform var(--dur-micro) var(--ease-editorial);
+}
+
+/* Soft Image Hover */
+.motion-hover-image,
+.discography-card .disco-cover-img,
+.about-hero-slide-img,
+.spread-artwork-img,
+.album-artwork-img,
+.current-artwork-img,
+.transmission-cover-img {
+  transition: transform 480ms var(--ease-editorial), filter 480ms var(--ease-editorial) !important;
+}
+
+.motion-hover-image:hover,
+.discography-card:hover .disco-cover-img,
+.spread-artwork-container:hover .spread-artwork-img,
+.album-artwork-box:hover .album-artwork-img,
+.current-artwork-box:hover .current-artwork-img,
+.transmission-card:hover .transmission-cover-img {
+  transform: scale(1.015) !important;
+}
+
+/* --------------------------------------------------------------------------
+   7. MOBILE RESPONSIVE OPTIMIZATIONS
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  :root {
+    --dur-headline: 600ms;
+    --dur-image: 650ms;
+  }
+
+  [data-motion="headline"] {
+    transform: translateY(12px);
+  }
+
+  [data-motion="eyebrow"],
+  [data-motion="text-reveal"],
+  [data-motion="stagger"] > * {
+    transform: translateY(6px);
+  }
+
+  /* Reduce parallax transform distance on mobile touch scroll */
+  .parallax-artwork,
+  [data-parallax="artwork"] {
+    transform: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. REDUCED MOTION ACCESSIBILITY FALLBACKS
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  [data-motion="eyebrow"],
+  [data-motion="headline"],
+  [data-motion="line"],
+  [data-motion="text-reveal"],
+  [data-motion="image"],
+  [data-motion="meta"],
+  [data-motion="reveal"],
+  [data-motion="reveal-up"],
+  [data-motion="stagger"] > *,
+  .motion-reveal,
+  .motion-image {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+    -webkit-clip-path: none !important;
+    transition: opacity 100ms ease !important;
+  }
+
+  [data-motion="line"] {
+    transform: scaleX(1) !important;
+  }
+
+  .page-transition-exiting,
+  .page-transition-entering {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .motion-hover-image:hover,
+  .discography-card:hover .disco-cover-img,
+  .spread-artwork-container:hover .spread-artwork-img,
+  .album-artwork-box:hover .album-artwork-img,
+  .current-artwork-box:hover .current-artwork-img,
+  .transmission-card:hover .transmission-cover-img,
+  *:hover > .motion-arrow-hover,
+  .motion-arrow-hover:hover {
+    transform: none !important;
+  }
+}
+
