@@ -827,10 +827,7 @@ function initTourTopBarScrollHandler() {
   window.addEventListener('scroll', () => {
     const topBar = document.querySelector('.desktop-top-bar');
     if (!topBar) return;
-    const isTour = document.documentElement.classList.contains('route-tour');
-    const isMusic = document.documentElement.classList.contains('route-music');
-    const isUpdates = document.documentElement.classList.contains('route-updates');
-    if ((isTour || isMusic || isUpdates) && window.scrollY > 20) {
+    if (window.scrollY > 20) {
       topBar.classList.add('top-bar-hidden');
     } else {
       topBar.classList.remove('top-bar-hidden');
