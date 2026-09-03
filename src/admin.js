@@ -9,7 +9,8 @@ import {
   addTourEvent,
   updateTourEvent,
   deleteTourEvent,
-  toggleTourEventVisibility
+  toggleTourEventVisibility,
+  fetchTourEventsFromSupabase
 } from './data/tour.js';
 
 import {
@@ -525,9 +526,9 @@ function renderAdminTour(container) {
 
   const toggleBtns = container.querySelectorAll('.btn-toggle-event');
   toggleBtns.forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       const id = btn.getAttribute('data-id');
-      toggleTourEventVisibility(id);
+      await toggleTourEventVisibility(id);
       logActivity('TOUR UPDATED', `Visibility toggled for tour event ${id}`);
       showAdminToast('✓ TOUR EVENT VISIBILITY UPDATED');
       renderAdminTour(container);
@@ -2257,9 +2258,9 @@ function openDeleteConfirmModal(item, type, rootContainer) {
   modalOverlay.querySelector('.admin-modal-close').onclick = closeModal;
   modalOverlay.querySelector('.admin-modal-cancel').onclick = closeModal;
 
-  modalOverlay.querySelector('#btn-confirm-delete').onclick = () => {
+  modalOverlay.querySelector('#btn-confirm-delete').onclick = async () => {
     if (type === 'TOUR') {
-      deleteTourEvent(item.id);
+      await deleteTourEvent(item.id);
       logActivity('TOUR EVENT DELETED', `Deleted tour event ${item.id}`);
       showAdminToast('✓ TOUR EVENT DELETED', 'danger');
       renderAdminTour(rootContainer);
