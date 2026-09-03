@@ -11,7 +11,8 @@ import {
   updateCartQuantity,
   removeFromCart,
   clearCart,
-  getCartSummary
+  getCartSummary,
+  isMerchDataLoading
 } from './data/merch.js';
 
 let activeCategory = 'ALL';
@@ -36,6 +37,10 @@ export function mountMerchStore(container) {
   updateCartBadgeUI();
   initHeaderScrollListener();
   init3DCardTiltEffect();
+
+  window.addEventListener('store-products-updated', () => {
+    renderProductGrid();
+  });
 }
 
 /**
@@ -351,6 +356,16 @@ function renderProductGrid() {
   const feed = document.getElementById('store-products-feed');
   const counter = document.getElementById('store-counter-text');
   if (!feed) return;
+
+  if (isMerchDataLoading()) {
+    if (counter) counter.textContent = 'YÜKLENİYOR...';
+    feed.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 5rem 2rem; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.85rem; letter-spacing: 0.15em;">
+        // VAULT MAĞAZA ARŞİVİ VE ÜRÜNLER YÜKLENİYOR...
+      </div>
+    `;
+    return;
+  }
 
   const allProducts = getProducts();
 

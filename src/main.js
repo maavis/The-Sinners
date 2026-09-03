@@ -1,6 +1,7 @@
 import { siteConfig } from './config.js';
 import { initAdminPortal, handleAdminRouting } from './admin.js';
 import { mountMerchStore } from './store.js';
+import { fetchProductsFromSupabase } from './data/merch.js';
 import { getCategorizedTourEvents } from './data/tour.js';
 import { getJournalEntries } from './data/updates.js';
 import { getAboutData } from './data/about.js';
@@ -14,6 +15,7 @@ import './styles/admin.css';
 import './styles/store.css';
 
 document.addEventListener('DOMContentLoaded', () => {
+  fetchProductsFromSupabase();
   fetchMusicFromSupabase();
   initCinematicIntro();
   initLogo();
@@ -138,32 +140,62 @@ function initHero() {
 }
 
 /**
+ * Helper to close mobile drawer and backdrop across all routes
+ */
+export function closeMobileNavigation() {
+  const sidebarEl = document.getElementById('sidebar-navigation');
+  const backdropEl = document.getElementById('mobile-drawer-backdrop');
+  const aboutToggleBtn = document.getElementById('about-menu-toggle');
+  if (sidebarEl) {
+    sidebarEl.classList.remove('is-open', 'is-forced-open');
+  }
+  if (backdropEl) {
+    backdropEl.classList.remove('is-visible');
+  }
+  if (aboutToggleBtn) {
+    aboutToggleBtn.classList.remove('is-active');
+  }
+}
+
+/**
  * Handle Mobile Drawer Toggle and Sidebar Nav interactions
  */
 function initNavigation() {
   const mobileToggle = document.getElementById('mobile-menu-toggle');
-  const sidebarClose = document.getElementById('sidebar-close-btn');
-  const sidebar = id => document.getElementById('sidebar-navigation');
+  const sidebar = document.getElementById('sidebar-navigation');
+  const backdrop = document.getElementById('mobile-drawer-backdrop');
 
-  if (mobileToggle) {
-    mobileToggle.addEventListener('click', () => {
-      sidebar().classList.toggle('is-open');
+  if (mobileToggle && sidebar) {
+    mobileToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = sidebar.classList.toggle('is-open');
+      if (backdrop) {
+        if (isOpen) backdrop.classList.add('is-visible');
+        else backdrop.classList.remove('is-visible');
+      }
     });
   }
 
-  if (sidebarClose) {
-    sidebarClose.addEventListener('click', () => {
-      sidebar().classList.remove('is-open');
+  if (backdrop) {
+    backdrop.addEventListener('click', () => {
+      closeMobileNavigation();
     });
   }
 
-  // Mobile drawer outside click handler
+  // Close mobile drawer when clicking any link inside sidebar
+  if (sidebar) {
+    sidebar.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        closeMobileNavigation();
+      }
+    });
+  }
+
+  // Fallback outside click
   document.addEventListener('click', (e) => {
-    const sidebarEl = sidebar();
-    const isMobile = window.innerWidth <= 850;
-    if (isMobile && sidebarEl.classList.contains('is-open')) {
-      if (!sidebarEl.contains(e.target) && !mobileToggle.contains(e.target)) {
-        sidebarEl.classList.remove('is-open');
+    if (sidebar && sidebar.classList.contains('is-open')) {
+      if (!sidebar.contains(e.target) && mobileToggle && !mobileToggle.contains(e.target)) {
+        closeMobileNavigation();
       }
     }
   });
@@ -320,6 +352,7 @@ function initClientRouter() {
 
     const normalizedPath = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path;
     updateActiveLink(normalizedPath);
+    closeMobileNavigation();
 
     const heroSec = document.getElementById('hero');
     const merchSec = document.getElementById('merch');

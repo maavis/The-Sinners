@@ -69,6 +69,14 @@ import {
   updateFooterData
 } from './data/footer.js';
 
+import {
+  getProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  fetchProductsFromSupabase
+} from './data/merch.js';
+
 import { supabase } from './lib/supabase.js';
 
 export function showAdminToast(message, type = 'success') {
@@ -166,6 +174,8 @@ export async function handleAdminRouting() {
       renderAdminMusic(adminRoot);
     } else if (path === '/admin/updates' || path === '/admin/news') {
       renderAdminUpdates(adminRoot);
+    } else if (path === '/admin/store' || path === '/admin/merch') {
+      renderAdminStore(adminRoot);
     } else if (path === '/admin/media') {
       renderAdminMedia(adminRoot);
     } else if (path === '/admin/about') {
@@ -323,6 +333,9 @@ function getAdminSidebarHTML(activeRoute) {
             </li>
             <li class="admin-nav-item">
               <a href="/admin/updates" class="admin-link ${activeRoute === '/admin/updates' ? 'active' : ''}">Haberler & Yazılar</a>
+            </li>
+            <li class="admin-nav-item">
+              <a href="/admin/store" class="admin-link ${activeRoute === '/admin/store' || activeRoute === '/admin/merch' ? 'active' : ''}">Mağaza (Store)</a>
             </li>
             <li class="admin-nav-item">
               <a href="/admin/about" class="admin-link ${activeRoute === '/admin/about' ? 'active' : ''}">Hakkımızda & Slaytlar</a>
@@ -1718,6 +1731,371 @@ function openTransmissionPreviewModal(transmissionData) {
   const closeModal = () => modalOverlay.remove();
   modalOverlay.querySelector('.admin-modal-close').onclick = closeModal;
   modalOverlay.querySelector('.admin-modal-close-btn').onclick = closeModal;
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * MAĞAZA & ÜRÜN YÖNETİMİ GÖRÜNÜMÜ (/admin/store)
+ * --------------------------------------------------------------------------
+ */
+let activeStoreFilter = 'ALL';
+let storeSearchQuery = '';
+
+function renderAdminStore(container) {
+  const products = getProducts();
+
+  let filtered = products.filter(p => {
+    if (activeStoreFilter === 'T-SHIRTS') return p.category === 'T-SHIRTS';
+    if (activeStoreFilter === 'HOODIES') return p.category === 'HOODIES';
+    if (activeStoreFilter === 'VINYL') return p.category === 'VINYL';
+    if (activeStoreFilter === 'CASSETTES') return p.category === 'CASSETTES';
+    if (activeStoreFilter === 'ACCESSORIES') return p.category === 'ACCESSORIES';
+    if (activeStoreFilter === 'IN_STOCK') return p.stockStatus === 'IN_STOCK';
+    if (activeStoreFilter === 'LOW_STOCK') return p.stockStatus === 'LOW_STOCK';
+    if (activeStoreFilter === 'SOLD_OUT') return p.stockStatus === 'SOLD_OUT';
+    return true;
+  });
+
+  if (storeSearchQuery.trim()) {
+    const q = storeSearchQuery.toLowerCase().trim();
+    filtered = filtered.filter(p => 
+      (p.name && p.name.toLowerCase().includes(q)) || 
+      (p.category && p.category.toLowerCase().includes(q)) ||
+      (p.season && p.season.toLowerCase().includes(q))
+    );
+  }
+
+  container.innerHTML = `
+    <div class="admin-cms-layout">
+      <div class="admin-mobile-header">
+        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
+      </div>
+
+      ${getAdminSidebarHTML('/admin/store')}
+
+      <main class="admin-main-content">
+        <div class="admin-page-header">
+          <div>
+            <h1 class="admin-page-title">Mağaza & Ürün Yönetimi</h1>
+            <p class="admin-page-desc">Resmi Giyim, Plaklar, Kasetler, Bedenler ve Stok Durumunu Yönetin</p>
+          </div>
+          <button id="btn-add-product" class="admin-btn admin-btn-primary">+ YENİ ÜRÜN EKLE</button>
+        </div>
+
+        <div class="admin-toolbar">
+          <div class="admin-search-box">
+            <input type="text" id="store-admin-search-input" class="admin-input" placeholder="Ürün adı, kategori veya sezon ara..." value="${escapeHtml(storeSearchQuery)}" />
+          </div>
+
+          <div class="admin-filter-tabs">
+            <button class="admin-filter-btn ${activeStoreFilter === 'ALL' ? 'active' : ''}" data-filter="ALL">TÜMÜ (${products.length})</button>
+            <button class="admin-filter-btn ${activeStoreFilter === 'T-SHIRTS' ? 'active' : ''}" data-filter="T-SHIRTS">TİŞÖRT</button>
+            <button class="admin-filter-btn ${activeStoreFilter === 'HOODIES' ? 'active' : ''}" data-filter="HOODIES">KAPÜŞONLU</button>
+            <button class="admin-filter-btn ${activeStoreFilter === 'VINYL' ? 'active' : ''}" data-filter="VINYL">PLAK</button>
+            <button class="admin-filter-btn ${activeStoreFilter === 'CASSETTES' ? 'active' : ''}" data-filter="CASSETTES">KASET</button>
+            <button class="admin-filter-btn ${activeStoreFilter === 'ACCESSORIES' ? 'active' : ''}" data-filter="ACCESSORIES">AKSESUAR</button>
+          </div>
+        </div>
+
+        <div class="admin-table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>GÖRSEL</th>
+                <th>ÜRÜN ADI & SEZON</th>
+                <th>KATEGORİ</th>
+                <th>FİYAT</th>
+                <th>STOK DURUMU</th>
+                <th>BEDENLER</th>
+                <th>İŞLEMLER</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${renderProductAdminRows(filtered)}
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  `;
+
+  bindAdminNavEvents(container);
+
+  const searchInput = container.querySelector('#store-admin-search-input');
+  if (searchInput) {
+    searchInput.oninput = (e) => {
+      storeSearchQuery = e.target.value;
+      renderAdminStore(container);
+    };
+  }
+
+  const filterBtns = container.querySelectorAll('.admin-filter-btn');
+  filterBtns.forEach(btn => {
+    btn.onclick = () => {
+      activeStoreFilter = btn.getAttribute('data-filter') || 'ALL';
+      renderAdminStore(container);
+    };
+  });
+
+  const addBtn = container.querySelector('#btn-add-product');
+  if (addBtn) addBtn.onclick = () => openProductAdminModal(null, container);
+
+  const editBtns = container.querySelectorAll('.btn-edit-product');
+  editBtns.forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.getAttribute('data-id');
+      const prod = getProducts().find(p => p.id === id);
+      if (prod) openProductAdminModal(prod, container);
+    };
+  });
+
+  const deleteBtns = container.querySelectorAll('.btn-delete-product');
+  deleteBtns.forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.getAttribute('data-id');
+      const prod = getProducts().find(p => p.id === id);
+      if (prod && confirm(`"${prod.name}" ürününü Supabase veritabanından kalıcı olarak silmek istediğinize emin misiniz?`)) {
+        try {
+          await deleteProduct(id);
+          logActivity('ÜRÜN SİLİNDİ', `Ürün silindi: "${prod.name}"`);
+          showAdminToast('✓ ÜRÜN BAŞARIYLA SİLİNDİ');
+        } catch (err) {
+          showAdminToast('⚠ Ürün silinemedi: ' + err.message, 'danger');
+        } finally {
+          renderAdminStore(container);
+        }
+      }
+    };
+  });
+}
+
+function renderProductAdminRows(products) {
+  if (products.length === 0) {
+    return `<tr><td colspan="7" class="admin-empty-cell">Filtreye uygun ürün bulunamadı.</td></tr>`;
+  }
+
+  return products.map(prod => {
+    let stockBadgeClass = 'badge-success';
+    let stockBadgeText = prod.stockLabel || 'STOKTA VAR';
+    if (prod.stockStatus === 'SOLD_OUT') {
+      stockBadgeClass = 'badge-danger';
+      stockBadgeText = 'TÜKENDİ';
+    } else if (prod.stockStatus === 'LOW_STOCK') {
+      stockBadgeClass = 'badge-warning';
+      stockBadgeText = prod.stockLabel || 'SON ADETLER';
+    }
+
+    const sizesText = (prod.sizes || []).map(s => s.size).join(', ') || 'STANDART';
+
+    return `
+      <tr>
+        <td>
+          <img src="${prod.primaryImage}" alt="${escapeHtml(prod.name)}" class="admin-cell-thumb" style="width:48px; height:60px; object-fit:cover; border:1px solid rgba(255,255,255,0.1);" />
+        </td>
+        <td>
+          <div class="admin-row-title">${escapeHtml(prod.name)}</div>
+          <div class="admin-sub-text">${escapeHtml(prod.season || 'SONBAHAR/KIŞ 2026')}</div>
+        </td>
+        <td><span class="admin-badge badge-subtle">${escapeHtml(prod.category)}</span></td>
+        <td><strong>${prod.currency || '€'}${prod.price}</strong></td>
+        <td><span class="admin-badge ${stockBadgeClass}">${escapeHtml(stockBadgeText)}</span></td>
+        <td><span style="font-size:0.75rem; color:#aaa;">${escapeHtml(sizesText)}</span></td>
+        <td>
+          <div class="admin-action-btns">
+            <button class="admin-action-btn btn-edit-product" data-id="${prod.id}">Düzenle</button>
+            <button class="admin-action-btn btn-danger btn-delete-product" data-id="${prod.id}">Sil</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openProductAdminModal(productToEdit, rootContainer) {
+  const isEdit = !!productToEdit;
+
+  const modalOverlay = document.createElement('div');
+  modalOverlay.className = 'admin-modal-backdrop';
+
+  modalOverlay.innerHTML = `
+    <div class="admin-modal admin-modal-wide" style="max-height: 90vh; display: flex; flex-direction: column;">
+      <div class="admin-modal-header" style="position: sticky; top: 0; background: #141418; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 1.5rem 2rem; z-index: 10;">
+        <h2 class="admin-modal-title">${isEdit ? 'ÜRÜNÜ DÜZENLE' : 'YENİ ÜRÜN EKLE'}</h2>
+        <button type="button" class="admin-modal-close">&times;</button>
+      </div>
+      <form id="product-admin-form" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="admin-modal-body admin-grid-layout" style="padding: 2rem;">
+          <div class="admin-modal-main-col">
+            <div class="admin-form-grid">
+              <div class="admin-form-group span-2">
+                <label class="admin-label">Ürün Adı / Başlığı*</label>
+                <input type="text" id="prod-name" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.name) : ''}" required placeholder="Örn: MADE OF SIN TİŞÖRT" />
+              </div>
+
+              <div class="admin-form-group">
+                <label class="admin-label">Kategori*</label>
+                <select id="prod-category" class="admin-input">
+                  <option value="T-SHIRTS" ${productToEdit && productToEdit.category === 'T-SHIRTS' ? 'selected' : ''}>TİŞÖRT</option>
+                  <option value="HOODIES" ${productToEdit && productToEdit.category === 'HOODIES' ? 'selected' : ''}>KAPÜŞONLU</option>
+                  <option value="VINYL" ${productToEdit && productToEdit.category === 'VINYL' ? 'selected' : ''}>12" PLAK</option>
+                  <option value="CASSETTES" ${productToEdit && productToEdit.category === 'CASSETTES' ? 'selected' : ''}>KASET</option>
+                  <option value="ACCESSORIES" ${productToEdit && productToEdit.category === 'ACCESSORIES' ? 'selected' : ''}>AKSESUAR</option>
+                </select>
+              </div>
+
+              <div class="admin-form-group">
+                <label class="admin-label">Fiyat*</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" id="prod-currency" class="admin-input" style="width: 60px;" value="${productToEdit ? escapeHtml(productToEdit.currency || '€') : '€'}" required />
+                  <input type="number" step="0.01" id="prod-price" class="admin-input" value="${productToEdit ? productToEdit.price : '45'}" required />
+                </div>
+              </div>
+
+              <div class="admin-form-group">
+                <label class="admin-label">Stok Durumu*</label>
+                <select id="prod-stock-status" class="admin-input">
+                  <option value="IN_STOCK" ${!productToEdit || productToEdit.stockStatus === 'IN_STOCK' ? 'selected' : ''}>STOKTA VAR</option>
+                  <option value="LOW_STOCK" ${productToEdit && productToEdit.stockStatus === 'LOW_STOCK' ? 'selected' : ''}>AZ STOK (Son Adetler)</option>
+                  <option value="SOLD_OUT" ${productToEdit && productToEdit.stockStatus === 'SOLD_OUT' ? 'selected' : ''}>TÜKENDİ</option>
+                </select>
+              </div>
+
+              <div class="admin-form-group">
+                <label class="admin-label">Stok Etiket Metni</label>
+                <input type="text" id="prod-stock-label" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.stockLabel || 'STOKTA VAR') : 'STOKTA VAR'}" placeholder="Örn: STOKTA VAR / SON ADETLER" />
+              </div>
+
+              <div class="admin-form-group span-2">
+                <label class="admin-label">Sezon / Koleksiyon Adı</label>
+                <input type="text" id="prod-season" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.season || 'SONBAHAR/KIŞ 2026') : 'SONBAHAR/KIŞ 2026'}" placeholder="Örn: SONBAHAR/KIŞ 2026 / SINIRLI ÖZEL SERİ" />
+              </div>
+
+              <div class="admin-form-group span-2">
+                <label class="admin-label">Kısa Slogan / Tagline</label>
+                <input type="text" id="prod-tagline" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.tagline || '') : ''}" placeholder="Örn: İmza Ağır Gramaj Tipografik Grup Tişörtü" />
+              </div>
+
+              <div class="admin-form-group span-2">
+                <label class="admin-label">Ürün Açıklaması</label>
+                <textarea id="prod-desc" class="admin-input" rows="3" placeholder="Ürünün detaylı açıklaması...">${productToEdit ? escapeHtml(productToEdit.description) : ''}</textarea>
+              </div>
+
+              <div class="admin-form-group span-2">
+                <label class="admin-label">Kumaş & Materyal Özellikleri</label>
+                <input type="text" id="prod-material" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.material || '%100 Organik Pamuk, 240 GSM') : '%100 Organik Pamuk, 240 GSM'}" />
+              </div>
+
+              <div class="admin-form-group span-2">
+                <label class="admin-label">Beden & Kalıp Rehberi</label>
+                <input type="text" id="prod-size-guide" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.sizeGuide || 'Sokak modasına uygun rahat boxy fit kalıp.') : 'Sokak modasına uygun rahat boxy fit kalıp.'}" />
+              </div>
+
+              <div class="admin-form-group">
+                <label class="admin-label">Kargo Bilgisi</label>
+                <input type="text" id="prod-shipping" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.shippingInfo || '1-3 iş günü içinde kargoya verilir.') : '1-3 iş günü içinde kargoya verilir.'}" />
+              </div>
+
+              <div class="admin-form-group">
+                <label class="admin-label">İade Koşulu</label>
+                <input type="text" id="prod-returns" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.returnsInfo || '14 gün içinde koşulsuz iade.') : '14 gün içinde koşulsuz iade.'}" />
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-modal-side-col">
+            <div class="admin-form-group">
+              <label class="admin-label">Ana Görsel URL*</label>
+              <input type="url" id="prod-primary-img" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.primaryImage || '') : 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1000&q=80'}" required />
+              <div class="admin-img-preview-box" style="margin-top: 0.75rem; aspect-ratio: 4/5;">
+                <img id="prod-primary-preview" src="${productToEdit ? productToEdit.primaryImage : 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1000&q=80'}" alt="Önizleme" style="width:100%; height:100%; object-fit:cover;" />
+              </div>
+            </div>
+
+            <div class="admin-form-group" style="margin-top: 1.5rem;">
+              <label class="admin-label">İkincil Görsel URL (Hover Görseli)</label>
+              <input type="url" id="prod-secondary-img" class="admin-input" value="${productToEdit ? escapeHtml(productToEdit.secondaryImage || '') : ''}" placeholder="https://..." />
+            </div>
+
+            <div class="admin-form-group" style="margin-top: 1.5rem;">
+              <label class="admin-label">Galeri Görselleri (Her satıra 1 URL)</label>
+              <textarea id="prod-gallery" class="admin-input" rows="4" placeholder="https://...\nhttps://...">${productToEdit && productToEdit.gallery ? productToEdit.gallery.join('\n') : ''}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="admin-btn admin-btn-secondary admin-modal-cancel">İptal</button>
+          <button type="submit" class="admin-btn admin-btn-primary">ÜRÜNÜ KAYDET</button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(modalOverlay);
+
+  const closeModal = () => modalOverlay.remove();
+  modalOverlay.querySelector('.admin-modal-close').onclick = closeModal;
+  modalOverlay.querySelector('.admin-modal-cancel').onclick = closeModal;
+
+  const imgInput = modalOverlay.querySelector('#prod-primary-img');
+  const imgPreview = modalOverlay.querySelector('#prod-primary-preview');
+  if (imgInput && imgPreview) {
+    imgInput.oninput = (e) => imgPreview.src = cleanImageUrl(e.target.value);
+  }
+
+  const form = modalOverlay.querySelector('#product-admin-form');
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const primaryImgUrl = cleanImageUrl(modalOverlay.querySelector('#prod-primary-img').value);
+    const secondaryImgUrl = cleanImageUrl(modalOverlay.querySelector('#prod-secondary-img').value);
+    const galleryLines = modalOverlay.querySelector('#prod-gallery').value.split('\n').map(l => cleanImageUrl(l.trim())).filter(Boolean);
+
+    const data = {
+      name: modalOverlay.querySelector('#prod-name').value,
+      category: modalOverlay.querySelector('#prod-category').value,
+      price: parseFloat(modalOverlay.querySelector('#prod-price').value) || 0,
+      currency: modalOverlay.querySelector('#prod-currency').value.trim() || '€',
+      stockStatus: modalOverlay.querySelector('#prod-stock-status').value,
+      stockLabel: modalOverlay.querySelector('#prod-stock-label').value.trim() || 'STOKTA VAR',
+      season: modalOverlay.querySelector('#prod-season').value.trim(),
+      tagline: modalOverlay.querySelector('#prod-tagline').value.trim(),
+      description: modalOverlay.querySelector('#prod-desc').value.trim(),
+      material: modalOverlay.querySelector('#prod-material').value.trim(),
+      sizeGuide: modalOverlay.querySelector('#prod-size-guide').value.trim(),
+      shippingInfo: modalOverlay.querySelector('#prod-shipping').value.trim(),
+      returnsInfo: modalOverlay.querySelector('#prod-returns').value.trim(),
+      primaryImage: primaryImgUrl,
+      secondaryImage: secondaryImgUrl,
+      gallery: galleryLines.length > 0 ? galleryLines : [primaryImgUrl].filter(Boolean),
+      sizes: productToEdit && productToEdit.sizes ? productToEdit.sizes : [
+        { size: 'S', available: true, status: 'AVAILABLE' },
+        { size: 'M', available: true, status: 'AVAILABLE' },
+        { size: 'L', available: true, status: 'AVAILABLE' },
+        { size: 'XL', available: true, status: 'AVAILABLE' }
+      ],
+      defaultSize: productToEdit && productToEdit.defaultSize ? productToEdit.defaultSize : 'M'
+    };
+
+    try {
+      if (isEdit) {
+        await updateProduct(productToEdit.id, data);
+        logActivity('ÜRÜN GÜNCELLENDİ', `Ürün güncellendi: "${data.name}"`);
+        showAdminToast('✓ ÜRÜN BAŞARIYLA GÜNCELLENDİ');
+      } else {
+        await addProduct(data);
+        logActivity('ÜRÜN EKLENDİ', `Yeni ürün eklendi: "${data.name}"`);
+        showAdminToast('✓ YENİ ÜRÜN BAŞARIYLA EKLENDİ');
+      }
+    } catch (err) {
+      console.error('Ürün kaydetme hatası:', err);
+      showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+    } finally {
+      closeModal();
+      renderAdminStore(rootContainer);
+    }
+  };
 }
 
 /**
