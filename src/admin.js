@@ -43,10 +43,13 @@ import {
 
 import {
   getSocialLinks,
+  upsertSocialLink,
+  saveSocialLinksBatch,
   addSocialLink,
   updateSocialLink,
   deleteSocialLink,
-  getSocialIconHTML
+  getSocialIconHTML,
+  fetchSocialLinksFromSupabase
 } from './data/socials.js';
 
 import {
@@ -2793,10 +2796,18 @@ function openSlideModal(slideItem, rootContainer) {
 /**
  * --------------------------------------------------------------------------
  * SOSYAL MEDYA LİNKLERİ GÖRÜNÜMÜ (/admin/socials)
+ * 5 Sosyal Medya İkonu ve Linki (Supabase social_links Tablosu)
  * --------------------------------------------------------------------------
  */
 function renderAdminSocials(container) {
   const links = getSocialLinks();
+  const displayLinks = (links && links.length > 0) ? links : [
+    { id: 'soc_1', title: 'Facebrowser', name: 'Facebrowser', target_url: 'https://face-tr.gta.world/page/parrhesia', icon_url: '/icons/facebrowser.ico', display_order: 1 },
+    { id: 'soc_2', title: 'Youtube', name: 'Youtube', target_url: 'https://www.youtube.com/@parrhesiatheband', icon_url: '/icons/youtube.png', display_order: 2 },
+    { id: 'soc_3', title: 'Soundloop', name: 'Soundloop', target_url: 'https://soundloop.app', icon_url: '/icons/soundloop.png', display_order: 3 },
+    { id: 'soc_4', title: 'LS Chat', name: 'LS Chat', target_url: 'https://chat-tr.gta.world/app/s/107/5398', icon_url: '/icons/lschat.svg', display_order: 4 },
+    { id: 'soc_5', title: 'SanMail', name: 'SanMail', target_url: 'https://mail-tr.gta.world/compose?to=mail%40parrhesia.com', icon_url: '/icons/sanmail.png', display_order: 5 }
+  ];
 
   container.innerHTML = `
     <div class="admin-cms-layout">
@@ -2811,25 +2822,67 @@ function renderAdminSocials(container) {
         <div class="admin-page-header">
           <div>
             <h1 class="admin-page-title">Sosyal Medya Linkleri</h1>
-            <p class="admin-page-desc">Header ve Footer Sosyal Medya İkonları ve Linkleri</p>
+            <p class="admin-page-desc">Header & Footer Sosyal Medya İkonları ve Yönlendirme Linkleri (Supabase social_links)</p>
           </div>
-          <button id="btn-add-social" class="admin-btn admin-btn-primary">+ YENİ SOSYAL MEDYA LİNKİ EKLE</button>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button id="btn-add-social" class="admin-btn admin-btn-secondary">+ YENİ LİNK EKLE</button>
+            <button id="btn-save-all-socials" class="admin-btn admin-btn-primary">💾 TÜM SOSYAL LİNKLERİ KAYDET</button>
+          </div>
         </div>
 
-        <div class="admin-table-container">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>PLATFORM</th>
-                <th>URL</th>
-                <th>GÖRÜNÜRLÜK</th>
-                <th>İŞLEMLER</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${renderSocialLinkAdminRows(links)}
-            </tbody>
-          </table>
+        <div class="admin-social-cards-grid">
+          ${displayLinks.map((item, idx) => {
+            const num = String(item.display_order || (idx + 1)).padStart(2, '0');
+            const titleVal = escapeHtml(item.title || item.name || '');
+            const targetUrlVal = escapeHtml(item.target_url || item.url || '');
+            const iconUrlVal = escapeHtml(item.icon_url || item.iconUrl || '');
+            const orderVal = item.display_order || (idx + 1);
+            const iconPreview = getSocialIconHTML(item);
+
+            return `
+              <div class="admin-social-card-editor" data-id="${item.id}">
+                <div class="admin-social-card-header">
+                  <div class="admin-social-card-badge">
+                    <span>${num} // ${titleVal.toUpperCase()}</span>
+                  </div>
+                  <div class="admin-social-icon-preview">
+                    ${iconPreview}
+                  </div>
+                </div>
+
+                <div class="admin-social-card-body">
+                  <div class="admin-form-group">
+                    <label class="admin-label">Başlık / Platform Adı (title)*</label>
+                    <input type="text" class="admin-input social-field-title" data-id="${item.id}" value="${titleVal}" placeholder="Örn: Facebrowser" required />
+                  </div>
+
+                  <div class="admin-form-group">
+                    <label class="admin-label">Yönleneceği Link (target_url)*</label>
+                    <input type="url" class="admin-input social-field-url" data-id="${item.id}" value="${targetUrlVal}" placeholder="https://..." required />
+                    <p class="admin-input-help" style="font-size: 0.72rem; color: #70707c; margin-top: 4px;">Tıklandığında yeni sekmede açılacak tam web adresi.</p>
+                  </div>
+
+                  <div class="admin-form-group">
+                    <label class="admin-label">İkon URL (icon_url)</label>
+                    <input type="text" class="admin-input social-field-icon" data-id="${item.id}" value="${iconUrlVal}" placeholder="/icons/facebrowser.ico" />
+                  </div>
+
+                  <div class="admin-form-group">
+                    <label class="admin-label">Görüntüleme Sırası (display_order)</label>
+                    <input type="number" min="1" max="99" class="admin-input social-field-order" data-id="${item.id}" value="${orderVal}" />
+                  </div>
+                </div>
+
+                <div class="admin-social-card-footer">
+                  <div style="display: flex; gap: 0.5rem; align-items: center;">
+                    ${targetUrlVal ? `<a href="${targetUrlVal}" target="_blank" rel="noopener noreferrer" class="admin-btn admin-btn-secondary" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" title="Linki Yeni Sekmede Aç">Test Et ↗</a>` : ''}
+                    ${displayLinks.length > 5 ? `<button type="button" class="admin-action-btn btn-danger btn-delete-social" data-id="${item.id}" title="Linki Sil">Sil</button>` : ''}
+                  </div>
+                  <button type="button" class="admin-btn admin-btn-primary btn-save-social-single" data-id="${item.id}">KAYDET</button>
+                </div>
+              </div>
+            `;
+          }).join('')}
         </div>
       </main>
     </div>
@@ -2837,47 +2890,154 @@ function renderAdminSocials(container) {
 
   bindAdminNavEvents(container);
 
+  // Bind individual save buttons
+  const saveSingleBtns = container.querySelectorAll('.btn-save-social-single');
+  saveSingleBtns.forEach(btn => {
+    btn.onclick = async () => {
+      const socId = btn.getAttribute('data-id');
+      const card = container.querySelector(`.admin-social-card-editor[data-id="${socId}"]`);
+      if (!card) return;
+
+      const titleInput = card.querySelector('.social-field-title');
+      const urlInput = card.querySelector('.social-field-url');
+      const iconInput = card.querySelector('.social-field-icon');
+      const orderInput = card.querySelector('.social-field-order');
+
+      const title = titleInput ? titleInput.value.trim() : '';
+      const targetUrl = urlInput ? urlInput.value.trim() : '';
+      const iconUrl = iconInput ? iconInput.value.trim() : '';
+      const displayOrder = orderInput ? parseInt(orderInput.value.trim(), 10) || 1 : 1;
+
+      if (!title || !targetUrl) {
+        showAdminToast('⚠ Lütfen başlık ve yönleneceği linki eksiksiz doldurun.', 'warning');
+        return;
+      }
+
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '⏳ KAYDEDİLİYOR...';
+
+      try {
+        const payload = {
+          id: socId,
+          title: title,
+          name: title,
+          target_url: targetUrl,
+          url: targetUrl,
+          icon_url: iconUrl,
+          display_order: displayOrder,
+          sort_order: displayOrder,
+          created_at: new Date().toISOString()
+        };
+
+        if (supabase) {
+          const { data, error } = await supabase
+            .from('social_links')
+            .upsert(payload, { onConflict: 'id' })
+            .select();
+
+          if (error) throw error;
+          console.log('Supabase Social Link Kaydedildi:', data);
+        }
+
+        await upsertSocialLink({
+          id: socId,
+          title,
+          name: title,
+          target_url: targetUrl,
+          url: targetUrl,
+          icon_url: iconUrl,
+          display_order: displayOrder
+        });
+
+        logActivity('SOSYAL LİNK GÜNCELLENDİ', `"${title}" sosyal linki Supabase'e kaydedildi: ${targetUrl}`);
+        showAdminToast(`✓ "${title}" BAŞARIYLA KAYDEDİLDİ`);
+      } catch (err) {
+        console.error('Sosyal link kaydetme hatası:', err);
+        showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    };
+  });
+
+  // Save All Social Links batch button
+  const saveAllBtn = container.querySelector('#btn-save-all-socials');
+  if (saveAllBtn) {
+    saveAllBtn.onclick = async () => {
+      saveAllBtn.disabled = true;
+      saveAllBtn.textContent = '⏳ TÜMÜ KAYDEDİLİYOR...';
+
+      try {
+        const updatedList = displayLinks.map((item, idx) => {
+          const card = container.querySelector(`.admin-social-card-editor[data-id="${item.id}"]`);
+          const titleInput = card ? card.querySelector('.social-field-title') : null;
+          const urlInput = card ? card.querySelector('.social-field-url') : null;
+          const iconInput = card ? card.querySelector('.social-field-icon') : null;
+          const orderInput = card ? card.querySelector('.social-field-order') : null;
+
+          const title = titleInput ? titleInput.value.trim() : (item.title || item.name || 'Social Link');
+          const targetUrl = urlInput ? urlInput.value.trim() : (item.target_url || item.url || '#');
+          const iconUrl = iconInput ? iconInput.value.trim() : (item.icon_url || '');
+          const displayOrder = orderInput ? parseInt(orderInput.value.trim(), 10) || (idx + 1) : (idx + 1);
+
+          return {
+            id: item.id,
+            title,
+            name: title,
+            target_url: targetUrl,
+            url: targetUrl,
+            icon_url: iconUrl,
+            display_order: displayOrder,
+            sort_order: displayOrder,
+            created_at: new Date().toISOString()
+          };
+        });
+
+        if (supabase) {
+          const { data, error } = await supabase
+            .from('social_links')
+            .upsert(updatedList, { onConflict: 'id' })
+            .select();
+
+          if (error) throw error;
+          console.log('Supabase All Social Links Kaydedildi:', data);
+        }
+
+        await saveSocialLinksBatch(updatedList);
+        logActivity('TÜM SOSYAL LİNKLER GÜNCELLENDİ', `${updatedList.length} sosyal link Supabase'e kaydedildi.`);
+        showAdminToast('✓ TÜM SOSYAL LİNKLER BAŞARIYLA SUPABASE\'E KAYDEDİLDİ');
+      } catch (err) {
+        console.error('Tüm sosyal linkleri kaydetme hatası:', err);
+        showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+      } finally {
+        saveAllBtn.disabled = false;
+        saveAllBtn.textContent = '💾 TÜM SOSYAL LİNKLERİ KAYDET';
+      }
+    };
+  }
+
+  // Add new social link button
   const addBtn = container.querySelector('#btn-add-social');
   if (addBtn) addBtn.onclick = () => openSocialModal(null, container);
 
-  const editBtns = container.querySelectorAll('.btn-edit-social');
-  editBtns.forEach(btn => {
-    btn.onclick = () => {
-      const id = btn.getAttribute('data-id');
-      const link = links.find(l => l.id === id);
-      if (link) openSocialModal(link, container);
-    };
-  });
-
+  // Delete buttons
   const deleteBtns = container.querySelectorAll('.btn-delete-social');
   deleteBtns.forEach(btn => {
-    btn.onclick = () => {
+    btn.onclick = async () => {
       const id = btn.getAttribute('data-id');
-      deleteSocialLink(id);
-      logActivity('SOSYAL LİNK SİLİNDİ', `Sosyal medya linki silindi: ${id}`);
-      showAdminToast('✓ SOSYAL MEDYA LİNKİ SİLİNDİ', 'danger');
-      renderAdminSocials(container);
+      try {
+        await deleteSocialLink(id);
+        logActivity('SOSYAL LİNK SİLİNDİ', `Sosyal medya linki silindi: ${id}`);
+        showAdminToast('✓ SOSYAL MEDYA LİNKİ SİLİNDİ', 'danger');
+      } catch (err) {
+        showAdminToast('⚠ Silme hatası: ' + err.message, 'danger');
+      } finally {
+        renderAdminSocials(container);
+      }
     };
   });
-}
-
-function renderSocialLinkAdminRows(links) {
-  if (links.length === 0) {
-    return `<tr><td colspan="4" class="admin-empty-cell">Henüz eklenmiş sosyal medya linki bulunmuyor.</td></tr>`;
-  }
-  return links.map(item => `
-    <tr>
-      <td><strong>${escapeHtml(item.platform)}</strong></td>
-      <td><a href="${escapeHtml(item.url)}" target="_blank" class="admin-table-link">${escapeHtml(item.url)}</a></td>
-      <td><span class="admin-badge ${item.visible !== false ? 'badge-active' : 'badge-muted'}">${item.visible !== false ? 'AKTİF' : 'GİZLİ'}</span></td>
-      <td>
-        <div class="admin-action-btns">
-          <button class="admin-action-btn btn-edit-social" data-id="${item.id}">Düzenle</button>
-          <button class="admin-action-btn btn-danger btn-delete-social" data-id="${item.id}">Sil</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
 }
 
 function openSocialModal(item, rootContainer) {
@@ -2894,12 +3054,20 @@ function openSocialModal(item, rootContainer) {
       <form id="social-form">
         <div class="admin-modal-body">
           <div class="admin-form-group">
-            <label class="admin-label">Platform Adı*</label>
-            <input type="text" id="soc-platform" class="admin-input" value="${item ? escapeHtml(item.platform) : ''}" placeholder="Örn: Instagram, Spotify, YouTube" required />
+            <label class="admin-label">Başlık / Platform Adı (title)*</label>
+            <input type="text" id="soc-title" class="admin-input" value="${item ? escapeHtml(item.title || item.name || '') : ''}" placeholder="Örn: Instagram, Spotify, Facebrowser" required />
           </div>
           <div class="admin-form-group" style="margin-top: 1rem;">
-            <label class="admin-label">Profil / Sayfa Bağlantısı (URL)*</label>
-            <input type="url" id="soc-url" class="admin-input" value="${item ? escapeHtml(item.url) : ''}" placeholder="https://..." required />
+            <label class="admin-label">Yönleneceği Link (target_url)*</label>
+            <input type="url" id="soc-target-url" class="admin-input" value="${item ? escapeHtml(item.target_url || item.url || '') : ''}" placeholder="https://..." required />
+          </div>
+          <div class="admin-form-group" style="margin-top: 1rem;">
+            <label class="admin-label">İkon URL / Dosyası (icon_url)</label>
+            <input type="text" id="soc-icon-url" class="admin-input" value="${item ? escapeHtml(item.icon_url || '') : ''}" placeholder="/icons/... veya https://..." />
+          </div>
+          <div class="admin-form-group" style="margin-top: 1rem;">
+            <label class="admin-label">Görüntüleme Sırası (display_order)</label>
+            <input type="number" id="soc-order" min="1" max="99" class="admin-input" value="${item ? (item.display_order || 1) : 1}" />
           </div>
         </div>
         <div class="admin-modal-footer">
@@ -2916,23 +3084,30 @@ function openSocialModal(item, rootContainer) {
   modalOverlay.querySelector('.admin-modal-cancel').onclick = closeModal;
 
   const form = modalOverlay.querySelector('#social-form');
-  form.onsubmit = (e) => {
+  form.onsubmit = async (e) => {
     e.preventDefault();
-    const platform = modalOverlay.querySelector('#soc-platform').value;
-    const url = modalOverlay.querySelector('#soc-url').value;
+    const title = modalOverlay.querySelector('#soc-title').value.trim();
+    const targetUrl = modalOverlay.querySelector('#soc-target-url').value.trim();
+    const iconUrl = modalOverlay.querySelector('#soc-icon-url').value.trim();
+    const displayOrder = parseInt(modalOverlay.querySelector('#soc-order').value.trim(), 10) || 1;
 
-    if (isEdit) {
-      updateSocialLink(item.id, { platform, url });
-      logActivity('SOSYAL LİNK GÜNCELLENDİ', `Sosyal link güncellendi: ${platform}`);
-      showAdminToast('✓ SOSYAL MEDYA LİNKİ GÜNCELLENDİ');
-    } else {
-      addSocialLink({ platform, url });
-      logActivity('SOSYAL LİNK EKLENDİ', `Yeni sosyal link eklendi: ${platform}`);
-      showAdminToast('✓ YENİ SOSYAL MEDYA LİNKİ EKLENDİ');
+    try {
+      if (isEdit) {
+        await updateSocialLink(item.id, { title, target_url: targetUrl, icon_url: iconUrl, display_order: displayOrder });
+        logActivity('SOSYAL LİNK GÜNCELLENDİ', `Sosyal link güncellendi: ${title}`);
+        showAdminToast('✓ SOSYAL MEDYA LİNKİ GÜNCELLENDİ');
+      } else {
+        await addSocialLink({ title, target_url: targetUrl, icon_url: iconUrl, display_order: displayOrder });
+        logActivity('SOSYAL LİNK EKLENDİ', `Yeni sosyal link eklendi: ${title}`);
+        showAdminToast('✓ YENİ SOSYAL MEDYA LİNKİ EKLENDİ');
+      }
+    } catch (err) {
+      console.error('Sosyal link modal kaydetme hatası:', err);
+      showAdminToast('⚠ Kayıt hatası: ' + err.message, 'danger');
+    } finally {
+      closeModal();
+      renderAdminSocials(rootContainer);
     }
-
-    closeModal();
-    renderAdminSocials(rootContainer);
   };
 }
 

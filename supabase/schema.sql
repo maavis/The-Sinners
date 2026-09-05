@@ -135,9 +135,12 @@ CREATE TABLE IF NOT EXISTS media_items (
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS social_links (
   id TEXT PRIMARY KEY DEFAULT ('soc_' || floor(extract(epoch from now()) * 1000)::text),
-  name TEXT NOT NULL,
-  url TEXT NOT NULL,
+  title TEXT NOT NULL DEFAULT '',
+  name TEXT NOT NULL DEFAULT '',
+  target_url TEXT NOT NULL DEFAULT '',
+  url TEXT NOT NULL DEFAULT '',
   icon_url TEXT NOT NULL DEFAULT '',
+  display_order INTEGER NOT NULL DEFAULT 1,
   sort_order INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

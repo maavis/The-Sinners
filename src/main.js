@@ -5,7 +5,7 @@ import { fetchProductsFromSupabase } from './data/merch.js';
 import { getCategorizedTourEvents } from './data/tour.js';
 import { getJournalEntries } from './data/updates.js';
 import { getAboutData, cleanImageUrl, fetchAboutDataFromSupabase } from './data/about.js';
-import { getSocialLinks, getSocialIconHTML } from './data/socials.js';
+import { getSocialLinks, getSocialIconHTML, fetchSocialLinksFromSupabase } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
 import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase, isMusicDataLoading } from './data/music.js';
 import { initMotionSystem, triggerPageTransition, observeNewElements, revealSectionContent } from './motion.js';
@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchProductsFromSupabase();
   fetchMusicFromSupabase();
   fetchAboutDataFromSupabase();
+  fetchSocialLinksFromSupabase();
   initCinematicIntro();
   initLogo();
   initHero();
@@ -105,6 +106,8 @@ export function renderPublicFooters() {
     if (line2) line2.textContent = data.line2;
     if (line4) line4.textContent = data.line4;
   });
+
+  renderPublicSocialLinks();
 }
 
 /**
@@ -1179,22 +1182,25 @@ function updateSlidePosition() {
 }
 
 /**
- * Render Header Social Media Icon Links (Desktop & Mobile)
+ * Render Header and Footer Social Media Icon Links (Desktop, Mobile & Global Footers)
+ * Dynamically populated from Supabase social_links table
  */
-function renderPublicSocialLinks() {
+export function renderPublicSocialLinks() {
   const desktopContainer = document.getElementById('desktop-social-links');
   const mobileContainer = document.getElementById('mobile-social-links');
+  const footerIconsRows = document.querySelectorAll('.footer-replica-icons-row');
   const footerTargets = document.querySelectorAll('.footer-social-target');
 
   const links = getSocialLinks();
 
-  // Top Right Header Social Links (UNTOUCHED!)
+  // Top Right Header Social Links
   const headerHtml = (links && links.length > 0) ? links.map(item => {
     const iconContent = getSocialIconHTML(item);
-    const title = escapeHtml(item.name || 'Social Link');
+    const title = escapeHtml(item.title || item.name || 'Social Link');
+    const targetUrl = escapeHtml(item.target_url || item.url || '#');
 
     return `
-      <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="header-social-icon-link" title="${title}" aria-label="${title}">
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="header-social-icon-link" title="${title}" aria-label="${title}">
         ${iconContent}
       </a>
     `;
@@ -1203,19 +1209,37 @@ function renderPublicSocialLinks() {
   if (desktopContainer) desktopContainer.innerHTML = headerHtml;
   if (mobileContainer) mobileContainer.innerHTML = headerHtml;
 
-  // Footer Social Links (Pure minimal band items: NAME ↗)
-  const footerHtml = (links && links.length > 0) ? links.map(item => {
-    const title = escapeHtml(item.name || 'Social Link').toUpperCase();
+  // Footer Social Media Icons Row across all page footers (Replica Brutalist Icons)
+  const footerIconsHtml = (links && links.length > 0) ? links.map(item => {
+    const iconContent = getSocialIconHTML(item);
+    const title = escapeHtml(item.title || item.name || 'Social Link');
+    const targetUrl = escapeHtml(item.target_url || item.url || '#');
 
     return `
-      <a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer" class="footer-link" title="${title}">
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="replica-icon-link" title="${title}" aria-label="${title}">
+        ${iconContent}
+      </a>
+    `;
+  }).join('') : '';
+
+  footerIconsRows.forEach(el => {
+    el.innerHTML = footerIconsHtml;
+  });
+
+  // Footer Text Social Links (if any footer-social-target exists)
+  const footerTextHtml = (links && links.length > 0) ? links.map(item => {
+    const title = escapeHtml(item.title || item.name || 'Social Link').toUpperCase();
+    const targetUrl = escapeHtml(item.target_url || item.url || '#');
+
+    return `
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="footer-link" title="${title}">
         ${title} ↗
       </a>
     `;
   }).join('') : '';
 
   footerTargets.forEach(el => {
-    el.innerHTML = footerHtml;
+    el.innerHTML = footerTextHtml;
   });
 }
 
