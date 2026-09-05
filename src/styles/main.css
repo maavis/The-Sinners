@@ -550,12 +550,12 @@ html.route-store-teaser .site-container {
   justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: 4px;
-  background: transparent;
-  border: none;
+  border-radius: 4px !important;
+  background: transparent !important;
+  border: none !important;
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
   text-decoration: none;
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .header-social-icon-link:hover {
@@ -563,33 +563,34 @@ html.route-store-teaser .site-container {
 }
 
 .header-social-icon-img {
-  width: 17px;
-  height: 17px;
-  object-fit: contain;
-  border-radius: 3px;
-  display: block;
-  opacity: 0.95;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
+  width: 17px !important;
+  height: 17px !important;
+  object-fit: contain !important;
+  border-radius: 3px !important;
+  display: block !important;
+  opacity: 0.95 !important;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)) !important;
+  -webkit-filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6)) !important;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .header-social-icon-link svg {
-  width: 17px;
-  height: 17px;
-  fill: #ffffff;
-  opacity: 0.95;
+  width: 17px !important;
+  height: 17px !important;
+  fill: #ffffff !important;
+  opacity: 0.95 !important;
   transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
 .header-social-icon-link:hover .header-social-icon-img {
-  opacity: 1;
-  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.4));
+  opacity: 1 !important;
+  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.4)) !important;
 }
 
 .header-social-icon-link:hover svg {
-  opacity: 1;
-  fill: #ffffff;
-  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.9));
+  opacity: 1 !important;
+  fill: #ffffff !important;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.9)) !important;
 }
 
 .header-social-icon-fallback {
@@ -4342,40 +4343,20 @@ html.route-about .about-hamburger-btn {
 }
 
 /* --------------------------------------------------------------------------
-   13. PARRHESIA PRODUCTION-READY ADMIN CMS STYLES
+   13. PARRHESIA PRODUCTION-READY ADMIN CMS STYLES (FULLY ISOLATED)
    -------------------------------------------------------------------------- */
-.admin-login-wrapper {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #09090b;
-  padding: 2rem;
-}
-
-.admin-login-card {
-  background: #121215;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 3rem;
-  width: 100%;
-  max-width: 420px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
-}
-
-.admin-login-title {
-  font-family: 'Bodoni Moda', 'Playfair Display', serif;
-  font-size: 2.2rem;
-  color: #ffffff;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.2rem;
-}
-
-.admin-login-sub {
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
-  color: #d92b2b;
-  font-weight: 700;
-  margin-bottom: 2rem;
+#admin-portal-root,
+#admin-portal-root *,
+#login-screen,
+#login-screen *,
+.admin-login-wrapper,
+.admin-login-wrapper *,
+.admin-login-card,
+.admin-login-card *,
+.login-modal,
+.login-modal * {
+  filter: none !important;
+  -webkit-filter: none !important;
 }
 
 .admin-cms-layout {
@@ -5080,7 +5061,9 @@ html.route-about .about-hamburger-btn {
   margin-bottom: 1.6rem;
 }
 
-.replica-icon-link {
+.footer-replica-icons-row .replica-icon-link,
+.footer-replica-icons-row .footer-social-link,
+.site-global-footer .footer-social-link {
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -5088,14 +5071,20 @@ html.route-about .about-hamburger-btn {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-.replica-icon-link:hover {
+.footer-replica-icons-row .replica-icon-link:hover,
+.footer-replica-icons-row .footer-social-link:hover,
+.site-global-footer .footer-social-link:hover {
   opacity: 0.75 !important;
   transform: scale(1.18);
 }
 
-.replica-icon-link svg,
-.replica-icon-link img,
-.footer-replica-icon-img {
+.footer-replica-icons-row .replica-icon-link svg,
+.footer-replica-icons-row .replica-icon-link img,
+.footer-replica-icons-row .footer-social-link svg,
+.footer-replica-icons-row .footer-social-link img,
+.footer-replica-icons-row .footer-replica-icon-img,
+.footer-replica-icons-row .footer-social-img,
+.site-global-footer .footer-social-link img {
   width: 22px;
   height: 22px;
   object-fit: contain;

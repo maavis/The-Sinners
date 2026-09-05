@@ -215,8 +215,11 @@ function navigateAdmin(path) {
  */
 function renderAdminLogin(container) {
   container.innerHTML = `
-    <div class="admin-login-wrapper">
-      <div class="admin-login-card">
+    <div class="admin-login-wrapper login-screen" id="login-screen">
+      <div class="admin-login-card login-modal">
+        <div class="admin-login-logo-wrap">
+          <img src="https://i.imgur.com/s1hSAjx.png" alt="THE SINNERS" class="admin-login-logo" />
+        </div>
         <div class="admin-login-title">THE SINNERS YÖNETİM PANELİ</div>
         <div class="admin-login-sub">ADMİN GİRİŞİ</div>
         <form id="admin-login-form">

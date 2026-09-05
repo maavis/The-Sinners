@@ -1234,7 +1234,7 @@ export function renderFooterSocialLinks() {
     const targetUrl = escapeHtml(item.target_url || item.url || '#');
 
     return `
-      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="replica-icon-link" title="${title}" aria-label="${title}">
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="replica-icon-link footer-social-link" title="${title}" aria-label="${title}">
         ${iconContent}
       </a>
     `;

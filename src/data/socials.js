@@ -105,7 +105,7 @@ export function getFooterSocialIconHTML(item) {
       return iconSrc;
     }
     const finalUrl = item.target_url || item.url || 'https://google.com';
-    return `<img src="${escapeHtml(iconSrc)}" alt="${escapeHtml(item.title || item.name || 'Social Icon')}" class="footer-replica-icon-img" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=${encodeURIComponent(finalUrl)}&sz=64';" />`;
+    return `<img src="${escapeHtml(iconSrc)}" alt="${escapeHtml(item.title || item.name || 'Social Icon')}" class="footer-replica-icon-img footer-social-img" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=${encodeURIComponent(finalUrl)}&sz=64';" />`;
   }
 
   return BUILTIN_SVGS.generic;
