@@ -2307,7 +2307,8 @@ function openDeleteMediaModal(mediaItem, rootContainer) {
  */
 function renderAdminAbout(container) {
   const aboutData = getAboutData();
-  const slides = (aboutData.slides && aboutData.slides.length > 0) ? aboutData.slides : [
+  const allSlides = (aboutData.slides && aboutData.slides.length > 0) ? aboutData.slides : [];
+  const defaultList = [
     {
       id: 'slide_1',
       title: '01 // REHEARSAL & NOISE',
@@ -2329,6 +2330,16 @@ function renderAdminAbout(container) {
       image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80',
       display_order: 3
     }
+  ];
+
+  const slot1 = allSlides.find(s => s.id === 'slide_1') || allSlides.find(s => String(s.id) === '1' || Number(s.display_order ?? s.slide_order) === 1) || defaultList[0];
+  const slot2 = allSlides.find(s => s.id === 'slide_2') || allSlides.find(s => String(s.id) === '2' || Number(s.display_order ?? s.slide_order) === 2) || defaultList[1];
+  const slot3 = allSlides.find(s => s.id === 'slide_3') || allSlides.find(s => String(s.id) === '3' || Number(s.display_order ?? s.slide_order) === 3) || defaultList[2];
+
+  const slides = [
+    { ...defaultList[0], ...slot1, id: 'slide_1', display_order: 1 },
+    { ...defaultList[1], ...slot2, id: 'slide_2', display_order: 2 },
+    { ...defaultList[2], ...slot3, id: 'slide_3', display_order: 3 }
   ];
 
   container.innerHTML = `

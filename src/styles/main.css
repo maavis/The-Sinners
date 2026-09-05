@@ -3165,8 +3165,15 @@ html.route-about .about-hamburger-btn {
 .zine-img-wrapper {
   position: relative;
   overflow: hidden;
-  background: #000;
+  background: linear-gradient(90deg, #141418 0%, #202028 50%, #141418 100%);
+  background-size: 200% 100%;
+  animation: zineSkeletonShimmer 2.4s infinite ease-in-out;
   aspect-ratio: 4 / 3;
+}
+
+@keyframes zineSkeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .item-darkroom .zine-img-wrapper {
@@ -3178,8 +3185,13 @@ html.route-about .about-hamburger-btn {
   height: 100%;
   object-fit: cover;
   filter: contrast(1.15) brightness(0.85) grayscale(25%);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
+  opacity: 0;
+  transition: opacity 0.45s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
   display: block;
+}
+
+.zine-img.is-loaded {
+  opacity: 1 !important;
 }
 
 .zine-item:hover .zine-img {

@@ -108,18 +108,33 @@ export async function fetchAboutDataFromSupabase() {
     }
 
     if (Array.isArray(slidesData) && slidesData.length > 0) {
-      inMemorySlides = slidesData.map((row, idx) => ({
-        id: String(row.id || `slide_${idx + 1}`),
-        title: row.title || row.caption || DEFAULT_ABOUT_SLIDES[idx]?.title || `0${idx + 1} // SLIDE`,
-        description: row.description || DEFAULT_ABOUT_SLIDES[idx]?.description || '',
-        image_url: cleanImageUrl(row.image_url || row.url || DEFAULT_ABOUT_SLIDES[idx]?.image_url || ''),
-        url: cleanImageUrl(row.image_url || row.url || DEFAULT_ABOUT_SLIDES[idx]?.image_url || ''),
-        caption: row.caption || row.title || DEFAULT_ABOUT_SLIDES[idx]?.title || '',
-        display_order: Number(row.display_order ?? row.slide_order ?? (idx + 1)),
-        slide_order: Number(row.display_order ?? row.slide_order ?? (idx + 1)),
-        slideOrder: Number(row.display_order ?? row.slide_order ?? (idx + 1)),
-        createdAt: row.created_at || new Date().toISOString()
-      }));
+      // 3 Birebir Slot Eşleştirmesi (Tekillik Garantisi - Asla klon veya çift kart basılmaz)
+      const slot1 = slidesData.find(s => s.id === 'slide_1') || slidesData.find(s => String(s.id) === '1' || Number(s.display_order ?? s.slide_order) === 1) || slidesData[0];
+      const slot2 = slidesData.find(s => s.id === 'slide_2') || slidesData.find(s => String(s.id) === '2' || Number(s.display_order ?? s.slide_order) === 2) || slidesData[1];
+      const slot3 = slidesData.find(s => s.id === 'slide_3') || slidesData.find(s => String(s.id) === '3' || Number(s.display_order ?? s.slide_order) === 3) || slidesData[2];
+
+      const rawSlots = [
+        { item: slot1, fallback: DEFAULT_ABOUT_SLIDES[0], id: 'slide_1', order: 1 },
+        { item: slot2, fallback: DEFAULT_ABOUT_SLIDES[1], id: 'slide_2', order: 2 },
+        { item: slot3, fallback: DEFAULT_ABOUT_SLIDES[2], id: 'slide_3', order: 3 }
+      ];
+
+      inMemorySlides = rawSlots.map(({ item, fallback, id, order }) => {
+        const active = item || fallback;
+        const imgUrl = cleanImageUrl(active.image_url || active.url || fallback.image_url);
+        return {
+          id,
+          title: active.title || active.caption || fallback.title,
+          description: active.description || fallback.description || '',
+          image_url: imgUrl,
+          url: imgUrl,
+          caption: active.caption || active.title || fallback.caption,
+          display_order: order,
+          slide_order: order,
+          slideOrder: order,
+          createdAt: active.created_at || new Date().toISOString()
+        };
+      });
     }
 
     // 2. Fetch Biography Paragraphs from site_settings

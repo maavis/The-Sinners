@@ -2024,7 +2024,7 @@ export function renderPublicEditorialZineCards() {
   if (!container) return;
 
   const { slides } = getAboutData();
-  if (!slides || slides.length === 0) return;
+  const slideList = Array.isArray(slides) && slides.length > 0 ? slides : [];
 
   const cardLayoutConfigs = [
     {
@@ -2037,7 +2037,10 @@ export function renderPublicEditorialZineCards() {
       loc: '52.5200° N, 13.4050° E — STÜDYO B',
       date: '03:42 AM // SIKIYÖNETİM SEANSI',
       metaLocation: 'BERLİN STÜDYO 03:42 AM',
-      badge: 'ARCHIVE #01'
+      badge: 'ARCHIVE #01',
+      fallbackTitle: '01 // REHEARSAL & NOISE',
+      fallbackDesc: 'Ham gitar geribildirimi ve analog mikser distorsiyon ayarları sırasında kaydedilen 35mm kontakt baskı.',
+      fallbackImg: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80'
     },
     {
       itemClass: 'item-live',
@@ -2049,7 +2052,10 @@ export function renderPublicEditorialZineCards() {
       loc: 'CANLI PERFORMANS // DEVIL\'S GRIN',
       date: '22:15 PM // HEADLINE ŞOV',
       metaLocation: 'CANLI ŞOV // 180G VINYL ERA',
-      badge: 'ARCHIVE #02'
+      badge: 'ARCHIVE #02',
+      fallbackTitle: '02 // STAGE CATHARSIS',
+      fallbackDesc: 'Yoğun sis, kırmızı spot ışıkları ve 1/60s deklanşör hızıyla yakalanan ham sahne enerjisi.',
+      fallbackImg: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80'
     },
     {
       itemClass: 'item-darkroom',
@@ -2061,32 +2067,34 @@ export function renderPublicEditorialZineCards() {
       loc: 'UNDERGROUND ANALOG LAB',
       date: 'FW26 // COVER SESSIONS',
       metaLocation: 'EDİTORYAL KOLEKSİYON ARŞİVİ',
-      badge: 'ARCHIVE #03'
+      badge: 'ARCHIVE #03',
+      fallbackTitle: '03 // DARKROOM TEXTURE',
+      fallbackDesc: 'Made of Sin albüm kapağı ve editoryal koleksiyon için karanlık odada elle basılan ilk prova negatifi.',
+      fallbackImg: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80'
     }
   ];
 
-  container.innerHTML = slides.map((slide, idx) => {
-    const config = cardLayoutConfigs[idx] || {
-      itemClass: `item-archive-${idx + 1}`,
-      tapeClass: idx % 2 === 0 ? 'zine-tape-top-left' : 'zine-tape-top-right',
-      redStamp: '',
-      perfCount: 5,
-      techStamp: `[ ARCHIVE • #${String(idx + 1).padStart(2, '0')} ]`,
-      film: '35MM SILVER EMULSION',
-      loc: 'EDITORIAL ARCHIVE',
-      date: 'ARCHIVE TRANSMISSION',
-      metaLocation: 'THE SINNERS VAULT',
-      badge: `ARCHIVE #${String(idx + 1).padStart(2, '0')}`
-    };
+  // Birebir 3 Slot Eşleştirmesi (Tekillik Garantisi - Asla klon veya çift kart basılmaz)
+  const slot1 = slideList.find(s => s.id === 'slide_1') || slideList.find(s => String(s.id) === '1' || Number(s.display_order ?? s.slide_order) === 1) || slideList[0];
+  const slot2 = slideList.find(s => s.id === 'slide_2') || slideList.find(s => String(s.id) === '2' || Number(s.display_order ?? s.slide_order) === 2) || slideList[1];
+  const slot3 = slideList.find(s => s.id === 'slide_3') || slideList.find(s => String(s.id) === '3' || Number(s.display_order ?? s.slide_order) === 3) || slideList[2];
 
-    const imgUrl = cleanImageUrl(slide.image_url || slide.url || '');
-    const title = slide.title || slide.caption || `0${idx + 1} // TRANSMISSION`;
-    const desc = slide.description || '';
+  const threeSlots = [
+    { slide: slot1, config: cardLayoutConfigs[0], slotIdx: 1 },
+    { slide: slot2, config: cardLayoutConfigs[1], slotIdx: 2 },
+    { slide: slot3, config: cardLayoutConfigs[2], slotIdx: 3 }
+  ];
+
+  container.innerHTML = threeSlots.map(({ slide, config, slotIdx }) => {
+    const rawUrl = slide ? (slide.image_url || slide.url || config.fallbackImg) : config.fallbackImg;
+    const imgUrl = cleanImageUrl(rawUrl) || config.fallbackImg;
+    const title = (slide && (slide.title || slide.caption)) ? (slide.title || slide.caption) : config.fallbackTitle;
+    const desc = (slide && slide.description) ? slide.description : config.fallbackDesc;
     const perfs = Array(config.perfCount).fill('<span>■</span>').join('');
 
     return `
       <article class="zine-item ${config.itemClass}" 
-               data-zine-idx="${idx + 1}" 
+               data-zine-idx="${slotIdx}" 
                data-title="${escapeHtml(title)}" 
                data-film="${escapeHtml(config.film)}" 
                data-loc="${escapeHtml(config.loc)}" 
@@ -2099,7 +2107,12 @@ export function renderPublicEditorialZineCards() {
           <div class="film-perf-row">${perfs}</div>
           <div class="zine-img-wrapper">
             <div class="zine-light-leak"></div>
-            <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(title)}" class="zine-img" loading="lazy" decoding="async" />
+            <img src="${escapeHtml(imgUrl)}" 
+                 alt="${escapeHtml(title)}" 
+                 class="zine-img is-loaded" 
+                 onload="this.classList.add('is-loaded')" 
+                 loading="eager" 
+                 decoding="async" />
           </div>
           <div class="film-perf-row">${perfs}</div>
         </div>
