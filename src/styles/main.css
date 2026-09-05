@@ -2961,6 +2961,10 @@ html.route-about .about-hamburger-btn {
     #08080a 100%
   );
   border: none;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .archive-bg-watermark {
@@ -3027,6 +3031,7 @@ html.route-about .about-hamburger-btn {
 }
 
 /* Zine Moodboard Canvas */
+/* Zine Moodboard Canvas */
 .editorial-zine-canvas {
   position: relative;
   max-width: 1200px;
@@ -3035,7 +3040,11 @@ html.route-about .about-hamburger-btn {
   padding: 2.5rem 1.5rem;
   background: radial-gradient(circle at center, rgba(25, 25, 28, 0.4) 0%, rgba(10, 10, 12, 0.8) 100%);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .zine-crosshair {
@@ -3057,6 +3066,10 @@ html.route-about .about-hamburger-btn {
   grid-template-columns: repeat(12, 1fr);
   gap: 2.5rem 2rem;
   align-items: start;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* Base Zine Item */
@@ -3065,33 +3078,36 @@ html.route-about .about-hamburger-btn {
   background: #111115;
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem 1rem 1.25rem 1rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), 0 2px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   cursor: pointer;
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.45s ease, border-color 0.3s ease;
-  will-change: transform;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .zine-item:hover {
-  transform: translateY(-8px) scale(1.02) !important;
+  transform: translateY(-8px) scale(1.02) translateZ(0) !important;
   z-index: 10;
   border-color: rgba(217, 43, 43, 0.5);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(217, 43, 43, 0.25);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85);
 }
 
 /* Asymmetric Magazine Placement & Rotations */
 .zine-item.item-rehearsal {
   grid-column: 1 / span 5;
-  transform: rotate(-1.8deg);
+  transform: rotate(-1.8deg) translateZ(0);
 }
 
 .zine-item.item-live {
   grid-column: 6 / span 7;
-  transform: rotate(1.5deg) translateY(-15px);
+  transform: rotate(1.5deg) translateY(-15px) translateZ(0);
 }
 
 .zine-item.item-darkroom {
   grid-column: 2 / span 10;
-  transform: rotate(-0.8deg);
+  transform: rotate(-0.8deg) translateZ(0);
   margin-top: 1rem;
 }
 
@@ -3099,29 +3115,29 @@ html.route-about .about-hamburger-btn {
 .zine-tape {
   position: absolute;
   height: 24px;
-  background: rgba(230, 230, 225, 0.22);
+  background: rgba(230, 230, 225, 0.28);
   border: 1px dashed rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   z-index: 5;
   pointer-events: none;
+  transform: translateZ(0);
 }
 .zine-tape-top-left {
   top: -12px;
   left: 20px;
   width: 90px;
-  transform: rotate(-5deg);
+  transform: rotate(-5deg) translateZ(0);
 }
 .zine-tape-top-right {
   top: -12px;
   right: 25px;
   width: 100px;
-  transform: rotate(4deg);
+  transform: rotate(4deg) translateZ(0);
 }
 .zine-tape-center {
   top: -12px;
   left: 50%;
-  transform: translateX(-50%) rotate(1deg);
+  transform: translateX(-50%) rotate(1deg) translateZ(0);
   width: 120px;
 }
 
@@ -3139,9 +3155,8 @@ html.route-about .about-hamburger-btn {
   letter-spacing: 0.15em;
   padding: 0.25rem 0.6rem;
   text-transform: uppercase;
-  transform: rotate(-8deg);
-  background: rgba(15, 10, 10, 0.6);
-  backdrop-filter: blur(2px);
+  transform: rotate(-8deg) translateZ(0);
+  background: rgba(20, 10, 10, 0.88);
   pointer-events: none;
 }
 
@@ -3169,6 +3184,15 @@ html.route-about .about-hamburger-btn {
   background-size: 200% 100%;
   animation: zineSkeletonShimmer 2.4s infinite ease-in-out;
   aspect-ratio: 4 / 3;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.zine-img-wrapper:has(.is-loaded) {
+  animation: none;
+  background: #141418;
 }
 
 @keyframes zineSkeletonShimmer {

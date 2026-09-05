@@ -2019,6 +2019,8 @@ function setupArchiveControls() {
  * Render Public Editorial Zine Cards (Home Page Visual Archive)
  * Dynamically populated from Supabase about_slides table
  */
+let lastRenderedZineKey = '';
+
 export function renderPublicEditorialZineCards() {
   const container = document.getElementById('editorial-zine-grid') || document.querySelector('.editorial-zine-grid');
   if (!container) return;
@@ -2040,7 +2042,7 @@ export function renderPublicEditorialZineCards() {
       badge: 'ARCHIVE #01',
       fallbackTitle: '01 // REHEARSAL & NOISE',
       fallbackDesc: 'Ham gitar geribildirimi ve analog mikser distorsiyon ayarları sırasında kaydedilen 35mm kontakt baskı.',
-      fallbackImg: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80'
+      fallbackImg: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
     },
     {
       itemClass: 'item-live',
@@ -2055,7 +2057,7 @@ export function renderPublicEditorialZineCards() {
       badge: 'ARCHIVE #02',
       fallbackTitle: '02 // STAGE CATHARSIS',
       fallbackDesc: 'Yoğun sis, kırmızı spot ışıkları ve 1/60s deklanşör hızıyla yakalanan ham sahne enerjisi.',
-      fallbackImg: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80'
+      fallbackImg: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80'
     },
     {
       itemClass: 'item-darkroom',
@@ -2070,7 +2072,7 @@ export function renderPublicEditorialZineCards() {
       badge: 'ARCHIVE #03',
       fallbackTitle: '03 // DARKROOM TEXTURE',
       fallbackDesc: 'Made of Sin albüm kapağı ve editoryal koleksiyon için karanlık odada elle basılan ilk prova negatifi.',
-      fallbackImg: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80'
+      fallbackImg: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'
     }
   ];
 
@@ -2078,6 +2080,18 @@ export function renderPublicEditorialZineCards() {
   const slot1 = slideList.find(s => s.id === 'slide_1') || slideList.find(s => String(s.id) === '1' || Number(s.display_order ?? s.slide_order) === 1) || slideList[0];
   const slot2 = slideList.find(s => s.id === 'slide_2') || slideList.find(s => String(s.id) === '2' || Number(s.display_order ?? s.slide_order) === 2) || slideList[1];
   const slot3 = slideList.find(s => s.id === 'slide_3') || slideList.find(s => String(s.id) === '3' || Number(s.display_order ?? s.slide_order) === 3) || slideList[2];
+
+  // Memoization guard (React.memo equivalent - skips unneeded DOM re-renders)
+  const currentKey = [
+    slot1 ? `${slot1.id}-${slot1.image_url || slot1.url}-${slot1.title}` : '1',
+    slot2 ? `${slot2.id}-${slot2.image_url || slot2.url}-${slot2.title}` : '2',
+    slot3 ? `${slot3.id}-${slot3.image_url || slot3.url}-${slot3.title}` : '3'
+  ].join('|');
+
+  if (lastRenderedZineKey === currentKey && container.children.length === 3) {
+    return;
+  }
+  lastRenderedZineKey = currentKey;
 
   const threeSlots = [
     { slide: slot1, config: cardLayoutConfigs[0], slotIdx: 1 },
@@ -2248,21 +2262,25 @@ function initScrollToTopButton() {
   const btn = document.getElementById('scroll-to-top-btn');
   if (!btn) return;
 
+  let isScrollThrottled = false;
   const handleScroll = () => {
-    const scrollPos = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || document.body.scrollTop || 0;
-    const isMerchOrAdmin = window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/merch');
-    const isScrolled = scrollPos > 100;
+    if (isScrollThrottled) return;
+    isScrollThrottled = true;
+    requestAnimationFrame(() => {
+      isScrollThrottled = false;
+      const scrollPos = window.pageYOffset || document.documentElement.scrollTop || window.scrollY || 0;
+      const isMerchOrAdmin = window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/merch');
+      const isScrolled = scrollPos > 100;
 
-    if (isScrolled && !isMerchOrAdmin) {
-      btn.classList.add('is-visible');
-    } else {
-      btn.classList.remove('is-visible');
-    }
+      if (isScrolled && !isMerchOrAdmin) {
+        btn.classList.add('is-visible');
+      } else {
+        btn.classList.remove('is-visible');
+      }
+    });
   };
 
-  window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
-  document.addEventListener('scroll', handleScroll, { passive: true, capture: true });
-  document.body.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+  window.addEventListener('scroll', handleScroll, { passive: true });
   window.addEventListener('popstate', handleScroll);
   window.addEventListener('resize', handleScroll);
 

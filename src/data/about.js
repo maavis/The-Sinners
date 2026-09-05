@@ -12,6 +12,23 @@ export function cleanImageUrl(url) {
   if (!url || typeof url !== 'string') return '';
   let cleaned = url.trim();
 
+  // Handle Unsplash image optimization (cap at 800px and q=80 for high-FPS rendering)
+  if (cleaned.includes('images.unsplash.com')) {
+    try {
+      const unsplashUrl = new URL(cleaned);
+      unsplashUrl.searchParams.set('w', '800');
+      unsplashUrl.searchParams.set('q', '80');
+      unsplashUrl.searchParams.set('auto', 'format');
+      unsplashUrl.searchParams.set('fit', 'crop');
+      return unsplashUrl.toString();
+    } catch (e) {
+      if (!cleaned.includes('w=800')) {
+        const separator = cleaned.includes('?') ? '&' : '?';
+        cleaned = `${cleaned.split('?')[0]}?auto=format&fit=crop&w=800&q=80`;
+      }
+    }
+  }
+
   // Handle Imgur page and gallery URLs
   const imgurMatch = cleaned.match(/^(?:https?:\/\/)?(?:i\.)?imgur\.com\/(?:a\/|gallery\/)?([a-zA-Z0-9]+)(\.[a-zA-Z]{3,4})?(\?.*)?$/i);
   if (imgurMatch) {
@@ -23,14 +40,14 @@ export function cleanImageUrl(url) {
   return cleaned;
 }
 
-// Default 3 dynamic editorial archive cards/slides
+// Default 3 dynamic editorial archive cards/slides (optimized 800px textures)
 export const DEFAULT_ABOUT_SLIDES = [
   {
     id: 'slide_1',
     title: '01 // REHEARSAL & NOISE',
     description: 'Ham gitar geribildirimi ve analog mikser distorsiyon ayarları sırasında kaydedilen 35mm kontakt baskı.',
-    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80',
-    url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80',
+    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
+    url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
     caption: '01 // REHEARSAL & NOISE',
     display_order: 1,
     slide_order: 1
@@ -39,8 +56,8 @@ export const DEFAULT_ABOUT_SLIDES = [
     id: 'slide_2',
     title: '02 // STAGE CATHARSIS',
     description: "Yoğun sis, kırmızı spot ışıkları ve 1/60s deklanşör hızıyla yakalanan ham sahne enerjisi.",
-    image_url: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80',
-    url: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80',
+    image_url: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80',
+    url: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80',
     caption: '02 // STAGE CATHARSIS',
     display_order: 2,
     slide_order: 2
@@ -49,8 +66,8 @@ export const DEFAULT_ABOUT_SLIDES = [
     id: 'slide_3',
     title: '03 // DARKROOM TEXTURE',
     description: 'Made of Sin albüm kapağı ve editoryal koleksiyon için karanlık odada elle basılan ilk prova negatifi.',
-    image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80',
-    url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80',
+    image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
+    url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
     caption: '03 // DARKROOM TEXTURE',
     display_order: 3,
     slide_order: 3
