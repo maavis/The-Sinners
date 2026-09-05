@@ -1,7 +1,6 @@
 /**
  * PARRHESIA SOCIAL MEDIA LINKS DATA SERVICE
  * Fully powered by Supabase PostgreSQL social_links table.
- * Uses exact downloaded favicons from real sites (Facebrowser, Youtube, Soundloop, LS Chat, SanMail).
  */
 import { supabase } from '../lib/supabase.js';
 
@@ -9,68 +8,60 @@ export const BUILTIN_SVGS = {
   generic: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>`
 };
 
-export const DEFAULT_SOCIAL_LINKS = [
+// Initial state is strictly an empty array to eliminate any flicker/flash of old static icons in the footer
+let inMemorySocialLinks = [];
+
+export const HEADER_SOCIAL_LINKS = [
   {
-    id: 'soc_1',
-    title: 'Facebrowser',
+    id: 'hdr_1',
     name: 'Facebrowser',
-    target_url: 'https://face-tr.gta.world/page/parrhesia',
+    title: 'Facebrowser',
     url: 'https://face-tr.gta.world/page/parrhesia',
-    icon_url: '/icons/facebrowser.ico',
-    iconUrl: '/icons/facebrowser.ico',
-    display_order: 1,
-    sort_order: 1
+    target_url: 'https://face-tr.gta.world/page/parrhesia',
+    icon_url: '/icons/facebrowser.ico'
   },
   {
-    id: 'soc_2',
-    title: 'Youtube',
+    id: 'hdr_2',
     name: 'Youtube',
-    target_url: 'https://www.youtube.com/@parrhesiatheband',
+    title: 'Youtube',
     url: 'https://www.youtube.com/@parrhesiatheband',
-    icon_url: '/icons/youtube.png',
-    iconUrl: '/icons/youtube.png',
-    display_order: 2,
-    sort_order: 2
+    target_url: 'https://www.youtube.com/@parrhesiatheband',
+    icon_url: '/icons/youtube.png'
   },
   {
-    id: 'soc_3',
-    title: 'Soundloop',
+    id: 'hdr_3',
     name: 'Soundloop',
-    target_url: 'https://soundloop.app',
+    title: 'Soundloop',
     url: 'https://soundloop.app',
-    icon_url: '/icons/soundloop.png',
-    iconUrl: '/icons/soundloop.png',
-    display_order: 3,
-    sort_order: 3
+    target_url: 'https://soundloop.app',
+    icon_url: '/icons/soundloop.png'
   },
   {
-    id: 'soc_4',
-    title: 'LS Chat',
+    id: 'hdr_4',
     name: 'LS Chat',
-    target_url: 'https://chat-tr.gta.world/app/s/107/5398',
+    title: 'LS Chat',
     url: 'https://chat-tr.gta.world/app/s/107/5398',
-    icon_url: '/icons/lschat.svg',
-    iconUrl: '/icons/lschat.svg',
-    display_order: 4,
-    sort_order: 4
+    target_url: 'https://chat-tr.gta.world/app/s/107/5398',
+    icon_url: '/icons/lschat.svg'
   },
   {
-    id: 'soc_5',
-    title: 'SanMail',
+    id: 'hdr_5',
     name: 'SanMail',
-    target_url: 'https://mail-tr.gta.world/compose?to=mail%40parrhesia.com',
+    title: 'SanMail',
     url: 'https://mail-tr.gta.world/compose?to=mail%40parrhesia.com',
-    icon_url: '/icons/sanmail.png',
-    iconUrl: '/icons/sanmail.png',
-    display_order: 5,
-    sort_order: 5
+    target_url: 'https://mail-tr.gta.world/compose?to=mail%40parrhesia.com',
+    icon_url: '/icons/sanmail.png'
   }
 ];
 
-// In-memory cache for instant UI rendering
-let inMemorySocialLinks = [...DEFAULT_SOCIAL_LINKS];
+export function getHeaderSocialLinks() {
+  return HEADER_SOCIAL_LINKS;
+}
 
-export function getSocialIconHTML(item) {
+/**
+ * Returns isolated Header Social Icon HTML (restores original 17px design & hover effects)
+ */
+export function getHeaderSocialIconHTML(item) {
   const urlKey = (item.target_url || item.url || '').toLowerCase();
   const nameKey = (item.title || item.name || '').toLowerCase().replace(/\s+/g, '');
 
@@ -96,14 +87,36 @@ export function getSocialIconHTML(item) {
       return iconSrc;
     }
     const finalUrl = item.target_url || item.url || 'https://google.com';
-    return `<img src="${escapeHtml(iconSrc)}" alt="${escapeHtml(item.title || item.name || 'Social Icon')}" class="header-social-icon-img" style="width: 22px; height: 22px; object-fit: contain; display: block;" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=${encodeURIComponent(finalUrl)}&sz=64';" />`;
+    return `<img src="${escapeHtml(iconSrc)}" alt="${escapeHtml(item.title || item.name || 'Social Icon')}" class="header-social-icon-img" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=${encodeURIComponent(finalUrl)}&sz=64';" />`;
   }
 
   return BUILTIN_SVGS.generic;
 }
 
 /**
- * Returns current in-memory social links
+ * Returns isolated Footer Social Icon HTML (22px replica brutalist styling)
+ */
+export function getFooterSocialIconHTML(item) {
+  let iconSrc = item.icon_url || item.iconUrl || '';
+  if (typeof iconSrc === 'string') iconSrc = iconSrc.trim();
+
+  if (iconSrc) {
+    if (iconSrc.startsWith('<svg')) {
+      return iconSrc;
+    }
+    const finalUrl = item.target_url || item.url || 'https://google.com';
+    return `<img src="${escapeHtml(iconSrc)}" alt="${escapeHtml(item.title || item.name || 'Social Icon')}" class="footer-replica-icon-img" onerror="this.onerror=null; this.src='https://www.google.com/s2/favicons?domain=${encodeURIComponent(finalUrl)}&sz=64';" />`;
+  }
+
+  return BUILTIN_SVGS.generic;
+}
+
+export function getSocialIconHTML(item) {
+  return getHeaderSocialIconHTML(item);
+}
+
+/**
+ * Returns current in-memory social links (empty array [] until Supabase responds)
  */
 export function getSocialLinks() {
   return inMemorySocialLinks;
@@ -142,9 +155,9 @@ export async function fetchSocialLinksFromSupabase() {
 
     if (Array.isArray(linksData) && linksData.length > 0) {
       inMemorySocialLinks = linksData.map((row, idx) => {
-        const title = row.title || row.name || DEFAULT_SOCIAL_LINKS[idx]?.title || 'Social Link';
-        const targetUrl = row.target_url || row.url || DEFAULT_SOCIAL_LINKS[idx]?.target_url || '#';
-        const iconUrl = row.icon_url || DEFAULT_SOCIAL_LINKS[idx]?.icon_url || '';
+        const title = row.title || row.name || 'Social Link';
+        const targetUrl = row.target_url || row.url || '#';
+        const iconUrl = row.icon_url || '';
         const orderNum = Number(row.display_order ?? row.sort_order ?? (idx + 1));
 
         return {

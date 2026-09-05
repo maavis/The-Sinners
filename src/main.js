@@ -5,7 +5,7 @@ import { fetchProductsFromSupabase } from './data/merch.js';
 import { getCategorizedTourEvents } from './data/tour.js';
 import { getJournalEntries } from './data/updates.js';
 import { getAboutData, cleanImageUrl, fetchAboutDataFromSupabase } from './data/about.js';
-import { getSocialLinks, getSocialIconHTML, fetchSocialLinksFromSupabase } from './data/socials.js';
+import { getHeaderSocialLinks, getHeaderSocialIconHTML, getFooterSocialIconHTML, getSocialLinks, fetchSocialLinksFromSupabase } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
 import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase, isMusicDataLoading } from './data/music.js';
 import { initMotionSystem, triggerPageTransition, observeNewElements, revealSectionContent } from './motion.js';
@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initAdminPortal();
   initMotionSystem();
   initClientRouter();
-  renderPublicSocialLinks();
+  renderHeaderSocialLinks();
+  renderFooterSocialLinks();
   renderPublicFooters();
   renderPublicTourDates();
   renderPublicUpdatesPage();
@@ -49,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPublicAboutPage();
     renderPublicEditorialZineCards();
   });
-  window.addEventListener('socials-data-updated', renderPublicSocialLinks);
+  window.addEventListener('socials-data-updated', renderFooterSocialLinks);
   window.addEventListener('music-data-updated', renderPublicMusicPage);
   window.addEventListener('footer-data-updated', renderPublicFooters);
 });
@@ -107,7 +108,7 @@ export function renderPublicFooters() {
     if (line4) line4.textContent = data.line4;
   });
 
-  renderPublicSocialLinks();
+  renderFooterSocialLinks();
 }
 
 /**
@@ -1182,20 +1183,18 @@ function updateSlidePosition() {
 }
 
 /**
- * Render Header and Footer Social Media Icon Links (Desktop, Mobile & Global Footers)
- * Dynamically populated from Supabase social_links table
+ * Render Header Social Media Icon Links (Desktop & Mobile)
+ * Completely isolated from footer social links.
+ * Restores original 17px design, placement, drop shadows, and hover animations.
  */
-export function renderPublicSocialLinks() {
+export function renderHeaderSocialLinks() {
   const desktopContainer = document.getElementById('desktop-social-links');
   const mobileContainer = document.getElementById('mobile-social-links');
-  const footerIconsRows = document.querySelectorAll('.footer-replica-icons-row');
-  const footerTargets = document.querySelectorAll('.footer-social-target');
 
-  const links = getSocialLinks();
+  const headerLinks = getHeaderSocialLinks();
 
-  // Top Right Header Social Links
-  const headerHtml = (links && links.length > 0) ? links.map(item => {
-    const iconContent = getSocialIconHTML(item);
+  const headerHtml = headerLinks.map(item => {
+    const iconContent = getHeaderSocialIconHTML(item);
     const title = escapeHtml(item.title || item.name || 'Social Link');
     const targetUrl = escapeHtml(item.target_url || item.url || '#');
 
@@ -1204,14 +1203,33 @@ export function renderPublicSocialLinks() {
         ${iconContent}
       </a>
     `;
-  }).join('') : '';
+  }).join('');
 
   if (desktopContainer) desktopContainer.innerHTML = headerHtml;
   if (mobileContainer) mobileContainer.innerHTML = headerHtml;
+}
 
-  // Footer Social Media Icons Row across all page footers (Replica Brutalist Icons)
-  const footerIconsHtml = (links && links.length > 0) ? links.map(item => {
-    const iconContent = getSocialIconHTML(item);
+/**
+ * Render Footer Social Media Icon Links (All Public Page Footers)
+ * Dynamically populated from Supabase social_links table.
+ * Starts with empty state [] to eliminate any flicker/flash of old static icons.
+ */
+export function renderFooterSocialLinks() {
+  const footerIconsRows = document.querySelectorAll('.footer-replica-icons-row');
+  const footerTargets = document.querySelectorAll('.footer-social-target');
+
+  const links = getSocialLinks();
+
+  // If Supabase data is not yet loaded, keep footer clean (no flicker/flash)
+  if (!links || links.length === 0) {
+    footerIconsRows.forEach(el => { el.innerHTML = ''; });
+    footerTargets.forEach(el => { el.innerHTML = ''; });
+    return;
+  }
+
+  // Footer Social Media Icons Row across all page footers (22px Replica Brutalist Icons)
+  const footerIconsHtml = links.map(item => {
+    const iconContent = getFooterSocialIconHTML(item);
     const title = escapeHtml(item.title || item.name || 'Social Link');
     const targetUrl = escapeHtml(item.target_url || item.url || '#');
 
@@ -1220,14 +1238,14 @@ export function renderPublicSocialLinks() {
         ${iconContent}
       </a>
     `;
-  }).join('') : '';
+  }).join('');
 
   footerIconsRows.forEach(el => {
     el.innerHTML = footerIconsHtml;
   });
 
   // Footer Text Social Links (if any footer-social-target exists)
-  const footerTextHtml = (links && links.length > 0) ? links.map(item => {
+  const footerTextHtml = links.map(item => {
     const title = escapeHtml(item.title || item.name || 'Social Link').toUpperCase();
     const targetUrl = escapeHtml(item.target_url || item.url || '#');
 
@@ -1236,11 +1254,16 @@ export function renderPublicSocialLinks() {
         ${title} ↗
       </a>
     `;
-  }).join('') : '';
+  }).join('');
 
   footerTargets.forEach(el => {
     el.innerHTML = footerTextHtml;
   });
+}
+
+export function renderPublicSocialLinks() {
+  renderHeaderSocialLinks();
+  renderFooterSocialLinks();
 }
 
 /**

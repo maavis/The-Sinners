@@ -5094,7 +5094,8 @@ html.route-about .about-hamburger-btn {
 }
 
 .replica-icon-link svg,
-.replica-icon-link img {
+.replica-icon-link img,
+.footer-replica-icon-img {
   width: 22px;
   height: 22px;
   object-fit: contain;
