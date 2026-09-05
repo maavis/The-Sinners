@@ -31,6 +31,8 @@ import {
 
 import {
   getAboutData,
+  upsertAboutSlide,
+  saveAboutSlidesBatch,
   addSlide,
   updateSlide,
   deleteSlide,
@@ -2299,6 +2301,29 @@ function openDeleteMediaModal(mediaItem, rootContainer) {
  */
 function renderAdminAbout(container) {
   const aboutData = getAboutData();
+  const slides = (aboutData.slides && aboutData.slides.length > 0) ? aboutData.slides : [
+    {
+      id: 'slide_1',
+      title: '01 // REHEARSAL & NOISE',
+      description: 'Ham gitar geribildirimi ve analog mikser distorsiyon ayarları sırasında kaydedilen 35mm kontakt baskı.',
+      image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80',
+      display_order: 1
+    },
+    {
+      id: 'slide_2',
+      title: '02 // STAGE CATHARSIS',
+      description: "Yoğun sis, kırmızı spot ışıkları ve 1/60s deklanşör hızıyla yakalanan ham sahne enerjisi.",
+      image_url: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80',
+      display_order: 2
+    },
+    {
+      id: 'slide_3',
+      title: '03 // DARKROOM TEXTURE',
+      description: 'Made of Sin albüm kapağı ve editoryal koleksiyon için karanlık odada elle basılan ilk prova negatifi.',
+      image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80',
+      display_order: 3
+    }
+  ];
 
   container.innerHTML = `
     <div class="admin-cms-layout">
@@ -2313,35 +2338,110 @@ function renderAdminAbout(container) {
         <div class="admin-page-header">
           <div>
             <h1 class="admin-page-title">Hakkımızda & Slayt Yönetimi</h1>
-            <p class="admin-page-desc">Sinematik Slayt Görselleri ve Biyografi Paragrafları</p>
+            <p class="admin-page-desc">01 // REHEARSAL, 02 // STAGE CATHARSIS ve 03 // DARKROOM TEXTURE kartlarını & biyografiyi düzenleyin.</p>
           </div>
-          <button id="btn-add-slide" class="admin-btn admin-btn-primary">+ YENİ SLAYT GÖRSELİ EKLE</button>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button id="btn-save-all-slides" class="admin-btn admin-btn-primary">💾 TÜM KARTLARI KAYDET</button>
+            <button id="btn-add-slide" class="admin-btn admin-btn-secondary">+ YENİ SLAYT EKLE</button>
+          </div>
         </div>
 
+        <!-- 1. DYNAMIC ARŞİV KARTLARI / SLAYTLAR (01, 02, 03) -->
         <div class="admin-content-section">
-          <h2 class="admin-section-subtitle">SİNEMATİK SLAYT GÖRSELLERİ (${aboutData.slides.length} SLAYT)</h2>
-          <div class="admin-table-container">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>ÖNİZLEME</th>
-                  <th>AÇIKLAMA / BAŞLIK</th>
-                  <th>SLAYT ID</th>
-                  <th>İŞLEMLER</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${renderAboutSlideAdminRows(aboutData.slides)}
-              </tbody>
-            </table>
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <h2 class="admin-section-subtitle" style="margin-bottom: 0;">ARŞİV KARTLARI & SLAYTLAR (${slides.length} KART)</h2>
+            <span style="font-family: monospace; font-size: 0.72rem; color: #888;">Supabase: about_slides tablosu ile tam senkron</span>
+          </div>
+          <p class="admin-input-help" style="margin-bottom: 1.25rem;">
+            Ön yüzde gösterilen kartların Başlık (title), Açıklama (description) ve Görsel Linklerini (image_url) aşağıdan güncelleyip kaydedebilirsiniz.
+          </p>
+
+          <div class="admin-slide-cards-grid">
+            ${slides.map((slide, idx) => {
+              const cleanedUrl = cleanImageUrl(slide.image_url || slide.url || '');
+              const cardTitle = slide.title || slide.caption || `KART #${idx + 1}`;
+              const cardDesc = slide.description || '';
+              const cardOrder = slide.display_order || slide.slide_order || (idx + 1);
+
+              return `
+                <div class="admin-slide-card-editor" data-slide-id="${slide.id}">
+                  <div class="admin-slide-card-header">
+                    <div class="admin-slide-card-badge">
+                      <span>●</span> KART #${String(cardOrder).padStart(2, '0')} // ${escapeHtml(cardTitle)}
+                    </div>
+                    <div class="admin-slide-card-id">${slide.id}</div>
+                  </div>
+
+                  <div class="admin-slide-card-body">
+                    <!-- Başlık (title) -->
+                    <div class="admin-form-group">
+                      <label class="admin-label">Kart Başlığı (title)*</label>
+                      <input type="text" 
+                             class="admin-input slide-field-title" 
+                             data-id="${slide.id}" 
+                             value="${escapeHtml(cardTitle)}" 
+                             placeholder="Örn: 01 // REHEARSAL & NOISE" 
+                             required />
+                    </div>
+
+                    <!-- Görsel Linki (image_url) -->
+                    <div class="admin-form-group">
+                      <label class="admin-label">Görsel Linki (image_url)*</label>
+                      <input type="url" 
+                             class="admin-input slide-field-url" 
+                             data-id="${slide.id}" 
+                             value="${escapeHtml(cleanedUrl)}" 
+                             placeholder="https://images.unsplash.com/... veya https://i.imgur.com/..." 
+                             required />
+                    </div>
+
+                    <!-- Canlı Görsel Önizleme -->
+                    <div class="admin-form-group">
+                      <label class="admin-label">Görsel Canlı Önizleme</label>
+                      <div class="admin-slide-preview-box" id="preview-box-${slide.id}">
+                        <img src="${escapeHtml(cleanedUrl)}" 
+                             alt="${escapeHtml(cardTitle)}" 
+                             class="admin-slide-preview-img" 
+                             id="preview-img-${slide.id}" 
+                             style="${cleanedUrl ? '' : 'display: none;'}" />
+                        <span class="admin-slide-preview-empty" 
+                              id="preview-empty-${slide.id}" 
+                              style="${cleanedUrl ? 'display: none;' : ''}">// GÖRSEL BAĞLANTISI GİRİN</span>
+                      </div>
+                    </div>
+
+                    <!-- Açıklama (description) -->
+                    <div class="admin-form-group">
+                      <label class="admin-label">Kart Açıklaması (description)</label>
+                      <textarea class="admin-input slide-field-desc" 
+                                data-id="${slide.id}" 
+                                rows="3" 
+                                placeholder="Kart için detaylı açıklama metni...">${escapeHtml(cardDesc)}</textarea>
+                    </div>
+                  </div>
+
+                  <div class="admin-slide-card-footer">
+                    <button type="button" 
+                            class="admin-btn admin-btn-primary btn-save-single-slide" 
+                            data-id="${slide.id}" 
+                            data-order="${cardOrder}" 
+                            style="width: 100%; margin-top: 0;">
+                      💾 KARTI KAYDET
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
 
+        <!-- 2. BİYOGRAFİ METNİ / PARAGRAFLAR -->
         <div class="admin-content-section" style="margin-top: 3rem;">
           <h2 class="admin-section-subtitle">BİYOGRAFİ METNİ / PARAGRAFLAR</h2>
           <form id="about-bio-form">
             <div class="admin-form-group">
-              <textarea id="about-bio-textarea" class="admin-input" rows="10" required>${escapeHtml(aboutData.bioParagraphs.join('\n\n'))}</textarea>
+              <label class="admin-label">Grup Biyografisi (Paragrafları boş satır bırakarak ayırın)</label>
+              <textarea id="about-bio-textarea" class="admin-input" rows="8" required>${escapeHtml(aboutData.bioParagraphs.join('\n\n'))}</textarea>
             </div>
             <div style="margin-top: 1rem;">
               <button type="submit" class="admin-btn admin-btn-primary">BİYOGRAFİYİ KAYDET</button>
@@ -2354,33 +2454,188 @@ function renderAdminAbout(container) {
 
   bindAdminNavEvents(container);
 
-  const addSlideBtn = container.querySelector('#btn-add-slide');
-  if (addSlideBtn) addSlideBtn.onclick = () => openSlideModal(null, container);
+  // Setup real-time image preview listeners
+  slides.forEach(slide => {
+    const urlInput = container.querySelector(`.slide-field-url[data-id="${slide.id}"]`);
+    const previewImg = container.querySelector(`#preview-img-${slide.id}`);
+    const previewEmpty = container.querySelector(`#preview-empty-${slide.id}`);
 
-  const editSlideBtns = container.querySelectorAll('.btn-edit-slide');
-  editSlideBtns.forEach(btn => {
-    btn.onclick = () => {
-      const id = btn.getAttribute('data-id');
-      const slide = aboutData.slides.find(s => s.id === id);
-      if (slide) openSlideModal(slide, container);
-    };
+    if (urlInput && previewImg && previewEmpty) {
+      const updateBox = () => {
+        const raw = urlInput.value.trim();
+        if (!raw) {
+          previewImg.style.display = 'none';
+          previewEmpty.style.display = 'block';
+          previewEmpty.textContent = '// GÖRSEL BAĞLANTISI GİRİN';
+          previewEmpty.style.color = '#666';
+          return;
+        }
+
+        const cleaned = cleanImageUrl(raw);
+        previewImg.src = cleaned;
+        previewImg.style.display = 'block';
+        previewEmpty.style.display = 'none';
+      };
+
+      urlInput.oninput = updateBox;
+      urlInput.onblur = () => {
+        const cleaned = cleanImageUrl(urlInput.value.trim());
+        if (cleaned && cleaned !== urlInput.value) {
+          urlInput.value = cleaned;
+          updateBox();
+        }
+      };
+
+      previewImg.onerror = () => {
+        previewImg.style.display = 'none';
+        previewEmpty.style.display = 'block';
+        previewEmpty.textContent = '⚠ Geçersiz veya yüklenemeyen görsel linki';
+        previewEmpty.style.color = '#d92b2b';
+      };
+      previewImg.onload = () => {
+        previewImg.style.display = 'block';
+        previewEmpty.style.display = 'none';
+      };
+    }
   });
 
-  const deleteSlideBtns = container.querySelectorAll('.btn-delete-slide');
-  deleteSlideBtns.forEach(btn => {
+  // Save single slide directly via Supabase upsert
+  const singleSaveBtns = container.querySelectorAll('.btn-save-single-slide');
+  singleSaveBtns.forEach(btn => {
     btn.onclick = async () => {
-      const id = btn.getAttribute('data-id');
-      try {
-        await deleteSlide(id);
-        logActivity('SLAYT SİLİNDİ', `Slayt silindi: ${id}`);
-        showAdminToast('✓ SLAYT BAŞARIYLA SİLİNDİ', 'danger');
-      } catch (err) {
-        showAdminToast('⚠ Slayt silinirken hata: ' + (err.message || 'Supabase hatası'), 'danger');
+      const slideId = btn.getAttribute('data-id');
+      const orderVal = parseInt(btn.getAttribute('data-order') || '1', 10);
+
+      const titleInput = container.querySelector(`.slide-field-title[data-id="${slideId}"]`);
+      const urlInput = container.querySelector(`.slide-field-url[data-id="${slideId}"]`);
+      const descInput = container.querySelector(`.slide-field-desc[data-id="${slideId}"]`);
+
+      const title = titleInput ? titleInput.value.trim() : '';
+      const rawUrl = urlInput ? urlInput.value.trim() : '';
+      const description = descInput ? descInput.value.trim() : '';
+      const cleanedUrl = cleanImageUrl(rawUrl);
+
+      if (!title) {
+        showAdminToast('⚠ Kart başlığı boş olamaz.', 'danger');
+        if (titleInput) titleInput.focus();
+        return;
       }
-      renderAdminAbout(container);
+      if (!cleanedUrl) {
+        showAdminToast('⚠ Görsel linki boş olamaz.', 'danger');
+        if (urlInput) urlInput.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = '⏳ KAYDEDİLİYOR...';
+
+      try {
+        const payload = {
+          id: slideId,
+          title,
+          description,
+          image_url: cleanedUrl,
+          url: cleanedUrl,
+          caption: title,
+          display_order: orderVal,
+          slide_order: orderVal,
+          created_at: new Date().toISOString()
+        };
+
+        if (supabase) {
+          const { data, error } = await supabase
+            .from('about_slides')
+            .upsert(payload, { onConflict: 'id' })
+            .select();
+
+          if (error) throw error;
+          console.log('Supabase Slide Kaydedildi:', data);
+        }
+
+        // Also update local in-memory store
+        await upsertAboutSlide({
+          id: slideId,
+          title,
+          description,
+          image_url: cleanedUrl,
+          display_order: orderVal
+        });
+
+        logActivity('KART GÜNCELLENDİ', `"${title}" kartı Supabase'e kaydedildi.`);
+        showAdminToast(`✓ "${title}" BAŞARIYLA KAYDEDİLDİ`);
+      } catch (err) {
+        console.error('Slayt kaydetme hatası:', err);
+        showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
     };
   });
 
+  // Save All Slides button
+  const saveAllBtn = container.querySelector('#btn-save-all-slides');
+  if (saveAllBtn) {
+    saveAllBtn.onclick = async () => {
+      saveAllBtn.disabled = true;
+      saveAllBtn.textContent = '⏳ TÜMÜ KAYDEDİLİYOR...';
+
+      try {
+        const updatedSlidesList = slides.map((slide, idx) => {
+          const titleInput = container.querySelector(`.slide-field-title[data-id="${slide.id}"]`);
+          const urlInput = container.querySelector(`.slide-field-url[data-id="${slide.id}"]`);
+          const descInput = container.querySelector(`.slide-field-desc[data-id="${slide.id}"]`);
+
+          const title = titleInput ? titleInput.value.trim() : (slide.title || '');
+          const rawUrl = urlInput ? urlInput.value.trim() : (slide.image_url || slide.url || '');
+          const description = descInput ? descInput.value.trim() : (slide.description || '');
+          const cleanedUrl = cleanImageUrl(rawUrl);
+          const orderNum = idx + 1;
+
+          return {
+            id: slide.id,
+            title: title || `0${orderNum} // TRANSMISSION`,
+            description,
+            image_url: cleanedUrl,
+            url: cleanedUrl,
+            caption: title || `0${orderNum} // TRANSMISSION`,
+            display_order: orderNum,
+            slide_order: orderNum,
+            created_at: new Date().toISOString()
+          };
+        });
+
+        if (supabase) {
+          const { data, error } = await supabase
+            .from('about_slides')
+            .upsert(updatedSlidesList, { onConflict: 'id' })
+            .select();
+
+          if (error) throw error;
+          console.log('Supabase All Slides Kaydedildi:', data);
+        }
+
+        await saveAboutSlidesBatch(updatedSlidesList);
+        logActivity('TÜM KARTLAR GÜNCELLENDİ', `${updatedSlidesList.length} kart Supabase'e kaydedildi.`);
+        showAdminToast('✓ TÜM KARTLAR BAŞARIYLA SUPABASE\'E KAYDEDİLDİ');
+      } catch (err) {
+        console.error('Tüm kartları kaydetme hatası:', err);
+        showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+      } finally {
+        saveAllBtn.disabled = false;
+        saveAllBtn.textContent = '💾 TÜM KARTLARI KAYDET';
+      }
+    };
+  }
+
+  // Add new slide button
+  const addSlideBtn = container.querySelector('#btn-add-slide');
+  if (addSlideBtn) {
+    addSlideBtn.onclick = () => openSlideModal(null, container);
+  }
+
+  // Bio form submission
   const bioForm = container.querySelector('#about-bio-form');
   if (bioForm) {
     bioForm.onsubmit = async (e) => {
@@ -2408,28 +2663,9 @@ function renderAdminAbout(container) {
   }
 }
 
-function renderAboutSlideAdminRows(slides) {
-  if (slides.length === 0) {
-    return `<tr><td colspan="4" class="admin-empty-cell">Henüz eklenmiş slayt görseli bulunmuyor.</td></tr>`;
-  }
-  return slides.map(slide => `
-    <tr>
-      <td><img src="${slide.url}" class="admin-thumb-img" alt="Slayt" /></td>
-      <td><strong>${escapeHtml(slide.caption)}</strong></td>
-      <td><code>${slide.id}</code></td>
-      <td>
-        <div class="admin-action-btns">
-          <button class="admin-action-btn btn-edit-slide" data-id="${slide.id}">Düzenle</button>
-          <button class="admin-action-btn btn-danger btn-delete-slide" data-id="${slide.id}">Sil</button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
 function openSlideModal(slideItem, rootContainer) {
   const isEdit = !!slideItem;
-  const initialUrl = slideItem ? cleanImageUrl(slideItem.url) : '';
+  const initialUrl = slideItem ? cleanImageUrl(slideItem.image_url || slideItem.url) : '';
   const modalOverlay = document.createElement('div');
   modalOverlay.className = 'admin-modal-backdrop';
 
@@ -2442,13 +2678,17 @@ function openSlideModal(slideItem, rootContainer) {
       <form id="slide-form">
         <div class="admin-modal-body">
           <div class="admin-form-group">
-            <label class="admin-label">Görsel URL (Imgur veya doğrudan resim bağlantısı)*</label>
-            <input type="url" id="slide-url" class="admin-input" value="${escapeHtml(initialUrl)}" placeholder="https://i.imgur.com/... veya https://imgur.com/..." required />
+            <label class="admin-label">Başlık (title)*</label>
+            <input type="text" id="slide-caption" class="admin-input" value="${slideItem ? escapeHtml(slideItem.title || slideItem.caption || '') : ''}" placeholder="Örn: 04 // NOCTURNAL TRANSMISSION" required />
+          </div>
+          <div class="admin-form-group" style="margin-top: 1rem;">
+            <label class="admin-label">Görsel URL (image_url)*</label>
+            <input type="url" id="slide-url" class="admin-input" value="${escapeHtml(initialUrl)}" placeholder="https://i.imgur.com/... veya https://images.unsplash.com/..." required />
             <p class="admin-input-help" style="font-size: 0.75rem; color: #888; margin-top: 4px;">Imgur sayfa linkleri otomatik olarak direkt resim linkine dönüştürülür.</p>
           </div>
           <div class="admin-form-group" style="margin-top: 1rem;">
-            <label class="admin-label">Başlık / Açıklama*</label>
-            <input type="text" id="slide-caption" class="admin-input" value="${slideItem ? escapeHtml(slideItem.caption) : ''}" placeholder="Örn: STÜDYO KAYITLARI" required />
+            <label class="admin-label">Açıklama (description)</label>
+            <textarea id="slide-desc" class="admin-input" rows="3" placeholder="Slayt / kart açıklaması...">${slideItem ? escapeHtml(slideItem.description || '') : ''}</textarea>
           </div>
           <div class="admin-form-group" style="margin-top: 1rem;">
             <label class="admin-label">Görsel Önizleme</label>
@@ -2527,16 +2767,17 @@ function openSlideModal(slideItem, rootContainer) {
 
     const rawUrl = urlInput.value.trim();
     const cleanedUrl = cleanImageUrl(rawUrl);
-    const caption = modalOverlay.querySelector('#slide-caption').value.trim();
+    const title = modalOverlay.querySelector('#slide-caption').value.trim();
+    const description = modalOverlay.querySelector('#slide-desc').value.trim();
 
     try {
       if (isEdit) {
-        await updateSlide(slideItem.id, { url: cleanedUrl, caption });
+        await updateSlide(slideItem.id, { image_url: cleanedUrl, url: cleanedUrl, title, caption: title, description });
         logActivity('SLAYT GÜNCELLENDİ', `Slayt güncellendi: ${slideItem.id}`);
         showAdminToast('✓ SLAYT GÖRSELİ GÜNCELLENDİ');
       } else {
-        await addSlide({ url: cleanedUrl, caption });
-        logActivity('SLAYT EKLENDİ', `Yeni slayt eklendi: "${caption}"`);
+        await addSlide({ image_url: cleanedUrl, url: cleanedUrl, title, caption: title, description });
+        logActivity('SLAYT EKLENDİ', `Yeni slayt eklendi: "${title}"`);
         showAdminToast('✓ YENİ SLAYT BAŞARIYLA OLUŞTURULDU');
       }
     } catch (err) {

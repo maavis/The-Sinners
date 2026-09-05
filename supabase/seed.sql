@@ -129,14 +129,20 @@ VALUES
    'Orijinal ambalajında 14 gün içerisinde iade imkanı.')
 ON CONFLICT (id) DO NOTHING;
 
--- 6. SEED: about_slides
-INSERT INTO about_slides (id, url, caption, slide_order)
+-- 6. SEED: about_slides (Zine Archive & Editorial Slides)
+INSERT INTO about_slides (id, title, description, image_url, url, caption, display_order, slide_order)
 VALUES
-  ('slide_1', 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1920&q=80', 'STUDIO TRANSMISSIONS', 1),
-  ('slide_2', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1920&q=80', 'NIGHT REHEARSALS', 2),
-  ('slide_3', 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1920&q=80', 'LIVE ATMOSPHERE', 3),
-  ('slide_4', 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1920&q=80', 'DARKNESS & NOISE', 4)
-ON CONFLICT (id) DO NOTHING;
+  ('slide_1', '01 // REHEARSAL & NOISE', 'Ham gitar geribildirimi ve analog mikser distorsiyon ayarları sırasında kaydedilen 35mm kontakt baskı.', 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80', '01 // REHEARSAL & NOISE', 1, 1),
+  ('slide_2', '02 // STAGE CATHARSIS', 'Yoğun sis, kırmızı spot ışıkları ve 1/60s deklanşör hızıyla yakalanan ham sahne enerjisi.', 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80', '02 // STAGE CATHARSIS', 2, 2),
+  ('slide_3', '03 // DARKROOM TEXTURE', 'Made of Sin albüm kapağı ve editoryal koleksiyon için karanlık odada elle basılan ilk prova negatifi.', 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80', '03 // DARKROOM TEXTURE', 3, 3)
+ON CONFLICT (id) DO UPDATE SET
+  title = EXCLUDED.title,
+  description = EXCLUDED.description,
+  image_url = EXCLUDED.image_url,
+  url = EXCLUDED.url,
+  caption = EXCLUDED.caption,
+  display_order = EXCLUDED.display_order,
+  slide_order = EXCLUDED.slide_order;
 
 -- 7. SEED: media_items
 INSERT INTO media_items (id, name, url, type, size, dimensions)

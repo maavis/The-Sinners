@@ -103,12 +103,16 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 -- -----------------------------------------------------------------------------
--- 6. TABLE: about_slides (Biography & About Slideshow Images)
+-- 6. TABLE: about_slides (Biography & About Slideshow Images / Zine Archive)
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS about_slides (
   id TEXT PRIMARY KEY DEFAULT ('slide_' || floor(extract(epoch from now()) * 1000)::text),
-  url TEXT NOT NULL,
+  title TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  image_url TEXT NOT NULL DEFAULT '',
+  url TEXT NOT NULL DEFAULT '',
   caption TEXT NOT NULL DEFAULT '',
+  display_order INTEGER NOT NULL DEFAULT 1,
   slide_order INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

@@ -4,7 +4,7 @@ import { mountMerchStore } from './store.js';
 import { fetchProductsFromSupabase } from './data/merch.js';
 import { getCategorizedTourEvents } from './data/tour.js';
 import { getJournalEntries } from './data/updates.js';
-import { getAboutData } from './data/about.js';
+import { getAboutData, cleanImageUrl, fetchAboutDataFromSupabase } from './data/about.js';
 import { getSocialLinks, getSocialIconHTML } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
 import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase, isMusicDataLoading } from './data/music.js';
@@ -17,6 +17,7 @@ import './styles/store.css';
 document.addEventListener('DOMContentLoaded', () => {
   fetchProductsFromSupabase();
   fetchMusicFromSupabase();
+  fetchAboutDataFromSupabase();
   initCinematicIntro();
   initLogo();
   initHero();
@@ -32,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPublicTourDates();
   renderPublicUpdatesPage();
   renderPublicMusicPage();
+  renderPublicEditorialZineCards();
   initGlobalPlayer();
   startHeroGhostTextEngine();
   initHomeScrollEngine();
@@ -42,7 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('tour-data-updated', renderPublicTourDates);
   window.addEventListener('updates-data-updated', renderPublicUpdatesPage);
-  window.addEventListener('about-data-updated', renderPublicAboutPage);
+  window.addEventListener('about-data-updated', () => {
+    renderPublicAboutPage();
+    renderPublicEditorialZineCards();
+  });
   window.addEventListener('socials-data-updated', renderPublicSocialLinks);
   window.addEventListener('music-data-updated', renderPublicMusicPage);
   window.addEventListener('footer-data-updated', renderPublicFooters);
@@ -1964,12 +1969,110 @@ function setupArchiveControls() {
 }
 
 /**
+ * Render Public Editorial Zine Cards (Home Page Visual Archive)
+ * Dynamically populated from Supabase about_slides table
+ */
+export function renderPublicEditorialZineCards() {
+  const container = document.getElementById('editorial-zine-grid') || document.querySelector('.editorial-zine-grid');
+  if (!container) return;
+
+  const { slides } = getAboutData();
+  if (!slides || slides.length === 0) return;
+
+  const cardLayoutConfigs = [
+    {
+      itemClass: 'item-rehearsal',
+      tapeClass: 'zine-tape-top-left',
+      redStamp: '',
+      perfCount: 5,
+      techStamp: '[ KODAK TRI-X • EXP 18 ]',
+      film: '35MM KODAK TRI-X 400',
+      loc: '52.5200° N, 13.4050° E — STÜDYO B',
+      date: '03:42 AM // SIKIYÖNETİM SEANSI',
+      metaLocation: 'BERLİN STÜDYO 03:42 AM',
+      badge: 'ARCHIVE #01'
+    },
+    {
+      itemClass: 'item-live',
+      tapeClass: 'zine-tape-top-right',
+      redStamp: '<div class="zine-red-stamp">DEVIL\'S GRIN // CONFIDENTIAL</div>',
+      perfCount: 5,
+      techStamp: '[ ILFORD HP5 • 1/60s ]',
+      film: 'ILFORD HP5 PLUS 400',
+      loc: 'CANLI PERFORMANS // DEVIL\'S GRIN',
+      date: '22:15 PM // HEADLINE ŞOV',
+      metaLocation: 'CANLI ŞOV // 180G VINYL ERA',
+      badge: 'ARCHIVE #02'
+    },
+    {
+      itemClass: 'item-darkroom',
+      tapeClass: 'zine-tape-center',
+      redStamp: '',
+      perfCount: 8,
+      techStamp: '[ MADE OF SIN • MASTER PROOF ]',
+      film: 'TYPE II CHROME / SILVER GELATIN',
+      loc: 'UNDERGROUND ANALOG LAB',
+      date: 'FW26 // COVER SESSIONS',
+      metaLocation: 'EDİTORYAL KOLEKSİYON ARŞİVİ',
+      badge: 'ARCHIVE #03'
+    }
+  ];
+
+  container.innerHTML = slides.map((slide, idx) => {
+    const config = cardLayoutConfigs[idx] || {
+      itemClass: `item-archive-${idx + 1}`,
+      tapeClass: idx % 2 === 0 ? 'zine-tape-top-left' : 'zine-tape-top-right',
+      redStamp: '',
+      perfCount: 5,
+      techStamp: `[ ARCHIVE • #${String(idx + 1).padStart(2, '0')} ]`,
+      film: '35MM SILVER EMULSION',
+      loc: 'EDITORIAL ARCHIVE',
+      date: 'ARCHIVE TRANSMISSION',
+      metaLocation: 'THE SINNERS VAULT',
+      badge: `ARCHIVE #${String(idx + 1).padStart(2, '0')}`
+    };
+
+    const imgUrl = cleanImageUrl(slide.image_url || slide.url || '');
+    const title = slide.title || slide.caption || `0${idx + 1} // TRANSMISSION`;
+    const desc = slide.description || '';
+    const perfs = Array(config.perfCount).fill('<span>■</span>').join('');
+
+    return `
+      <article class="zine-item ${config.itemClass}" 
+               data-zine-idx="${idx + 1}" 
+               data-title="${escapeHtml(title)}" 
+               data-film="${escapeHtml(config.film)}" 
+               data-loc="${escapeHtml(config.loc)}" 
+               data-date="${escapeHtml(config.date)}" 
+               data-desc="${escapeHtml(desc)}" 
+               data-img="${escapeHtml(imgUrl)}">
+        <div class="zine-tape ${config.tapeClass}"></div>
+        ${config.redStamp}
+        <div class="zine-film-strip">
+          <div class="film-perf-row">${perfs}</div>
+          <div class="zine-img-wrapper">
+            <div class="zine-light-leak"></div>
+            <img src="${escapeHtml(imgUrl)}" alt="${escapeHtml(title)}" class="zine-img" loading="lazy" decoding="async" />
+          </div>
+          <div class="film-perf-row">${perfs}</div>
+        </div>
+        <div class="zine-card-footer">
+          <div class="zine-tech-stamp">${escapeHtml(config.techStamp)}</div>
+          <h3 class="zine-card-title">${escapeHtml(title)}</h3>
+          <div class="zine-meta-row">
+            <span>${escapeHtml(config.metaLocation)}</span>
+            <span class="zine-badge-accent">${escapeHtml(config.badge)}</span>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+/**
  * Editorial Zine Darkroom Lightbox Controller
  */
 function initEditorialZineDarkroomModal() {
-  const zineItems = document.querySelectorAll('.zine-item');
-  if (zineItems.length === 0) return;
-
   let modalBackdrop = document.getElementById('darkroom-lightbox-backdrop');
   if (!modalBackdrop) {
     modalBackdrop = document.createElement('div');
@@ -2052,8 +2155,13 @@ function initEditorialZineDarkroomModal() {
     if (closeAction) closeAction.onclick = closeIt;
   };
 
-  zineItems.forEach(item => {
-    item.onclick = () => openDarkroom(item);
+  // Delegated click listener on zine items
+  document.addEventListener('click', (e) => {
+    const item = e.target.closest('.zine-item');
+    if (item && item.closest('#home-archive')) {
+      e.preventDefault();
+      openDarkroom(item);
+    }
   });
 
   modalBackdrop.onclick = (e) => {
