@@ -1,5 +1,5 @@
 /**
- * THE SINNERS / PARRHESIA - DIGITAL JOURNAL / UPDATES DATA SERVICE
+ * TOXIC / PARRHESIA - DIGITAL JOURNAL / UPDATES DATA SERVICE
  * Fully powered by Supabase PostgreSQL updates table (LocalStorage removed).
  */
 import { supabase } from '../lib/supabase.js';

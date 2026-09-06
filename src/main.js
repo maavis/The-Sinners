@@ -1112,7 +1112,7 @@ function renderPublicAboutPage() {
   if (data.slides && data.slides.length > 0) {
     slidesWrapper.innerHTML = data.slides.map(slide => `
       <div class="about-slide-item">
-        <img src="${escapeHtml(slide.url)}" alt="${escapeHtml(slide.caption || 'The Sinners Visual')}" class="about-slide-img" />
+        <img src="${escapeHtml(slide.url)}" alt="${escapeHtml(slide.caption || 'Toxic Visual')}" class="about-slide-img" />
       </div>
     `).join('');
 
@@ -1279,7 +1279,7 @@ let ghostTextTimer = null;
 let ghostTextActiveTimeouts = [];
 
 const GHOST_WORDS_POOL = [
-  'The Sinners'
+  'Toxic'
 ];
 
 const RANDOM_QUADRANTS = [
@@ -1615,7 +1615,7 @@ function playTrack(track, queue = []) {
   const imgEl = document.getElementById('player-img');
 
   if (titleEl) titleEl.textContent = track.title;
-  if (artistEl) artistEl.textContent = `${track.artist || 'THE SINNERS'} — ${track.releaseTitle || 'SINGLE'}`;
+  if (artistEl) artistEl.textContent = `${track.artist || 'TOXIC'} — ${track.releaseTitle || 'SINGLE'}`;
   if (imgEl && track.coverUrl) imgEl.src = track.coverUrl;
 
   const favs = getFavoriteTrackIds();
@@ -1753,7 +1753,7 @@ function renderPublicMusicPage() {
       heroCoverEl.alt = `${mainRelease.title} Cover Artwork`;
     }
     if (heroMetaEl) heroMetaEl.textContent = `${mainRelease.year} // ${mainRelease.type} ${mainRelease.releaseDate ? '// ' + mainRelease.releaseDate : ''}`;
-    if (heroArtistEl) heroArtistEl.textContent = mainRelease.artist || 'THE SINNERS';
+    if (heroArtistEl) heroArtistEl.textContent = mainRelease.artist || 'TOXIC';
     
     const trackCount = (mainRelease.tracks || []).length;
     if (tracklistHeaderLabelEl) {
@@ -2183,7 +2183,7 @@ function initEditorialZineDarkroomModal() {
         <div class="darkroom-modal-info-col">
           <div>
             <div style="font-family: monospace; font-size: 0.7rem; color: #d92b2b; letter-spacing: 0.2em; margin-bottom: 0.75rem; text-transform: uppercase;">
-              // THE SINNERS • GÖRSEL ARŞİV
+              // TOXIC • GÖRSEL ARŞİV
             </div>
             <h2 style="font-family: 'Bodoni Moda', 'Playfair Display', serif; font-size: 1.5rem; color: #fff; margin: 0 0 1rem 0; line-height: 1.2;">
               ${escapeHtml(title)}

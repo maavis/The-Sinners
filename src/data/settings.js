@@ -6,9 +6,9 @@
 const STORAGE_KEY = 'parrhesia_cms_settings';
 
 const INITIAL_SETTINGS = {
-  siteTitle: 'The Sinners - Made of Sin',
-  artistName: 'THE SINNERS',
-  contactEmail: 'booking@thesinners.com',
+  siteTitle: 'Toxic - Made of Sin',
+  artistName: 'TOXIC',
+  contactEmail: 'booking@toxic.com',
   maintenanceMode: false,
   autoPublishSchedule: true,
   defaultPlayerVolume: 0.8
@@ -23,12 +23,16 @@ export function getSettings() {
   try {
     const parsed = JSON.parse(stored);
     let updated = false;
-    if (!parsed.siteTitle || parsed.siteTitle.includes('parrhesia') || parsed.siteTitle.includes('your local band')) {
+    if (!parsed.siteTitle || parsed.siteTitle.includes('parrhesia') || parsed.siteTitle.includes('your local band') || parsed.siteTitle.includes('The Sinners')) {
       parsed.siteTitle = INITIAL_SETTINGS.siteTitle;
       updated = true;
     }
-    if (!parsed.artistName || parsed.artistName.includes('PARRHESIA')) {
+    if (!parsed.artistName || parsed.artistName.includes('PARRHESIA') || parsed.artistName.includes('THE SINNERS')) {
       parsed.artistName = INITIAL_SETTINGS.artistName;
+      updated = true;
+    }
+    if (parsed.contactEmail && parsed.contactEmail.includes('thesinners.com')) {
+      parsed.contactEmail = INITIAL_SETTINGS.contactEmail;
       updated = true;
     }
     if (updated) {

@@ -1,5 +1,5 @@
 /**
- * THE SINNERS MERCH STORE DATA SERVICE
+ * TOXIC MERCH STORE DATA SERVICE
  * Supabase `products` PostgreSQL Tablosu İle Canlı Entegrasyon & Sepet Yönetimi
  */
 
@@ -238,11 +238,11 @@ export async function deleteProduct(id) {
 // ---------------------------------------------------------------------------
 // SHOPPING CART SERVICE (LocalStorage)
 // ---------------------------------------------------------------------------
-const CART_STORAGE_KEY = 'thesinners_store_cart_v4';
+const CART_STORAGE_KEY = 'toxic_store_cart_v4';
 
 export function getCart() {
   try {
-    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    const stored = localStorage.getItem(CART_STORAGE_KEY) || localStorage.getItem('thesinners_store_cart_v4');
     if (!stored) return [];
     const parsed = JSON.parse(stored);
     return Array.isArray(parsed) ? parsed : [];

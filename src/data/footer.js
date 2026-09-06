@@ -8,7 +8,7 @@ const STORAGE_KEY = 'parrhesia_footer_data';
 const DEFAULT_FOOTER_DATA = {
   line1: "© DEVIL'S GRIN RECORDS 2026",
   line2: "MADE OF SIN",
-  line4: "© 2026 The Sinners",
+  line4: "© 2026 Toxic",
   privacyPolicyUrl: "#",
   termsConditionsUrl: "#",
   aiUsageUrl: "#"
@@ -24,7 +24,7 @@ export function getFooterData() {
         parsed.line2 = DEFAULT_FOOTER_DATA.line2;
         updated = true;
       }
-      if (!parsed.line4 || parsed.line4.includes('Sony Music') || parsed.line4.includes('Parrhesia')) {
+      if (!parsed.line4 || parsed.line4.includes('Sony Music') || parsed.line4.includes('Parrhesia') || parsed.line4.includes('The Sinners')) {
         parsed.line4 = DEFAULT_FOOTER_DATA.line4;
         updated = true;
       }

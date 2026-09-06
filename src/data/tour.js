@@ -1,5 +1,5 @@
 /**
- * THE SINNERS / PARRHESIA - TOUR DATES DATA SERVICE
+ * TOXIC / PARRHESIA - TOUR DATES DATA SERVICE
  * Fully powered by Supabase PostgreSQL (LocalStorage removed).
  */
 import { supabase } from '../lib/supabase.js';

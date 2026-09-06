@@ -1,5 +1,5 @@
 /**
- * THE SINNERS — SANGUIVORE VAULT (MERCH STORE ENGINE)
+ * TOXIC — SANGUIVORE VAULT (MERCH STORE ENGINE)
  * High-Animation Gothic Occult & Brutalist Merch Experience
  */
 import {
@@ -59,7 +59,7 @@ function renderStoreSkeleton(container) {
         <div class="store-brand-group">
           <a href="/merch" class="store-brand-logo" data-store-route="/merch">
             <span class="gothic-sigil-icon">☠</span>
-            <span class="gothic-brand-text">THE SINNERS</span>
+            <span class="gothic-brand-text">TOXIC</span>
             <span class="store-brand-badge">VAULT // FW26</span>
           </a>
           <a href="/" class="store-back-to-band" data-route="/">
@@ -95,8 +95,8 @@ function renderStoreSkeleton(container) {
     <div class="gothic-marquee-container" aria-hidden="true">
       <div class="gothic-marquee-row gothic-marquee-forward">
         <div class="gothic-marquee-track">
-          <span>⚡ THE SINNERS MERCH ARCHIVE ⚡ LIMITED ARTIFACTS ⚡ WORLDWIDE DISPATCH ⚡ SIN REIGN ⚡ HEAVYWEIGHT COTTON ⚡ DARKROOM PROOFS ⚡ TYPE II CHROME ⚡ MADE OF SIN ⚡</span>
-          <span>⚡ THE SINNERS MERCH ARCHIVE ⚡ LIMITED ARTIFACTS ⚡ WORLDWIDE DISPATCH ⚡ SIN REIGN ⚡ HEAVYWEIGHT COTTON ⚡ DARKROOM PROOFS ⚡ TYPE II CHROME ⚡ MADE OF SIN ⚡</span>
+          <span>⚡ TOXIC MERCH ARCHIVE ⚡ LIMITED ARTIFACTS ⚡ WORLDWIDE DISPATCH ⚡ SIN REIGN ⚡ HEAVYWEIGHT COTTON ⚡ DARKROOM PROOFS ⚡ TYPE II CHROME ⚡ MADE OF SIN ⚡</span>
+          <span>⚡ TOXIC MERCH ARCHIVE ⚡ LIMITED ARTIFACTS ⚡ WORLDWIDE DISPATCH ⚡ SIN REIGN ⚡ HEAVYWEIGHT COTTON ⚡ DARKROOM PROOFS ⚡ TYPE II CHROME ⚡ MADE OF SIN ⚡</span>
         </div>
       </div>
       <div class="gothic-marquee-row gothic-marquee-reverse">
@@ -180,12 +180,12 @@ function renderStoreSkeleton(container) {
             <img src="https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=800&q=80" alt="Plak Kapak" class="store-media-thumb vinyl-sleeve-img" />
             <div class="interactive-vinyl-disc" aria-hidden="true">
               <div class="vinyl-grooves"></div>
-              <div class="vinyl-center-label">THE SINNERS</div>
+              <div class="vinyl-center-label">TOXIC</div>
             </div>
           </div>
           <div class="store-media-details">
             <span class="store-card-category gothic-tech-tag">12" GATEFOLD LP // 180G VINYL</span>
-            <h3 class="store-card-title">THE SINNERS — MADE OF SIN</h3>
+            <h3 class="store-card-title">TOXIC — MADE OF SIN</h3>
             <div class="store-card-price" style="margin-bottom: 0.75rem;">€35</div>
             <p style="font-size: 0.8rem; color: #8A8A8E; line-height: 1.6; margin-bottom: 1.5rem;">
               16 sayfalık büyük boy editoryal sanat kitapçığı ve karanlık oda negatif prova baskısı içeren, çift açılır kapaklı 180g ağır siyah plak baskısı.
@@ -207,7 +207,7 @@ function renderStoreSkeleton(container) {
           </div>
           <div class="store-media-details">
             <span class="store-card-category gothic-tech-tag">LIMITED CASSETTE // TYPE II CHROME</span>
-            <h3 class="store-card-title">THE SINNERS — MADE OF SIN</h3>
+            <h3 class="store-card-title">TOXIC — MADE OF SIN</h3>
             <div class="store-card-price" style="margin-bottom: 0.75rem;">€18</div>
             <p style="font-size: 0.8rem; color: #8A8A8E; line-height: 1.6; margin-bottom: 1.5rem;">
               Dumanlı yarı şeffaf kabuk, yüksek dinamik aralıklı Type II Krom manyetik bant, elle mühürlenmiş ve 200 adet ile sınırlandırılmış özel fiziksel baskı.
@@ -224,7 +224,7 @@ function renderStoreSkeleton(container) {
     <footer class="store-footer">
       <div class="store-footer-inner">
         <div>
-          <div class="store-footer-brand-title">THE SINNERS</div>
+          <div class="store-footer-brand-title">TOXIC</div>
           <div class="store-footer-brand-sub">RESMİ ÜRÜN VE KOLEKSİYON MAĞAZASI</div>
           <p style="font-size: 0.78rem; color: #777; max-width: 320px; line-height: 1.6; margin-top: 0.5rem;">
             Doğrudan müzik grubundan sokak giyimi, plaklar, kasetler ve resmi editoryal arşiv ürünleri.
@@ -247,7 +247,7 @@ function renderStoreSkeleton(container) {
             <li><a href="#" class="store-footer-link btn-open-care-modal" data-type="shipping">KARGO VE TESLİMAT</a></li>
             <li><a href="#" class="store-footer-link btn-open-care-modal" data-type="returns">İADE VE DEĞİŞİM</a></li>
             <li><a href="#" class="store-footer-link btn-open-care-modal" data-type="sizeguide">BEDEN REHBERİ</a></li>
-            <li><a href="mailto:orders@thesinners.com" class="store-footer-link">DESTEK VE İLETİŞİM</a></li>
+            <li><a href="mailto:orders@toxic.com" class="store-footer-link">DESTEK VE İLETİŞİM</a></li>
           </ul>
         </div>
 
@@ -263,7 +263,7 @@ function renderStoreSkeleton(container) {
       </div>
 
       <div class="store-footer-bottom">
-        <div>© 2026 THE SINNERS. TÜM HAKLARI SAKLIDIR.</div>
+        <div>© 2026 TOXIC. TÜM HAKLARI SAKLIDIR.</div>
         <div class="gothic-footer-credo">UNDERGROUND SANAT & AYKIRI ESTETİK İÇİN ÜRETİLDİ</div>
       </div>
     </footer>
@@ -314,7 +314,7 @@ function renderStoreSkeleton(container) {
         <div class="store-checkout-icon">✓</div>
         <h2 class="store-checkout-title gothic-serif-title">SİPARİŞ ÖNİZLEMESİ HAZIR</h2>
         <p class="store-checkout-text">
-          The Sinners Vault Mağazasını ziyaret ettiğiniz için teşekkürler! Sepetinizdeki ürünler başarıyla doğrulandı, vergi ve kargo detayları hesaplandı.
+          Toxic Vault Mağazasını ziyaret ettiğiniz için teşekkürler! Sepetinizdeki ürünler başarıyla doğrulandı, vergi ve kargo detayları hesaplandı.
         </p>
         <div id="store-checkout-summary-box" class="gothic-checkout-summary"></div>
         <button id="store-checkout-modal-close" class="gothic-action-cta" style="width:100%;">ALIŞVERİŞE DEVAM ET</button>
@@ -965,7 +965,7 @@ function openCareModal(type) {
   if (type === 'shipping') {
     title = 'KARGO VE TESLİMAT POLİTİKASI';
     content = `
-      <p>The Sinners resmi siparişleri özel mühürlü kutularda tüm dünyaya gönderilmektedir.</p>
+      <p>Toxic resmi siparişleri özel mühürlü kutularda tüm dünyaya gönderilmektedir.</p>
       <ul style="margin-top:0.75rem; padding-left:1.25rem; line-height:1.8; color:#bbb;">
         <li><strong>Türkiye İçi:</strong> 1-3 iş günü (Yurtiçi Kargo güvencesiyle). 50€ üzeri siparişlerde kargo ücretsizdir.</li>
         <li><strong>Avrupa:</strong> 3-6 iş günü (DHL Express Tracking).</li>
@@ -981,7 +981,7 @@ function openCareModal(type) {
   } else if (type === 'sizeguide') {
     title = 'BEDEN VE KALIP REHBERİ';
     content = `
-      <p>The Sinners sokak giyimi ve editoryal koleksiyonları özel <strong>Custom Oversize</strong> kalıptır.</p>
+      <p>Toxic sokak giyimi ve editoryal koleksiyonları özel <strong>Custom Oversize</strong> kalıptır.</p>
       <table style="width:100%; border-collapse:collapse; margin-top:1rem; font-size:0.8rem; color:#ccc;">
         <thead>
           <tr style="border-bottom:1px solid #333; text-align:left;">

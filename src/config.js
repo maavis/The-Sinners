@@ -7,14 +7,14 @@
 
 export const siteConfig = {
   // Band Branding
-  bandName: "THE SINNERS",
+  bandName: "TOXIC",
   
   // Logo Settings
   logo: {
     useImageLogo: true,
-    textLogo: "THE SINNERS",
+    textLogo: "TOXIC",
     imageUrl: "https://i.imgur.com/s1hSAjx.png",
-    altText: "THE SINNERS Official Band Logo"
+    altText: "TOXIC Official Band Logo"
   },
 
   // Hero Background Settings

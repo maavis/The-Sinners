@@ -1,5 +1,5 @@
 /**
- * THE SINNERS MÜZİK VE DİSKOGRAFİ VERİ SERVİSİ
+ * TOXIC MÜZİK VE DİSKOGRAFİ VERİ SERVİSİ
  * Yalnızca Canlı Supabase `releases` ve `tracks` Tablolarından Yüklenir.
  */
 
@@ -65,7 +65,7 @@ export async function fetchMusicFromSupabase() {
         return {
           id: r.id,
           title: r.title,
-          artist: r.artist || 'THE SINNERS',
+          artist: r.artist || 'TOXIC',
           year: r.year || '',
           releaseDate: r.release_date || '',
           type: r.type || 'SINGLE',
@@ -167,7 +167,7 @@ export async function addRelease(releaseData) {
   const newRelease = {
     id: newId,
     title: releaseData.title || 'UNTITLED RELEASE',
-    artist: releaseData.artist || 'THE SINNERS',
+    artist: releaseData.artist || 'TOXIC',
     year: releaseData.year || new Date().getFullYear().toString(),
     releaseDate: releaseData.releaseDate || new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }).toUpperCase(),
     type: releaseData.type || 'SINGLE',

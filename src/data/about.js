@@ -1,5 +1,5 @@
 /**
- * THE SINNERS / PARRHESIA - ABOUT & SLIDESHOW DATA SERVICE
+ * TOXIC / PARRHESIA - ABOUT & SLIDESHOW DATA SERVICE
  * Fully powered by Supabase PostgreSQL about_slides & site_settings tables.
  */
 import { supabase } from '../lib/supabase.js';
@@ -77,7 +77,7 @@ export const DEFAULT_ABOUT_SLIDES = [
 // In-memory cache for instant UI rendering
 let inMemorySlides = [...DEFAULT_ABOUT_SLIDES];
 let inMemoryBioParagraphs = [
-  "The Sinners is an alternative / gothic rock entity existing at the intersection of raw sonic aggression, atmospheric textures, and uncompromising artistic expression.",
+  "Toxic is an alternative / gothic rock entity existing at the intersection of raw sonic aggression, atmospheric textures, and uncompromising artistic expression.",
   "Formed in shadow, the band merges heavy distorted baritone instrumentation with hypnotic editorial visual aesthetics. Every record, performance, and visual transmission is created as a complete atmospheric experience.",
   "Truth spoken clearly without compromise. No news, just noise."
 ];

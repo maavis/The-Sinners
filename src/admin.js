@@ -1,5 +1,5 @@
 /**
- * THE SINNERS BACKSTAGE ADMIN YÖNETİM PANELİ MODÜLÜ
+ * TOXIC BACKSTAGE ADMIN YÖNETİM PANELİ MODÜLÜ
  * Turne, Müzik, Haberler, Medya Kütüphanesi, Hakkımızda ve Sistem Ayarları Yönetimi.
  */
 
@@ -218,9 +218,9 @@ function renderAdminLogin(container) {
     <div class="admin-login-wrapper login-screen" id="login-screen">
       <div class="admin-login-card login-modal">
         <div class="admin-login-logo-wrap">
-          <img src="https://i.imgur.com/s1hSAjx.png" alt="THE SINNERS" class="admin-login-logo" />
+          <img src="https://i.imgur.com/s1hSAjx.png" alt="TOXIC" class="admin-login-logo" />
         </div>
-        <div class="admin-login-title">THE SINNERS YÖNETİM PANELİ</div>
+        <div class="admin-login-title">TOXIC YÖNETİM PANELİ</div>
         <div class="admin-login-sub">ADMİN GİRİŞİ</div>
         <form id="admin-login-form">
           <div class="admin-form-group">
@@ -229,7 +229,7 @@ function renderAdminLogin(container) {
               type="email" 
               id="admin-email-input" 
               class="admin-input" 
-              placeholder="admin@thesinners.com" 
+              placeholder="admin@toxic.com" 
               autocomplete="email" 
               autofocus 
               required 
@@ -317,7 +317,7 @@ function getAdminSidebarHTML(activeRoute) {
     <aside id="admin-sidebar" class="admin-sidebar">
       <div>
         <div class="admin-sidebar-brand">
-          <div class="admin-brand-title">THE SINNERS CMS</div>
+          <div class="admin-brand-title">TOXIC CMS</div>
           <div class="admin-brand-sub">İçerik & Site Yönetim Merkezi</div>
         </div>
 
@@ -433,7 +433,7 @@ function renderAdminDashboard(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
@@ -527,7 +527,7 @@ function renderAdminTour(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
@@ -882,7 +882,7 @@ function renderAdminMusic(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
@@ -1002,7 +1002,7 @@ function renderAdminReleaseRows(releases) {
         </td>
         <td>
           <div class="admin-row-title">${escapeHtml(rel.title)} ${rel.featured ? '<span class="admin-badge badge-warning">ÖNE ÇIKAN</span>' : ''}</div>
-          <div class="admin-sub-text">${escapeHtml(rel.artist || 'THE SINNERS')}</div>
+          <div class="admin-sub-text">${escapeHtml(rel.artist || 'TOXIC')}</div>
         </td>
         <td><span class="admin-badge badge-subtle">${rel.type}</span></td>
         <td>${escapeHtml(rel.releaseDate || rel.year)}</td>
@@ -1052,7 +1052,7 @@ function openReleaseModal(releaseToEdit, rootContainer) {
 
                 <div class="admin-form-group">
                   <label class="admin-label">Sanatçı Adı*</label>
-                  <input type="text" id="rel-artist" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.artist) : 'THE SINNERS'}" required />
+                  <input type="text" id="rel-artist" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.artist) : 'TOXIC'}" required />
                 </div>
 
                 <div class="admin-form-group">
@@ -1410,7 +1410,7 @@ function renderAdminUpdates(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
@@ -1776,7 +1776,7 @@ function renderAdminStore(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
@@ -2130,7 +2130,7 @@ function renderAdminMedia(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
@@ -2345,7 +2345,7 @@ function renderAdminAbout(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
@@ -2820,7 +2820,7 @@ function renderAdminSocials(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
@@ -3194,7 +3194,7 @@ function renderAdminFooter(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
@@ -3224,7 +3224,7 @@ function renderAdminFooter(container) {
 
             <div class="admin-form-group">
               <label class="admin-label">TELİF HAKKI SAHİBİ SATIRI (SATIR 4)</label>
-              <input type="text" id="footer-line4-input" class="admin-input" value="${escapeHtml(currentFooter.line4)}" required placeholder="Örn: © 2026 The Sinners" />
+              <input type="text" id="footer-line4-input" class="admin-input" value="${escapeHtml(currentFooter.line4)}" required placeholder="Örn: © 2026 Toxic" />
               <p class="admin-input-help">Gizlilik ve Koşullar linklerinin üstündeki yasal telif hakkı bildirimi.</p>
             </div>
 
@@ -3270,7 +3270,7 @@ function renderAdminSettings(container) {
   container.innerHTML = `
     <div class="admin-cms-layout">
       <div class="admin-mobile-header">
-        <div class="admin-mobile-title">THE SINNERS CMS</div>
+        <div class="admin-mobile-title">TOXIC CMS</div>
         <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
       </div>
 
