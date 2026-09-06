@@ -5,8 +5,8 @@ import { fetchProductsFromSupabase } from './data/merch.js';
 import { getCategorizedTourEvents } from './data/tour.js';
 import { getJournalEntries } from './data/updates.js';
 import { getAboutData, cleanImageUrl, fetchAboutDataFromSupabase } from './data/about.js';
-import { getHomePanoItems, cleanPanoImageUrl, fetchHomePanoFromSupabase } from './data/pano.js';
-import { getHeaderSocialLinks, getHeaderSocialIconHTML, getFooterSocialIconHTML, getSocialLinks, fetchSocialLinksFromSupabase } from './data/socials.js';
+import { getHomePanoItems, cleanPanoImageUrl, fetchHomePanoFromSupabase, DEFAULT_HOME_PANO_ITEMS } from './data/pano.js';
+import { getHeaderSocialLinks, getHeaderSocialIconHTML, getFooterSocialIconHTML, getSocialLinks, fetchSocialLinksFromSupabase, DEFAULT_SOCIAL_LINKS } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
 import { getSettings, fetchSettingsFromSupabase } from './data/settings.js';
 import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase, isMusicDataLoading } from './data/music.js';
@@ -1250,20 +1250,16 @@ export function renderFooterSocialLinks() {
   const footerIconsRows = document.querySelectorAll('.footer-replica-icons-row');
   const footerTargets = document.querySelectorAll('.footer-social-target');
 
-  const links = getSocialLinks();
-
-  // If Supabase data is not yet loaded, keep footer clean (no flicker/flash)
-  if (!links || links.length === 0) {
-    footerIconsRows.forEach(el => { el.innerHTML = ''; });
-    footerTargets.forEach(el => { el.innerHTML = ''; });
-    return;
+  let links = getSocialLinks();
+  if (!Array.isArray(links) || links.length === 0) {
+    links = DEFAULT_SOCIAL_LINKS;
   }
 
   // Footer Social Media Icons Row across all page footers (22px Replica Brutalist Icons)
   const footerIconsHtml = links.map(item => {
     const iconContent = getFooterSocialIconHTML(item);
     const title = escapeHtml(item.title || item.name || 'Social Link');
-    const targetUrl = escapeHtml(item.target_url || item.url || '#');
+    const targetUrl = escapeHtml(item.target_url || item.url || item.link || '#');
 
     return `
       <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="replica-icon-link footer-social-link" title="${title}" aria-label="${title}">
@@ -2053,12 +2049,17 @@ function setupArchiveControls() {
 
 /**
  * Render Public Editorial Zine Cards (Home Page Visual Archive)
- * Dedicated to Home Scroll Experience - completely separatexport function renderPublicEditorialZineCards() {
+ * Dedicated to Home Scroll Experience - completely separated from /about slides
+ * Backed by Supabase home_pano table (with guaranteed 3-card fallback)
+ */
+let lastRenderedZineKey = '';
+
+export function renderPublicEditorialZineCards() {
   const container = document.getElementById('editorial-zine-grid') || document.querySelector('.editorial-zine-grid');
   if (!container) return;
 
   const panoItems = getHomePanoItems();
-  const displayItems = Array.isArray(panoItems) && panoItems.length > 0 ? panoItems : [];
+  const displayItems = (Array.isArray(panoItems) && panoItems.length >= 3) ? panoItems : DEFAULT_HOME_PANO_ITEMS;
 
   // Memoization guard (skips unneeded DOM re-renders)
   const currentKey = displayItems.map(s => `${s.id}-${s.image_url || s.url}-${s.location_text || ''}`).join('|');
