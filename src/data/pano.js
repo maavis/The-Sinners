@@ -198,6 +198,65 @@ export async function deleteHomePanoItem(id) {
 }
 
 /**
+ * Inserts a new pano card with default values into Supabase home_pano table
+ */
+export async function addHomePanoItem(customData = {}) {
+  const newId = customData.id || `pano_${Date.now()}`;
+  const nextOrder = inMemoryPanoItems.length + 1;
+  const rawUrl = customData.image_url || customData.url || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80';
+  const cleanedUrl = cleanPanoImageUrl(rawUrl);
+  const locText = customData.location_text || customData.meta_location || 'YENİ KONUM // MEKAN';
+  const badgeText = customData.badge_text || customData.red_stamp || "DEVIL'S GRIN // CONFIDENTIAL";
+  const slotIdx = Number(customData.slot_index || customData.display_order || nextOrder);
+
+  const newCard = {
+    id: newId,
+    image_url: cleanedUrl,
+    meta_location: locText,
+    location_text: locText,
+    badge_text: badgeText,
+    slot_index: slotIdx,
+    display_order: slotIdx,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  // Immediate local in-memory state update
+  inMemoryPanoItems.push({
+    ...newCard,
+    item_class: slotIdx % 3 === 1 ? 'item-rehearsal' : slotIdx % 3 === 2 ? 'item-live' : 'item-darkroom',
+    tape_class: slotIdx % 3 === 1 ? 'zine-tape-top-left' : slotIdx % 3 === 2 ? 'zine-tape-top-right' : 'zine-tape-center',
+    perf_count: slotIdx % 3 === 0 ? 8 : 5
+  });
+
+  inMemoryPanoItems.sort((a, b) => (a.slot_index || 1) - (b.slot_index || 1));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(inMemoryPanoItems));
+  } catch (e) {}
+  window.dispatchEvent(new CustomEvent('home-pano-updated'));
+
+  if (!supabase) return newCard;
+
+  try {
+    const { data, error } = await supabase
+      .from('home_pano')
+      .insert([newCard])
+      .select();
+
+    if (error) {
+      console.error('Supabase home_pano insert error:', error);
+      throw error;
+    }
+
+    console.log('Supabase home_pano inserted:', data);
+    return newCard;
+  } catch (err) {
+    console.error('Supabase home_pano insert failed:', err);
+    throw err;
+  }
+}
+
+/**
  * Upserts a single pano card into Supabase home_pano table
  */
 export async function upsertHomePanoItem(itemData) {
@@ -224,8 +283,9 @@ export async function upsertHomePanoItem(itemData) {
       ...payload
     };
   } else {
+    const defaultTemplate = DEFAULT_HOME_PANO_ITEMS[(slotIdx - 1) % DEFAULT_HOME_PANO_ITEMS.length] || {};
     inMemoryPanoItems.push({
-      ...DEFAULT_HOME_PANO_ITEMS[slotIdx - 1],
+      ...defaultTemplate,
       ...payload
     });
   }

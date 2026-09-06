@@ -46,6 +46,7 @@ import {
   upsertHomePanoItem,
   saveAllHomePanoItems,
   deleteHomePanoItem,
+  addHomePanoItem,
   cleanPanoImageUrl,
   fetchHomePanoFromSupabase
 } from './data/pano.js';
@@ -2812,10 +2813,11 @@ function renderAdminHomePano(container) {
         <div class="admin-page-header">
           <div>
             <h1 class="admin-page-title">Ana Sayfa Fotoğraf Panosu (Home Pano)</h1>
-            <p class="admin-page-desc">Ana sayfadaki yatay scroll içindeki 3'lü estetik polaroid/bantlı kolaj kartlarını düzenleyin.</p>
+            <p class="admin-page-desc">Ana sayfadaki yatay scroll içindeki estetik polaroid/bantlı kolaj kartlarını düzenleyin.</p>
           </div>
-          <div>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
             <button id="btn-save-all-pano" class="admin-btn admin-btn-primary">💾 TÜM KARTLARI KAYDET</button>
+            <button id="btn-add-pano-card" class="admin-btn" style="background-color: #d92b2b; color: #ffffff; border: 1px solid #d92b2b; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">+ YENİ PANO KARTI EKLE</button>
           </div>
         </div>
 
@@ -2825,11 +2827,16 @@ function renderAdminHomePano(container) {
             <span style="font-family: monospace; font-size: 0.72rem; color: #888;">Supabase: home_pano tablosu ile bağımsız senkron</span>
           </div>
           <p class="admin-input-help" style="margin-bottom: 1.25rem;">
-            Bu kartlar ana sayfanın görsel arşiv panosunda asimetrik editoryal düzende sergilenir. /about slaytlarından tamamen bağımsızdır ve silinen kartlar ana sayfada anında güncellenir.
+            Bu kartlar ana sayfanın görsel arşiv panosunda asimetrik editoryal düzende sergilenir. /about slaytlarından tamamen bağımsızdır ve eklenen/silinen kartlar ana sayfada anında güncellenir.
           </p>
 
           <div class="admin-slide-cards-grid">
-            ${panoItems.map((item, idx) => {
+            ${panoItems.length === 0 ? `
+              <div style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; border: 1px dashed rgba(255,255,255,0.15); background: rgba(255,255,255,0.02);">
+                <p style="font-size: 0.95rem; color: #888; margin-bottom: 1rem;">// Henüz kayıtlı pano kartı bulunmuyor.</p>
+                <button type="button" id="btn-add-pano-empty" class="admin-btn" style="background-color: #d92b2b; color: #ffffff; border: 1px solid #d92b2b; font-weight: 700; cursor: pointer;">+ İLK PANO KARTINI EKLE</button>
+              </div>
+            ` : panoItems.map((item, idx) => {
               const cleanedUrl = cleanPanoImageUrl(item.image_url || item.url || '');
               const locationText = item.location_text || item.meta_location || '';
               const slotNum = idx + 1;
@@ -3067,6 +3074,61 @@ function renderAdminHomePano(container) {
         saveAllBtn.textContent = '💾 TÜM KARTLARI KAYDET';
       }
     };
+  }
+
+  // Add new pano card handler
+  const handleAddNewPanoCard = async (triggerBtn) => {
+    if (triggerBtn) {
+      triggerBtn.disabled = true;
+      triggerBtn.textContent = '⏳ EKLENİYOR...';
+    }
+
+    try {
+      const newId = `pano_${Date.now()}`;
+      const newCard = {
+        id: newId,
+        image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
+        meta_location: 'YENİ KONUM // MEKAN',
+        location_text: 'YENİ KONUM // MEKAN',
+        badge_text: "DEVIL'S GRIN // CONFIDENTIAL",
+        slot_index: panoItems.length + 1,
+        display_order: panoItems.length + 1
+      };
+
+      await addHomePanoItem(newCard);
+      logActivity('YENİ PANO KARTI EKLENDİ', `Yeni ana sayfa pano kartı (${newId}) eklendi.`);
+      showAdminToast('✓ YENİ PANO KARTI BAŞARIYLA EKLENDİ');
+
+      // Re-render admin panel so the new card appears immediately
+      renderAdminHomePano(container);
+
+      // Focus the newly added card's URL input
+      setTimeout(() => {
+        const newCardEl = container.querySelector(`.admin-slide-card-editor[data-id="${newId}"]`);
+        if (newCardEl) {
+          newCardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const inp = newCardEl.querySelector('.pano-field-url');
+          if (inp) inp.focus();
+        }
+      }, 100);
+    } catch (err) {
+      console.error('Yeni pano kartı ekleme hatası:', err);
+      showAdminToast('⚠ Ekleme hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+      if (triggerBtn) {
+        triggerBtn.disabled = false;
+        triggerBtn.textContent = '+ YENİ PANO KARTI EKLE';
+      }
+    }
+  };
+
+  const addPanoBtn = container.querySelector('#btn-add-pano-card');
+  if (addPanoBtn) {
+    addPanoBtn.onclick = () => handleAddNewPanoCard(addPanoBtn);
+  }
+
+  const addPanoEmptyBtn = container.querySelector('#btn-add-pano-empty');
+  if (addPanoEmptyBtn) {
+    addPanoEmptyBtn.onclick = () => handleAddNewPanoCard(addPanoEmptyBtn);
   }
 }
 
