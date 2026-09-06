@@ -42,6 +42,14 @@ import {
 } from './data/about.js';
 
 import {
+  getHomePanoItems,
+  upsertHomePanoItem,
+  saveAllHomePanoItems,
+  cleanPanoImageUrl,
+  fetchHomePanoFromSupabase
+} from './data/pano.js';
+
+import {
   getSocialLinks,
   upsertSocialLink,
   saveSocialLinksBatch,
@@ -185,6 +193,8 @@ export async function handleAdminRouting() {
       renderAdminMedia(adminRoot);
     } else if (path === '/admin/about') {
       renderAdminAbout(adminRoot);
+    } else if (path === '/admin/pano' || path === '/admin/home-pano') {
+      renderAdminHomePano(adminRoot);
     } else if (path === '/admin/socials' || path === '/admin/social') {
       renderAdminSocials(adminRoot);
     } else if (path === '/admin/footer') {
@@ -347,6 +357,9 @@ function getAdminSidebarHTML(activeRoute) {
             </li>
             <li class="admin-nav-item">
               <a href="/admin/about" class="admin-link ${activeRoute === '/admin/about' ? 'active' : ''}">Hakkımızda & Slaytlar</a>
+            </li>
+            <li class="admin-nav-item">
+              <a href="/admin/pano" class="admin-link ${activeRoute === '/admin/pano' || activeRoute === '/admin/home-pano' ? 'active' : ''}">Ana Sayfa Panosu</a>
             </li>
           </ul>
         </div>
@@ -2321,22 +2334,22 @@ function renderAdminAbout(container) {
       <main class="admin-main-content">
         <div class="admin-page-header">
           <div>
-            <h1 class="admin-page-title">Hakkımızda & Slayt Yönetimi</h1>
-            <p class="admin-page-desc">01 // REHEARSAL, 02 // STAGE CATHARSIS ve 03 // DARKROOM TEXTURE kartlarını & biyografiyi düzenleyin.</p>
+            <h1 class="admin-page-title">Hakkımızda & Slayt Yönetimi (/about)</h1>
+            <p class="admin-page-desc">/about sayfasındaki bağımsız slayt gösterisi görsellerini ve biyografi paragraflarını düzenleyin.</p>
           </div>
           <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-            <button id="btn-save-all-slides" class="admin-btn admin-btn-primary">💾 TÜM KARTLARI KAYDET</button>
+            <button id="btn-save-all-slides" class="admin-btn admin-btn-primary">💾 TÜM SLAYTLARI KAYDET</button>
             <button id="btn-add-slide" class="admin-btn admin-btn-secondary">+ YENİ SLAYT EKLE</button>
           </div>
         </div>
 
         <div class="admin-content-section">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-            <h2 class="admin-section-subtitle" style="margin-bottom: 0;">ARŞİV KARTLARI & SLAYTLAR (${slides.length} KART)</h2>
+            <h2 class="admin-section-subtitle" style="margin-bottom: 0;">/ABOUT SLAYTLARI (${slides.length} SLAYT)</h2>
             <span style="font-family: monospace; font-size: 0.72rem; color: #888;">Supabase: about_slides tablosu ile tam senkron</span>
           </div>
           <p class="admin-input-help" style="margin-bottom: 1.25rem;">
-            Ön yüzde gösterilen kartların Başlık (title), Açıklama (description) ve Görsel Linklerini (image_url) aşağıdan güncelleyip kaydedebilirsiniz.
+            /about sayfasındaki fotoğraf slayt gösterisi görsellerini ve başlıklarını buradan yönetebilirsiniz. Ana sayfa fotoğraf panosu bu listeden tamamen bağımsızdır.
           </p>
 
           <div class="admin-slide-cards-grid">
@@ -2821,6 +2834,267 @@ function openSlideModal(slideItem, rootContainer) {
       renderAdminAbout(rootContainer);
     }
   };
+}
+
+/**
+ * --------------------------------------------------------------------------
+ * ANA SAYFA FOTOĞRAF PANOSU YÖNETİMİ (/admin/pano)
+ * Ana sayfadaki 3'lü bantlı/polaroid editoryal zine kolajını bağımsız yönetir.
+ * Supabase home_pano tablosu ile tam senkron çalışır.
+ * --------------------------------------------------------------------------
+ */
+function renderAdminHomePano(container) {
+  const panoItems = getHomePanoItems();
+
+  container.innerHTML = `
+    <div class="admin-cms-layout">
+      <div class="admin-mobile-header">
+        <div class="admin-mobile-title">TOXIC CMS</div>
+        <button id="admin-mobile-toggle-btn" class="admin-mobile-toggle">☰</button>
+      </div>
+
+      ${getAdminSidebarHTML('/admin/pano')}
+
+      <main class="admin-main-content">
+        <div class="admin-page-header">
+          <div>
+            <h1 class="admin-page-title">Ana Sayfa Fotoğraf Panosu (Home Pano)</h1>
+            <p class="admin-page-desc">Ana sayfadaki yatay scroll içindeki 3'lü estetik polaroid/bantlı kolaj kartlarını düzenleyin.</p>
+          </div>
+          <div>
+            <button id="btn-save-all-pano" class="admin-btn admin-btn-primary">💾 3 KARTI BİRDEN KAYDET</button>
+          </div>
+        </div>
+
+        <div class="admin-content-section">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <h2 class="admin-section-subtitle" style="margin-bottom: 0;">KOLAJ YERLEŞİM KARTLARI (3 SABİT SLOT)</h2>
+            <span style="font-family: monospace; font-size: 0.72rem; color: #888;">Supabase: home_pano tablosu ile bağımsız senkron</span>
+          </div>
+          <p class="admin-input-help" style="margin-bottom: 1.25rem;">
+            Bu kartlar ana sayfanın görsel arşiv panosunda asimetrik editoryal düzende (Rehearsal, Live Stage ve Darkroom) sergilenir. /about slaytlarından tamamen bağımsızdır ve asla bozulmaz.
+          </p>
+
+          <div class="admin-slide-cards-grid">
+            ${panoItems.map((item, idx) => {
+              const cleanedUrl = cleanPanoImageUrl(item.image_url || item.url || '');
+              const cardTitle = item.title || `SLOT #${idx + 1}`;
+              const cardDesc = item.description || '';
+              const slotNum = idx + 1;
+
+              return `
+                <div class="admin-slide-card-editor" data-slot="${slotNum}" data-id="${item.id}">
+                  <div class="admin-slide-card-header">
+                    <div class="admin-slide-card-badge">
+                      <span>●</span> SLOT #${String(slotNum).padStart(2, '0')} // ${escapeHtml(item.badge || `ARCHIVE #${slotNum}`)}
+                    </div>
+                    <div class="admin-slide-card-id">${item.id}</div>
+                  </div>
+
+                  <div class="admin-slide-card-body">
+                    <div class="admin-form-group">
+                      <label class="admin-label">Kart Başlığı (title)*</label>
+                      <input type="text" 
+                             class="admin-input pano-field-title" 
+                             data-slot="${slotNum}" 
+                             value="${escapeHtml(cardTitle)}" 
+                             placeholder="Örn: 01 // REHEARSAL & NOISE" 
+                             required />
+                    </div>
+
+                    <div class="admin-form-group">
+                      <label class="admin-label">Görsel Bağlantısı (image_url)*</label>
+                      <input type="url" 
+                             class="admin-input pano-field-url" 
+                             data-slot="${slotNum}" 
+                             value="${escapeHtml(cleanedUrl)}" 
+                             placeholder="https://images.unsplash.com/... veya https://i.imgur.com/..." 
+                             required />
+                    </div>
+
+                    <div class="admin-form-group">
+                      <label class="admin-label">Görsel Canlı Önizleme</label>
+                      <div class="admin-slide-preview-box" id="pano-preview-box-${slotNum}">
+                        <img src="${escapeHtml(cleanedUrl)}" 
+                             alt="${escapeHtml(cardTitle)}" 
+                             class="admin-slide-preview-img" 
+                             id="pano-preview-img-${slotNum}" 
+                             style="${cleanedUrl ? '' : 'display: none;'}" />
+                        <span class="admin-slide-preview-empty" 
+                              id="pano-preview-empty-${slotNum}" 
+                              style="${cleanedUrl ? 'display: none;' : ''}">// GÖRSEL BAĞLANTISI GİRİN</span>
+                      </div>
+                    </div>
+
+                    <div class="admin-form-group">
+                      <label class="admin-label">Kart Açıklaması (description)</label>
+                      <textarea class="admin-input pano-field-desc" 
+                                data-slot="${slotNum}" 
+                                rows="3" 
+                                placeholder="Fotoğraf detay açıklaması...">${escapeHtml(cardDesc)}</textarea>
+                    </div>
+                  </div>
+
+                  <div class="admin-slide-card-footer" style="margin-top: 0.75rem;">
+                    <button type="button" 
+                            class="admin-btn admin-btn-primary btn-save-single-pano" 
+                            data-slot="${slotNum}" 
+                            data-id="${item.id}"
+                            style="width: 100%;">
+                      💾 BU KARTI KAYDET
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </main>
+    </div>
+  `;
+
+  bindAdminNavEvents(container);
+
+  // Real-time image preview
+  panoItems.forEach((_, idx) => {
+    const slotNum = idx + 1;
+    const urlInput = container.querySelector(`.pano-field-url[data-slot="${slotNum}"]`);
+    const previewImg = container.querySelector(`#pano-preview-img-${slotNum}`);
+    const previewEmpty = container.querySelector(`#pano-preview-empty-${slotNum}`);
+
+    if (urlInput && previewImg && previewEmpty) {
+      const updateBox = () => {
+        const raw = urlInput.value.trim();
+        if (!raw) {
+          previewImg.style.display = 'none';
+          previewEmpty.style.display = 'block';
+          previewEmpty.textContent = '// GÖRSEL BAĞLANTISI GİRİN';
+          previewEmpty.style.color = '#666';
+          return;
+        }
+
+        const cleaned = cleanPanoImageUrl(raw);
+        previewImg.src = cleaned;
+        previewImg.style.display = 'block';
+        previewEmpty.style.display = 'none';
+      };
+
+      urlInput.oninput = updateBox;
+      urlInput.onblur = () => {
+        const cleaned = cleanPanoImageUrl(urlInput.value.trim());
+        if (cleaned && cleaned !== urlInput.value) {
+          urlInput.value = cleaned;
+          updateBox();
+        }
+      };
+
+      previewImg.onerror = () => {
+        previewImg.style.display = 'none';
+        previewEmpty.style.display = 'block';
+        previewEmpty.textContent = '⚠ Geçersiz veya yüklenemeyen görsel linki';
+        previewEmpty.style.color = '#d92b2b';
+      };
+      previewImg.onload = () => {
+        previewImg.style.display = 'block';
+        previewEmpty.style.display = 'none';
+      };
+    }
+  });
+
+  // Single card save handler
+  const singleSaveBtns = container.querySelectorAll('.btn-save-single-pano');
+  singleSaveBtns.forEach(btn => {
+    btn.onclick = async () => {
+      const slotNum = parseInt(btn.getAttribute('data-slot'), 10);
+      const cardId = btn.getAttribute('data-id') || `pano_${slotNum}`;
+
+      const titleInput = container.querySelector(`.pano-field-title[data-slot="${slotNum}"]`);
+      const urlInput = container.querySelector(`.pano-field-url[data-slot="${slotNum}"]`);
+      const descInput = container.querySelector(`.pano-field-desc[data-slot="${slotNum}"]`);
+
+      const title = titleInput ? titleInput.value.trim() : '';
+      const rawUrl = urlInput ? urlInput.value.trim() : '';
+      const description = descInput ? descInput.value.trim() : '';
+      const cleanedUrl = cleanPanoImageUrl(rawUrl);
+
+      if (!title) {
+        showAdminToast('⚠ Kart başlığı boş olamaz.', 'danger');
+        if (titleInput) titleInput.focus();
+        return;
+      }
+      if (!cleanedUrl) {
+        showAdminToast('⚠ Görsel linki boş olamaz.', 'danger');
+        if (urlInput) urlInput.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      const origText = btn.textContent;
+      btn.textContent = '⏳ KAYDEDİLİYOR...';
+
+      try {
+        await upsertHomePanoItem({
+          id: cardId,
+          slot_index: slotNum,
+          display_order: slotNum,
+          title,
+          description,
+          image_url: cleanedUrl
+        });
+
+        logActivity('PANO KARTI GÜNCELLENDİ', `Ana sayfa pano slot ${slotNum} ("${title}") kaydedildi.`);
+        showAdminToast(`✓ "${title}" BAŞARIYLA KAYDEDİLDİ`);
+      } catch (err) {
+        console.error('Pano kartı kaydetme hatası:', err);
+        showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    };
+  });
+
+  // Save all 3 pano cards at once
+  const saveAllBtn = container.querySelector('#btn-save-all-pano');
+  if (saveAllBtn) {
+    saveAllBtn.onclick = async () => {
+      saveAllBtn.disabled = true;
+      saveAllBtn.textContent = '⏳ TÜMÜ KAYDEDİLİYOR...';
+
+      try {
+        const updatedList = panoItems.map((item, idx) => {
+          const slotNum = idx + 1;
+          const titleInput = container.querySelector(`.pano-field-title[data-slot="${slotNum}"]`);
+          const urlInput = container.querySelector(`.pano-field-url[data-slot="${slotNum}"]`);
+          const descInput = container.querySelector(`.pano-field-desc[data-slot="${slotNum}"]`);
+
+          const title = titleInput ? titleInput.value.trim() : item.title;
+          const rawUrl = urlInput ? urlInput.value.trim() : (item.image_url || item.url || '');
+          const description = descInput ? descInput.value.trim() : item.description;
+
+          return {
+            ...item,
+            id: item.id || `pano_${slotNum}`,
+            slot_index: slotNum,
+            display_order: slotNum,
+            title,
+            description,
+            image_url: cleanPanoImageUrl(rawUrl)
+          };
+        });
+
+        await saveAllHomePanoItems(updatedList);
+        logActivity('TÜM PANO KARTLARI GÜNCELLENDİ', 'Ana sayfa fotoğraf panosundaki 3 kart kaydedildi.');
+        showAdminToast('✓ TÜM PANO KARTLARI BAŞARIYLA KAYDEDİLDİ');
+      } catch (err) {
+        console.error('Tüm pano kartlarını kaydetme hatası:', err);
+        showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+      } finally {
+        saveAllBtn.disabled = false;
+        saveAllBtn.textContent = '💾 3 KARTI BİRDEN KAYDET';
+      }
+    };
+  }
 }
 
 /**

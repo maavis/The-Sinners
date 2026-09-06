@@ -5,6 +5,7 @@ import { fetchProductsFromSupabase } from './data/merch.js';
 import { getCategorizedTourEvents } from './data/tour.js';
 import { getJournalEntries } from './data/updates.js';
 import { getAboutData, cleanImageUrl, fetchAboutDataFromSupabase } from './data/about.js';
+import { getHomePanoItems, cleanPanoImageUrl, fetchHomePanoFromSupabase } from './data/pano.js';
 import { getHeaderSocialLinks, getHeaderSocialIconHTML, getFooterSocialIconHTML, getSocialLinks, fetchSocialLinksFromSupabase } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
 import { getSettings, fetchSettingsFromSupabase } from './data/settings.js';
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchProductsFromSupabase();
   fetchMusicFromSupabase();
   fetchAboutDataFromSupabase();
+  fetchHomePanoFromSupabase();
   fetchSocialLinksFromSupabase();
   initLogo();
   initHero();
@@ -53,6 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('updates-data-updated', renderPublicUpdatesPage);
   window.addEventListener('about-data-updated', () => {
     renderPublicAboutPage();
+  });
+  window.addEventListener('home-pano-updated', () => {
     renderPublicEditorialZineCards();
   });
   window.addEventListener('socials-data-updated', renderFooterSocialLinks);
@@ -1149,6 +1153,10 @@ function renderPublicAboutPage() {
     currentAboutSlideIndex = 0;
     updateSlidePosition();
     startAboutSlideshow();
+  } else {
+    slidesWrapper.innerHTML = '';
+    if (indicatorsWrapper) indicatorsWrapper.innerHTML = '';
+    stopAboutSlideshow();
   }
 
   // Render Biography Paragraphs
@@ -2046,7 +2054,8 @@ function setupArchiveControls() {
 
 /**
  * Render Public Editorial Zine Cards (Home Page Visual Archive)
- * Dynamically populated from Supabase about_slides table
+ * Dedicated to Home Scroll Experience - completely separated from /about slides
+ * Backed by Supabase home_pano table
  */
 let lastRenderedZineKey = '';
 
@@ -2054,91 +2063,45 @@ export function renderPublicEditorialZineCards() {
   const container = document.getElementById('editorial-zine-grid') || document.querySelector('.editorial-zine-grid');
   if (!container) return;
 
-  const { slides } = getAboutData();
-  const slideList = Array.isArray(slides) && slides.length > 0 ? slides : [];
-
-  const cardLayoutConfigs = [
-    {
-      itemClass: 'item-rehearsal',
-      tapeClass: 'zine-tape-top-left',
-      redStamp: '',
-      perfCount: 5,
-      techStamp: '[ KODAK TRI-X • EXP 18 ]',
-      film: '35MM KODAK TRI-X 400',
-      loc: '52.5200° N, 13.4050° E — STÜDYO B',
-      date: '03:42 AM // SIKIYÖNETİM SEANSI',
-      metaLocation: 'BERLİN STÜDYO 03:42 AM',
-      badge: 'ARCHIVE #01',
-      fallbackTitle: '01 // REHEARSAL & NOISE',
-      fallbackDesc: 'Ham gitar geribildirimi ve analog mikser distorsiyon ayarları sırasında kaydedilen 35mm kontakt baskı.',
-      fallbackImg: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80'
-    },
-    {
-      itemClass: 'item-live',
-      tapeClass: 'zine-tape-top-right',
-      redStamp: '<div class="zine-red-stamp">DEVIL\'S GRIN // CONFIDENTIAL</div>',
-      perfCount: 5,
-      techStamp: '[ ILFORD HP5 • 1/60s ]',
-      film: 'ILFORD HP5 PLUS 400',
-      loc: 'CANLI PERFORMANS // DEVIL\'S GRIN',
-      date: '22:15 PM // HEADLINE ŞOV',
-      metaLocation: 'CANLI ŞOV // 180G VINYL ERA',
-      badge: 'ARCHIVE #02',
-      fallbackTitle: '02 // STAGE CATHARSIS',
-      fallbackDesc: 'Yoğun sis, kırmızı spot ışıkları ve 1/60s deklanşör hızıyla yakalanan ham sahne enerjisi.',
-      fallbackImg: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80'
-    },
-    {
-      itemClass: 'item-darkroom',
-      tapeClass: 'zine-tape-center',
-      redStamp: '',
-      perfCount: 8,
-      techStamp: '[ MADE OF SIN • MASTER PROOF ]',
-      film: 'TYPE II CHROME / SILVER GELATIN',
-      loc: 'UNDERGROUND ANALOG LAB',
-      date: 'FW26 // COVER SESSIONS',
-      metaLocation: 'EDİTORYAL KOLEKSİYON ARŞİVİ',
-      badge: 'ARCHIVE #03',
-      fallbackTitle: '03 // DARKROOM TEXTURE',
-      fallbackDesc: 'Made of Sin albüm kapağı ve editoryal koleksiyon için karanlık odada elle basılan ilk prova negatifi.',
-      fallbackImg: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'
-    }
-  ];
-
-  const displaySlides = slideList.length > 0 ? slideList : [];
+  const panoItems = getHomePanoItems();
+  const displayItems = Array.isArray(panoItems) && panoItems.length > 0 ? panoItems : [];
 
   // Memoization guard (skips unneeded DOM re-renders)
-  const currentKey = displaySlides.map(s => `${s.id}-${s.image_url || s.url}-${s.title}`).join('|');
+  const currentKey = displayItems.map(s => `${s.id}-${s.image_url || s.url}-${s.title}`).join('|');
 
-  if (lastRenderedZineKey === currentKey && container.children.length === displaySlides.length) {
+  if (lastRenderedZineKey === currentKey && container.children.length === displayItems.length) {
     return;
   }
   lastRenderedZineKey = currentKey;
 
-  if (displaySlides.length === 0) {
-    container.innerHTML = '';
-    return;
-  }
-
-  container.innerHTML = displaySlides.map((slide, idx) => {
-    const config = cardLayoutConfigs[idx % cardLayoutConfigs.length];
-    const rawUrl = slide ? (slide.image_url || slide.url || config.fallbackImg) : config.fallbackImg;
-    const imgUrl = cleanImageUrl(rawUrl) || config.fallbackImg;
-    const title = (slide && (slide.title || slide.caption)) ? (slide.title || slide.caption) : config.fallbackTitle;
-    const desc = (slide && slide.description) ? slide.description : config.fallbackDesc;
-    const perfs = Array(config.perfCount).fill('<span>■</span>').join('');
+  container.innerHTML = displayItems.map((item, idx) => {
+    const rawUrl = item.image_url || item.url || '';
+    const imgUrl = cleanPanoImageUrl(rawUrl);
+    const title = item.title || `0${idx + 1} // ARCHIVE`;
+    const desc = item.description || '';
+    const itemClass = item.item_class || (idx === 0 ? 'item-rehearsal' : idx === 1 ? 'item-live' : 'item-darkroom');
+    const tapeClass = item.tape_class || (idx === 0 ? 'zine-tape-top-left' : idx === 1 ? 'zine-tape-top-right' : 'zine-tape-center');
+    const redStamp = item.red_stamp || (idx === 1 ? '<div class="zine-red-stamp">DEVIL\'S GRIN // CONFIDENTIAL</div>' : '');
+    const film = item.film || (idx === 0 ? '35MM KODAK TRI-X 400' : idx === 1 ? 'ILFORD HP5 PLUS 400' : 'TYPE II CHROME / SILVER GELATIN');
+    const loc = item.loc || (idx === 0 ? '52.5200° N, 13.4050° E — STÜDYO B' : idx === 1 ? 'CANLI PERFORMANS // DEVIL\'S GRIN' : 'UNDERGROUND ANALOG LAB');
+    const date = item.date || (idx === 0 ? '03:42 AM // SIKIYÖNETİM SEANSI' : idx === 1 ? '22:15 PM // HEADLINE ŞOV' : 'FW26 // COVER SESSIONS');
+    const metaLocation = item.meta_location || (idx === 0 ? 'BERLİN STÜDYO 03:42 AM' : idx === 1 ? 'CANLI ŞOV // 180G VINYL ERA' : 'EDİTORYAL KOLEKSİYON ARŞİVİ');
+    const badge = item.badge || `ARCHIVE #0${idx + 1}`;
+    const techStamp = item.tech_stamp || (idx === 0 ? '[ KODAK TRI-X • EXP 18 ]' : idx === 1 ? '[ ILFORD HP5 • 1/60s ]' : '[ MADE OF SIN • MASTER PROOF ]');
+    const perfCount = item.perf_count || (idx === 2 ? 8 : 5);
+    const perfs = Array(perfCount).fill('<span>■</span>').join('');
 
     return `
-      <article class="zine-item ${config.itemClass}" 
+      <article class="zine-item ${itemClass}" 
                data-zine-idx="${idx + 1}" 
                data-title="${escapeHtml(title)}" 
-               data-film="${escapeHtml(config.film)}" 
-               data-loc="${escapeHtml(config.loc)}" 
-               data-date="${escapeHtml(config.date)}" 
+               data-film="${escapeHtml(film)}" 
+               data-loc="${escapeHtml(loc)}" 
+               data-date="${escapeHtml(date)}" 
                data-desc="${escapeHtml(desc)}" 
                data-img="${escapeHtml(imgUrl)}">
-        <div class="zine-tape ${config.tapeClass}"></div>
-        ${config.redStamp}
+        <div class="zine-tape ${tapeClass}"></div>
+        ${redStamp}
         <div class="zine-film-strip">
           <div class="film-perf-row">${perfs}</div>
           <div class="zine-img-wrapper">
@@ -2153,11 +2116,11 @@ export function renderPublicEditorialZineCards() {
           <div class="film-perf-row">${perfs}</div>
         </div>
         <div class="zine-card-footer">
-          <div class="zine-tech-stamp">${escapeHtml(config.techStamp)}</div>
+          <div class="zine-tech-stamp">${escapeHtml(techStamp)}</div>
           <h3 class="zine-card-title">${escapeHtml(title)}</h3>
           <div class="zine-meta-row">
-            <span>${escapeHtml(config.metaLocation)}</span>
-            <span class="zine-badge-accent">${escapeHtml(config.badge)}</span>
+            <span>${escapeHtml(metaLocation)}</span>
+            <span class="zine-badge-accent">${escapeHtml(badge)}</span>
           </div>
         </div>
       </article>
