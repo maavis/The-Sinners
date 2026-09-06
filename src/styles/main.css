@@ -916,6 +916,36 @@ html.route-store-teaser .site-container {
   text-shadow: 0 6px 30px rgba(0, 0, 0, 0.98), 0 2px 5px rgba(0, 0, 0, 0.8) !important;
 }
 
+/* Hidden Announcement State & Centered Hero Layout */
+.hero-announcement.is-hidden,
+.hero-announcement.is-hidden *,
+#album-title-target.is-hidden {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.hero-content.hero-no-title {
+  justify-content: center !important;
+  gap: 0 !important;
+}
+
+.hero-content.hero-no-title .logo-container {
+  margin-top: 0 !important;
+  transform: translateY(-0.5rem) !important;
+}
+
+@media (max-width: 850px) {
+  .hero-content.hero-no-title .logo-container {
+    margin-top: 0 !important;
+    transform: translateY(-0.25rem) !important;
+  }
+}
+
 /* --------------------------------------------------------------------------
    9. COMMON SECTION STYLES
    -------------------------------------------------------------------------- */

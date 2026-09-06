@@ -3644,8 +3644,8 @@ function renderAdminSettings(container) {
 
           <div class="admin-form-group" style="margin-top: 1.25rem; padding: 1.25rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px;">
             <label class="admin-label" style="color: #ffffff; font-weight: 700;">Anasayfa Hero / Albüm Başlığı (MADE OF SIN)</label>
-            <input type="text" id="set-hero-title" class="admin-input" value="${escapeHtml(settings.heroAlbumTitle || 'MADE OF SIN')}" required placeholder="Örn: MADE OF SIN" />
-            <p class="admin-hint" style="margin-top: 0.5rem; font-size: 0.8rem; color: #888892; line-height: 1.4;">Anasayfada Toxic logosunun altında ve açılış (intro) ekranında yer alan büyük başlık metnini belirler.</p>
+            <input type="text" id="set-hero-title" class="admin-input" value="${escapeHtml(settings.heroAlbumTitle !== undefined && settings.heroAlbumTitle !== null ? settings.heroAlbumTitle : '')}" placeholder="Örn: MADE OF SIN (İsteğe bağlı, boş bırakılabilir)" />
+            <p class="admin-hint" style="margin-top: 0.5rem; font-size: 0.8rem; color: #888892; line-height: 1.4;">Anasayfada Toxic logosunun altında yer alan büyük başlık metnini belirler. Boş bırakırsanız başlık alanı ön yüzde gizlenir ve logo dikeyde dengelenir.</p>
           </div>
 
           <div class="admin-form-group" style="margin-top: 1.25rem;">
@@ -3680,7 +3680,7 @@ function renderAdminSettings(container) {
       const updated = {
         siteTitle: container.querySelector('#set-title').value,
         artistName: container.querySelector('#set-artist').value,
-        heroAlbumTitle: container.querySelector('#set-hero-title').value.trim() || 'MADE OF SIN',
+        heroAlbumTitle: container.querySelector('#set-hero-title').value.trim(),
         contactEmail: container.querySelector('#set-email').value,
         maintenanceMode: container.querySelector('#set-maintenance').checked
       };

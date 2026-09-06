@@ -33,7 +33,7 @@ export function getSettings() {
       parsed.contactEmail = INITIAL_SETTINGS.contactEmail;
       updated = true;
     }
-    if (!parsed.heroAlbumTitle) {
+    if (parsed.heroAlbumTitle === undefined || parsed.heroAlbumTitle === null) {
       parsed.heroAlbumTitle = INITIAL_SETTINGS.heroAlbumTitle;
       updated = true;
     }
@@ -66,7 +66,7 @@ export async function fetchSettingsFromSupabase() {
         ...current,
         siteTitle: data.site_title || current.siteTitle,
         artistName: data.artist_name || current.artistName,
-        heroAlbumTitle: data.hero_album_title || current.heroAlbumTitle,
+        heroAlbumTitle: (data.hero_album_title !== undefined && data.hero_album_title !== null) ? data.hero_album_title : current.heroAlbumTitle,
         contactEmail: data.contact_email || current.contactEmail,
         maintenanceMode: data.maintenance_mode !== undefined ? data.maintenance_mode : current.maintenanceMode
       };
@@ -86,12 +86,16 @@ export async function saveSettings(settings) {
 
   if (supabase) {
     try {
+      const heroAlbumTitleValue = (settings.heroAlbumTitle !== undefined && settings.heroAlbumTitle !== null)
+        ? settings.heroAlbumTitle
+        : '';
+
       await supabase.from('site_settings').upsert({
         id: 'default',
         site_title: settings.siteTitle,
         site_description: '',
         artist_name: settings.artistName,
-        hero_album_title: settings.heroAlbumTitle,
+        hero_album_title: heroAlbumTitleValue,
         contact_email: settings.contactEmail,
         maintenance_mode: !!settings.maintenanceMode,
         updated_at: new Date().toISOString()

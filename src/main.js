@@ -149,6 +149,9 @@ function initHero() {
   const albumSubtitleTarget = document.getElementById('album-subtitle-target');
   const albumTitleTarget = document.getElementById('album-title-target');
   const introPhrase = document.querySelector('.intro-phrase-wrap p');
+  const heroAnnouncement = document.querySelector('.hero-announcement');
+  const heroContent = document.querySelector('.hero-content');
+  const heroSection = document.getElementById('hero');
 
   if (siteConfig.hero.heroBgUrl && heroBgTarget) {
     heroBgTarget.style.backgroundImage = `url('${siteConfig.hero.heroBgUrl}')`;
@@ -161,14 +164,55 @@ function initHero() {
   }
 
   const settings = getSettings();
-  const currentHeroTitle = settings.heroAlbumTitle || siteConfig.hero.albumTitle || 'MADE OF SIN';
+  const rawTitle = (settings.heroAlbumTitle !== undefined && settings.heroAlbumTitle !== null)
+    ? settings.heroAlbumTitle
+    : (siteConfig.hero.albumTitle || '');
+  const currentHeroTitle = (rawTitle || '').trim();
 
-  if (albumTitleTarget) {
-    albumTitleTarget.textContent = currentHeroTitle;
+  if (currentHeroTitle) {
+    if (albumTitleTarget) {
+      albumTitleTarget.textContent = currentHeroTitle;
+      albumTitleTarget.classList.remove('is-hidden');
+      albumTitleTarget.style.display = '';
+    }
+    if (heroAnnouncement) {
+      heroAnnouncement.classList.remove('is-hidden');
+      heroAnnouncement.style.display = '';
+    }
+    if (heroContent) {
+      heroContent.classList.remove('hero-no-title');
+    }
+    if (heroSection) {
+      heroSection.classList.remove('hero-no-title');
+    }
+  } else {
+    if (albumTitleTarget) {
+      albumTitleTarget.textContent = '';
+      albumTitleTarget.classList.add('is-hidden');
+      albumTitleTarget.style.display = 'none';
+    }
+    if (heroAnnouncement) {
+      heroAnnouncement.classList.add('is-hidden');
+      heroAnnouncement.style.display = 'none';
+    }
+    if (heroContent) {
+      heroContent.classList.add('hero-no-title');
+    }
+    if (heroSection) {
+      heroSection.classList.add('hero-no-title');
+    }
   }
+
   if (introPhrase) {
-    introPhrase.textContent = currentHeroTitle;
+    if (currentHeroTitle) {
+      introPhrase.textContent = currentHeroTitle;
+      introPhrase.style.display = '';
+    } else {
+      introPhrase.textContent = '';
+      introPhrase.style.display = 'none';
+    }
   }
+
   if (settings.siteTitle) {
     document.title = settings.siteTitle;
   }

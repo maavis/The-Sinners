@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS site_settings (
   site_title TEXT NOT NULL DEFAULT 'toxic - the band',
   site_description TEXT NOT NULL DEFAULT '',
   artist_name TEXT NOT NULL DEFAULT 'TOXIC',
-  hero_album_title TEXT NOT NULL DEFAULT 'MADE OF SIN',
+  hero_album_title TEXT DEFAULT 'MADE OF SIN',
   contact_email TEXT NOT NULL DEFAULT 'booking@toxic.com',
   maintenance_mode BOOLEAN NOT NULL DEFAULT false,
   auto_publish_schedule BOOLEAN NOT NULL DEFAULT true,

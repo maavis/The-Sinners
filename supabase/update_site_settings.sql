@@ -3,10 +3,13 @@
 -- Run this script in your Supabase SQL Editor to update live database records.
 -- =============================================================================
 
--- 1. Ensure site_settings columns exist
+-- 1. Ensure site_settings columns exist and allow empty/null hero_album_title
 ALTER TABLE site_settings 
   ADD COLUMN IF NOT EXISTS site_description TEXT NOT NULL DEFAULT '',
-  ADD COLUMN IF NOT EXISTS hero_album_title TEXT NOT NULL DEFAULT 'MADE OF SIN';
+  ADD COLUMN IF NOT EXISTS hero_album_title TEXT DEFAULT 'MADE OF SIN';
+
+ALTER TABLE site_settings 
+  ALTER COLUMN hero_album_title DROP NOT NULL;
 
 -- 2. Update default row in site_settings
 INSERT INTO site_settings (
