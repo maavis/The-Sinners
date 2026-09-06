@@ -2290,10 +2290,7 @@ html.route-about .about-hamburger-btn {
   }
 
   .mobile-brand-title {
-    font-family: var(--font-gothic);
-    font-size: 1.4rem;
-    letter-spacing: 0.12em;
-    color: var(--text-primary);
+    display: none !important;
   }
 
   .mobile-menu-btn {
