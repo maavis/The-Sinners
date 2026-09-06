@@ -3186,7 +3186,7 @@ html.route-about .about-hamburger-btn {
 
 .zine-crosshair {
   position: absolute;
-  color: rgba(217, 43, 43, 0.6);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 1.1rem;
   font-family: monospace;
   font-weight: bold;
@@ -3227,7 +3227,7 @@ html.route-about .about-hamburger-btn {
 .zine-item:hover {
   transform: translateY(-8px) scale(1.02) translateZ(0) !important;
   z-index: 10;
-  border-color: rgba(217, 43, 43, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85);
 }
 
@@ -3475,7 +3475,7 @@ html.route-about .about-hamburger-btn {
 .zine-light-leak {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(217, 43, 43, 0.4) 0%, transparent 65%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 65%);
   opacity: 0;
   mix-blend-mode: screen;
   transition: opacity 0.45s ease;
@@ -3497,7 +3497,7 @@ html.route-about .about-hamburger-btn {
 .zine-tech-stamp {
   font-family: monospace;
   font-size: 0.65rem;
-  color: #d92b2b;
+  color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.15em;
   font-weight: 700;
 }
@@ -3529,7 +3529,7 @@ html.route-about .about-hamburger-btn {
   text-transform: uppercase;
   background: rgba(255, 255, 255, 0.05);
   padding: 0.25rem 0.6rem;
-  border-left: 2px solid #d92b2b;
+  border-left: 2px solid #ffffff;
 }
 
 /* Darkroom Lightbox Modal */
@@ -3557,7 +3557,7 @@ html.route-about .about-hamburger-btn {
   position: relative;
   background: #0d0d10;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 50px rgba(217, 43, 43, 0.15);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 50px rgba(255, 255, 255, 0.05);
   max-width: 900px;
   width: 100%;
   max-height: 90vh;
@@ -3616,8 +3616,9 @@ html.route-about .about-hamburger-btn {
 }
 
 .darkroom-modal-close:hover {
-  background: #d92b2b;
-  border-color: #d92b2b;
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #000000;
 }
 
 @media (max-width: 850px) {
