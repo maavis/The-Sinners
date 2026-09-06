@@ -2885,6 +2885,16 @@ function renderAdminHomePano(container) {
                              required />
                       <p class="admin-input-help" style="font-size: 0.75rem; color: #888; margin-top: 4px;">Fotoğrafın hemen altında görünecek dinamik konum/zaman yazısıdır.</p>
                     </div>
+
+                    <div class="admin-form-group">
+                      <label class="admin-label">Bant / Damga Metni (BADGE_TEXT)</label>
+                      <input type="text" 
+                             class="admin-input pano-field-badge" 
+                             data-slot="${slotNum}" 
+                             value="${escapeHtml(item.badge_text || '')}" 
+                             placeholder="Örn: DEVIL'S GRIN // CONFIDENTIAL" />
+                      <p class="admin-input-help" style="font-size: 0.75rem; color: #888; margin-top: 4px;">Fotoğrafın sağ/sol üst köşesinde kırmızı çerçeveli damga etiketi olarak görünür (Boş bırakılırsa damga görünmez).</p>
+                    </div>
                   </div>
 
                   <div class="admin-slide-card-footer" style="display: flex; gap: 0.65rem; margin-top: 0.75rem;">
@@ -2999,9 +3009,11 @@ function renderAdminHomePano(container) {
 
       const urlInput = container.querySelector(`.pano-field-url[data-slot="${slotNum}"]`);
       const locInput = container.querySelector(`.pano-field-loc[data-slot="${slotNum}"]`);
+      const badgeInput = container.querySelector(`.pano-field-badge[data-slot="${slotNum}"]`);
 
       const rawUrl = urlInput ? urlInput.value.trim() : '';
       const locationText = locInput ? locInput.value.trim() : '';
+      const badgeText = badgeInput ? badgeInput.value.trim() : '';
       const cleanedUrl = cleanPanoImageUrl(rawUrl);
 
       if (!cleanedUrl) {
@@ -3021,6 +3033,7 @@ function renderAdminHomePano(container) {
           display_order: slotNum,
           location_text: locationText,
           meta_location: locationText,
+          badge_text: badgeText,
           image_url: cleanedUrl
         });
 
@@ -3036,7 +3049,7 @@ function renderAdminHomePano(container) {
     };
   });
 
-  // Save all 3 pano cards at once
+  // Save all pano cards at once
   const saveAllBtn = container.querySelector('#btn-save-all-pano');
   if (saveAllBtn) {
     saveAllBtn.onclick = async () => {
@@ -3048,9 +3061,11 @@ function renderAdminHomePano(container) {
           const slotNum = idx + 1;
           const urlInput = container.querySelector(`.pano-field-url[data-slot="${slotNum}"]`);
           const locInput = container.querySelector(`.pano-field-loc[data-slot="${slotNum}"]`);
+          const badgeInput = container.querySelector(`.pano-field-badge[data-slot="${slotNum}"]`);
 
           const rawUrl = urlInput ? urlInput.value.trim() : (item.image_url || item.url || '');
           const locationText = locInput ? locInput.value.trim() : (item.location_text || item.meta_location || '');
+          const badgeText = badgeInput ? badgeInput.value.trim() : (item.badge_text || '');
 
           return {
             ...item,
@@ -3059,12 +3074,13 @@ function renderAdminHomePano(container) {
             display_order: slotNum,
             location_text: locationText,
             meta_location: locationText,
+            badge_text: badgeText,
             image_url: cleanPanoImageUrl(rawUrl)
           };
         });
 
         await saveAllHomePanoItems(updatedList);
-        logActivity('TÜM PANO KARTLARI GÜNCELLENDİ', 'Ana sayfa fotoğraf panosundaki 3 kart kaydedildi.');
+        logActivity('TÜM PANO KARTLARI GÜNCELLENDİ', `Ana sayfa fotoğraf panosundaki ${updatedList.length} kart kaydedildi.`);
         showAdminToast('✓ TÜM PANO KARTLARI BAŞARIYLA KAYDEDİLDİ');
       } catch (err) {
         console.error('Tüm pano kartlarını kaydetme hatası:', err);

@@ -44,6 +44,7 @@ export const DEFAULT_HOME_PANO_ITEMS = [
     slot_index: 1,
     display_order: 1,
     location_text: 'BERLİN STÜDYO 03:42 AM',
+    badge_text: '',
     image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
     item_class: 'item-rehearsal',
     tape_class: 'zine-tape-top-left',
@@ -55,6 +56,7 @@ export const DEFAULT_HOME_PANO_ITEMS = [
     slot_index: 2,
     display_order: 2,
     location_text: 'CANLI ŞOV // 180G VINYL ERA',
+    badge_text: "DEVIL'S GRIN // CONFIDENTIAL",
     image_url: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80',
     item_class: 'item-live',
     tape_class: 'zine-tape-top-right',
@@ -66,6 +68,7 @@ export const DEFAULT_HOME_PANO_ITEMS = [
     slot_index: 3,
     display_order: 3,
     location_text: 'EDİTORYAL KOLEKSİYON ARŞİVİ',
+    badge_text: '',
     image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
     item_class: 'item-darkroom',
     tape_class: 'zine-tape-center',
@@ -102,6 +105,7 @@ function mergeWithDefaultPano(items) {
       || DEFAULT_HOME_PANO_ITEMS[idx % DEFAULT_HOME_PANO_ITEMS.length];
     
     const locText = item.location_text !== undefined ? item.location_text : (item.meta_location || def.location_text);
+    const badgeText = item.badge_text !== undefined ? item.badge_text : (def.badge_text || '');
     return {
       ...def,
       ...item,
@@ -109,7 +113,8 @@ function mergeWithDefaultPano(items) {
       slot_index: slotIdx,
       display_order: slotIdx,
       image_url: cleanPanoImageUrl(item.image_url || item.url || def.image_url),
-      location_text: locText
+      location_text: locText,
+      badge_text: badgeText
     };
   });
 }
@@ -264,6 +269,7 @@ export async function upsertHomePanoItem(itemData) {
   const id = itemData.id || `pano_${slotIdx}`;
   const cleanedUrl = cleanPanoImageUrl(itemData.image_url || itemData.url || '');
   const locText = itemData.location_text !== undefined ? itemData.location_text : (itemData.meta_location || '');
+  const badgeText = itemData.badge_text !== undefined ? itemData.badge_text : (itemData.red_stamp || '');
 
   const payload = {
     id,
@@ -271,6 +277,7 @@ export async function upsertHomePanoItem(itemData) {
     display_order: slotIdx,
     location_text: locText,
     meta_location: locText,
+    badge_text: badgeText,
     image_url: cleanedUrl,
     updated_at: new Date().toISOString()
   };
@@ -326,12 +333,14 @@ export async function saveAllHomePanoItems(items) {
     const id = item.id || `pano_${slotIdx}`;
     const cleanedUrl = cleanPanoImageUrl(item.image_url || item.url || '');
     const locText = item.location_text !== undefined ? item.location_text : (item.meta_location || '');
+    const badgeText = item.badge_text !== undefined ? item.badge_text : (item.red_stamp || '');
     return {
       id,
       slot_index: slotIdx,
       display_order: slotIdx,
       location_text: locText,
       meta_location: locText,
+      badge_text: badgeText,
       image_url: cleanedUrl,
       updated_at: new Date().toISOString()
     };

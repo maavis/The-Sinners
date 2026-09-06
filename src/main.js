@@ -2064,7 +2064,7 @@ export function renderPublicEditorialZineCards() {
   container.setAttribute('data-count', String(displayItems.length));
 
   // Memoization guard (skips unneeded DOM re-renders)
-  const currentKey = `${displayItems.length}|` + displayItems.map(s => `${s.id}-${s.image_url || s.url}-${s.location_text || ''}`).join('|');
+  const currentKey = `${displayItems.length}|` + displayItems.map(s => `${s.id}-${s.image_url || s.url}-${s.location_text || ''}-${s.badge_text || ''}`).join('|');
 
   if (lastRenderedZineKey === currentKey && container.children.length === displayItems.length) {
     return;
@@ -2076,7 +2076,11 @@ export function renderPublicEditorialZineCards() {
     const imgUrl = cleanPanoImageUrl(rawUrl);
     const itemClass = item.item_class || (idx === 0 ? 'item-rehearsal' : idx === 1 ? 'item-live' : 'item-darkroom');
     const tapeClass = item.tape_class || (idx === 0 ? 'zine-tape-top-left' : idx === 1 ? 'zine-tape-top-right' : 'zine-tape-center');
-    const redStamp = item.red_stamp || (idx === 1 ? '<div class="zine-red-stamp">DEVIL\'S GRIN // CONFIDENTIAL</div>' : '');
+
+    // Dynamic badge/stamp text (from DB badge_text, fallback to default text)
+    const badgeText = (item.badge_text !== undefined ? item.badge_text : (item.red_stamp ? "DEVIL'S GRIN // CONFIDENTIAL" : '')).trim();
+    const redStamp = badgeText ? `<div class="zine-red-stamp">${escapeHtml(badgeText)}</div>` : '';
+
     const locationText = item.location_text || item.meta_location || `ARCHIVE #${idx + 1}`;
     const perfCount = item.perf_count || (idx === 2 ? 8 : 5);
     const perfs = Array(perfCount).fill('<span>■</span>').join('');
