@@ -1223,22 +1223,8 @@ export function renderHeaderSocialLinks() {
   const desktopContainer = document.getElementById('desktop-social-links');
   const mobileContainer = document.getElementById('mobile-social-links');
 
-  const headerLinks = getHeaderSocialLinks();
-
-  const headerHtml = headerLinks.map(item => {
-    const iconContent = getHeaderSocialIconHTML(item);
-    const title = escapeHtml(item.title || item.name || 'Social Link');
-    const targetUrl = escapeHtml(item.target_url || item.url || '#');
-
-    return `
-      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="header-social-icon-link" title="${title}" aria-label="${title}">
-        ${iconContent}
-      </a>
-    `;
-  }).join('');
-
-  if (desktopContainer) desktopContainer.innerHTML = headerHtml;
-  if (mobileContainer) mobileContainer.innerHTML = headerHtml;
+  if (desktopContainer) desktopContainer.innerHTML = '';
+  if (mobileContainer) mobileContainer.innerHTML = '';
 }
 
 /**
