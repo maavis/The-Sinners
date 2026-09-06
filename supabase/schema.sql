@@ -1,5 +1,5 @@
 -- =============================================================================
--- THE SINNERS / PARRHESIA - SUPABASE POSTGRESQL SCHEMA & RLS MIGRATION
+-- TOXIC / PARRHESIA - SUPABASE POSTGRESQL SCHEMA & RLS MIGRATION
 -- =============================================================================
 
 -- Enable UUID extension if needed
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS tours (
 CREATE TABLE IF NOT EXISTS releases (
   id TEXT PRIMARY KEY DEFAULT ('rel_' || floor(extract(epoch from now()) * 1000)::text),
   title TEXT NOT NULL,
-  artist TEXT NOT NULL DEFAULT 'THE SINNERS',
+  artist TEXT NOT NULL DEFAULT 'TOXIC',
   year TEXT NOT NULL,
   release_date TEXT NOT NULL,
   type TEXT NOT NULL DEFAULT 'SINGLE', -- 'ALBUM' | 'EP' | 'SINGLE'
@@ -161,16 +161,18 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS site_settings (
   id TEXT PRIMARY KEY,
-  site_title TEXT NOT NULL DEFAULT 'The Sinners - Made of Sin',
-  artist_name TEXT NOT NULL DEFAULT 'THE SINNERS',
-  contact_email TEXT NOT NULL DEFAULT 'booking@thesinners.com',
+  site_title TEXT NOT NULL DEFAULT 'toxic - the band',
+  site_description TEXT NOT NULL DEFAULT '',
+  artist_name TEXT NOT NULL DEFAULT 'TOXIC',
+  hero_album_title TEXT NOT NULL DEFAULT 'MADE OF SIN',
+  contact_email TEXT NOT NULL DEFAULT 'booking@toxic.com',
   maintenance_mode BOOLEAN NOT NULL DEFAULT false,
   auto_publish_schedule BOOLEAN NOT NULL DEFAULT true,
   default_player_volume NUMERIC(3,2) NOT NULL DEFAULT 0.80,
   bio_paragraphs TEXT[] NOT NULL DEFAULT '{}',
   footer_line1 TEXT NOT NULL DEFAULT '© DEVIL''S GRIN RECORDS 2026',
   footer_line2 TEXT NOT NULL DEFAULT 'MADE OF SIN',
-  footer_line4 TEXT NOT NULL DEFAULT '© 2026 The Sinners',
+  footer_line4 TEXT NOT NULL DEFAULT '© 2026 Toxic',
   privacy_policy_url TEXT NOT NULL DEFAULT '#',
   terms_conditions_url TEXT NOT NULL DEFAULT '#',
   ai_usage_url TEXT NOT NULL DEFAULT '#',

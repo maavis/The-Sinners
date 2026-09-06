@@ -7,7 +7,7 @@ import { getJournalEntries } from './data/updates.js';
 import { getAboutData, cleanImageUrl, fetchAboutDataFromSupabase } from './data/about.js';
 import { getHeaderSocialLinks, getHeaderSocialIconHTML, getFooterSocialIconHTML, getSocialLinks, fetchSocialLinksFromSupabase } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
-import { getSettings } from './data/settings.js';
+import { getSettings, fetchSettingsFromSupabase } from './data/settings.js';
 import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase, isMusicDataLoading } from './data/music.js';
 import { initMotionSystem, triggerPageTransition, observeNewElements, revealSectionContent } from './motion.js';
 
@@ -20,6 +20,7 @@ initCinematicIntro();
 
 document.addEventListener('DOMContentLoaded', () => {
   initCinematicIntro();
+  fetchSettingsFromSupabase();
   fetchProductsFromSupabase();
   fetchMusicFromSupabase();
   fetchAboutDataFromSupabase();

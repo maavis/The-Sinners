@@ -1,5 +1,5 @@
 -- =============================================================================
--- THE SINNERS / PARRHESIA - INITIAL SEED DATA
+-- TOXIC / PARRHESIA - INITIAL SEED DATA
 -- Populates all tables with the website's default content.
 -- =============================================================================
 
@@ -16,10 +16,10 @@ ON CONFLICT (id) DO NOTHING;
 -- 2. SEED: releases
 INSERT INTO releases (id, title, artist, year, release_date, type, cover_url, description, status, featured, created_at)
 VALUES
-  ('rel_9mm_hate', '9MM HATE', 'THE SINNERS', '2026', '18 OCAK 2026', 'ALBUM', 'https://i.imgur.com/ADvecY4.gif', 'The Sinners'' flagship 2026 dark alternative / gothic rock album featuring 8 raw, high-contrast tracks.', 'PUBLISHED', true, '2026-01-18T10:00:00.000Z'),
-  ('rel_cruel', 'CRUEL', 'THE SINNERS', '2025', '05 KASIM 2025', 'SINGLE', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80', 'Heavy guitar riffs and visceral vocals leading the Sanguivore Era.', 'PUBLISHED', false, '2025-11-05T10:00:00.000Z'),
-  ('rel_its_the_way', 'IT''S THE WAY', 'THE SINNERS', '2025', '14 AĞUSTOS 2025', 'SINGLE', 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80', 'Atmospheric post-punk anthem with sweeping synth basslines.', 'PUBLISHED', false, '2025-08-14T10:00:00.000Z'),
-  ('rel_survive', 'SURVIVE', 'THE SINNERS', '2025', '20 ŞUBAT 2025', 'EP', 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80', 'The foundational 3-track EP defining The Sinners'' signature gothic sound.', 'PUBLISHED', false, '2025-02-20T10:00:00.000Z')
+  ('rel_9mm_hate', '9MM HATE', 'TOXIC', '2026', '18 OCAK 2026', 'ALBUM', 'https://i.imgur.com/ADvecY4.gif', 'Toxic''s flagship 2026 dark alternative / gothic rock album featuring 8 raw, high-contrast tracks.', 'PUBLISHED', true, '2026-01-18T10:00:00.000Z'),
+  ('rel_cruel', 'CRUEL', 'TOXIC', '2025', '05 KASIM 2025', 'SINGLE', 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=800&q=80', 'Heavy guitar riffs and visceral vocals leading the Sanguivore Era.', 'PUBLISHED', false, '2025-11-05T10:00:00.000Z'),
+  ('rel_its_the_way', 'IT''S THE WAY', 'TOXIC', '2025', '14 AĞUSTOS 2025', 'SINGLE', 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80', 'Atmospheric post-punk anthem with sweeping synth basslines.', 'PUBLISHED', false, '2025-08-14T10:00:00.000Z'),
+  ('rel_survive', 'SURVIVE', 'TOXIC', '2025', '20 ŞUBAT 2025', 'EP', 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80', 'The foundational 3-track EP defining Toxic''s signature gothic sound.', 'PUBLISHED', false, '2025-02-20T10:00:00.000Z')
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. SEED: tracks
@@ -55,7 +55,7 @@ VALUES
   ('upd_101', '11 AUG 2026', 'STUDIO DIARY', 'WE''RE STILL HERE. ROOM LOUDNESS & SPECTRUM.',
    'The room has been getting louder. Tape reels spinning late into the morning. Analog synths warming up for the upcoming European tour cycle. We built this space to test sound pressure limits and emotional boundaries.\n\nNo pitch correction, no quantization grids. Just heavy bass frequencies bouncing off brutalist concrete walls.',
    'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?auto=format&fit=crop&w=1200&q=80',
-   '01:42 // THE SINNERS STUDIO', 'PUBLISHED', false,
+   '01:42 // TOXIC STUDIO', 'PUBLISHED', false,
    ARRAY['01 Sound Test Alpha', '02 Sub-bass Feedback'],
    '[{"name": "SPOTIFY", "url": "https://spotify.com"}, {"name": "SOUNDCLOUD", "url": "https://soundcloud.com"}]'::jsonb,
    '2026-08-11T01:42:00.000Z'),
@@ -80,13 +80,13 @@ ON CONFLICT (id) DO NOTHING;
 -- 5. SEED: products
 INSERT INTO products (id, name, category, price, currency, stock_status, stock_label, sizes, default_size, primary_image, secondary_image, gallery, season, tagline, description, material, size_guide, shipping_info, returns_info)
 VALUES
-  ('prod_tee_logo', 'THE SINNERS LOGO TİŞÖRT', 'T-SHIRTS', 45, '€', 'IN_STOCK', 'STOKTA VAR',
+  ('prod_tee_logo', 'TOXIC LOGO TİŞÖRT', 'T-SHIRTS', 45, '€', 'IN_STOCK', 'STOKTA VAR',
    '[{"size": "S", "available": true, "status": "AVAILABLE"}, {"size": "M", "available": true, "status": "AVAILABLE"}, {"size": "L", "available": true, "status": "AVAILABLE"}, {"size": "XL", "available": true, "status": "AVAILABLE"}]'::jsonb,
    'M', 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1000&q=80',
    'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1000&q=80',
    ARRAY['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=1200&q=80'],
    'SONBAHAR/KIŞ 2026', 'İmza Ağır Gramaj Tipografik Grup Tişörtü',
-   '240 GSM ağır organik pamuktan üretilmiş, yüksek kontrastlı The Sinners arşiv tipografisine ve eskitme dokuya sahip tişört. Rahat ve şık kutu kesim (boxy fit) kalıp.',
+   '240 GSM ağır organik pamuktan üretilmiş, yüksek kontrastlı Toxic arşiv tipografisine ve eskitme dokuya sahip tişört. Rahat ve şık kutu kesim (boxy fit) kalıp.',
    '%100 Taranmış Organik Pamuk, 240 GSM, Önceden yıkanmış vintage yıkama doku.',
    'Sokak modasına uygun kutu kalıp (boxy fit). Günlük rahat duruş için kendi bedeninizi, daha salaş (oversized) bir görünüm için bir beden büyüğünü tercih edin.',
    '2-4 iş günü içerisinde takip kodlu kargo ile gönderim. 120€ üzeri siparişlerde kargo ücretsizdir.',
@@ -116,13 +116,13 @@ VALUES
    'Dünya geneline standart ve hızlı kargo seçenekleri mevcuttur.',
    '14 gün içinde standart iade ve değişim hakkı.'),
 
-  ('prod_hoodie_heavy', 'THE SINNERS AĞIR HOODIE', 'HOODIES', 90, '€', 'IN_STOCK', 'STOKTA VAR',
+  ('prod_hoodie_heavy', 'TOXIC AĞIR HOODIE', 'HOODIES', 90, '€', 'IN_STOCK', 'STOKTA VAR',
    '[{"size": "S", "available": true, "status": "AVAILABLE"}, {"size": "M", "available": true, "status": "AVAILABLE"}, {"size": "L", "available": true, "status": "AVAILABLE"}, {"size": "XL", "available": true, "status": "AVAILABLE"}]'::jsonb,
    'L', 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1000&q=80',
    'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=1000&q=80',
    ARRAY['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=1200&q=80', 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?auto=format&fit=crop&w=1200&q=80'],
    'FW26 KOLEKSİYONU', 'Ultra Ağır Gramaj 480 GSM Fransız Havlu Kumaş',
-   'Orijinal The Sinners sanat çalışmalarını içeren ağır gramajlı kapüşonlu sweatshirt. Çift katmanlı kapüşon ve nervürlü yan paneller.',
+   'Orijinal Toxic sanat çalışmalarını içeren ağır gramajlı kapüşonlu sweatshirt. Çift katmanlı kapüşon ve nervürlü yan paneller.',
    '%100 Fransız Havlu Pamuk (French Terry), 480 GSM.',
    'Hafif dökümlü düşük omuz kalıp. Üzerinize tam oturması için bir beden küçük tercih edebilirsiniz.',
    'Özel korumalı kargo paketi. 120€ üzeri siparişlerde takip numaralı ücretsiz kargo.',
@@ -181,27 +181,35 @@ ON CONFLICT (id) DO NOTHING;
 
 -- 10. SEED: site_settings
 INSERT INTO site_settings (
-  id, site_title, artist_name, contact_email, maintenance_mode, auto_publish_schedule, default_player_volume,
+  id, site_title, site_description, artist_name, hero_album_title, contact_email, maintenance_mode, auto_publish_schedule, default_player_volume,
   bio_paragraphs, footer_line1, footer_line2, footer_line4, privacy_policy_url, terms_conditions_url, ai_usage_url
 )
 VALUES (
   'default',
-  'The Sinners - Made of Sin',
-  'THE SINNERS',
-  'booking@thesinners.com',
+  'toxic - the band',
+  '',
+  'TOXIC',
+  'MADE OF SIN',
+  'booking@toxic.com',
   false,
   true,
   0.80,
   ARRAY[
-    'The Sinners is an alternative / gothic rock entity existing at the intersection of raw sonic aggression, atmospheric textures, and uncompromising artistic expression.',
+    'Toxic is an alternative / gothic rock entity existing at the intersection of raw sonic aggression, atmospheric textures, and uncompromising artistic expression.',
     'Formed in shadow, the band merges heavy distorted baritone instrumentation with hypnotic editorial visual aesthetics. Every record, performance, and visual transmission is created as a complete atmospheric experience.',
     'Truth spoken clearly without compromise. No news, just noise.'
   ],
   '© DEVIL''S GRIN RECORDS 2026',
   'MADE OF SIN',
-  '© 2026 The Sinners',
+  '© 2026 Toxic',
   '#',
   '#',
   '#'
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+  site_title = EXCLUDED.site_title,
+  site_description = EXCLUDED.site_description,
+  artist_name = EXCLUDED.artist_name,
+  hero_album_title = EXCLUDED.hero_album_title,
+  contact_email = EXCLUDED.contact_email,
+  footer_line4 = EXCLUDED.footer_line4;

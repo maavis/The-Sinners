@@ -1,7 +1,4 @@
-/**
- * PARRHESIA SYSTEM SETTINGS SERVICE
- * CMS System Settings & Global Configurations.
- */
+import { supabase } from '../lib/supabase.js';
 
 const STORAGE_KEY = 'parrhesia_cms_settings';
 
@@ -49,7 +46,58 @@ export function getSettings() {
   }
 }
 
-export function saveSettings(settings) {
+export async function fetchSettingsFromSupabase() {
+  if (!supabase) return getSettings();
+  try {
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('*')
+      .eq('id', 'default')
+      .single();
+
+    if (error) {
+      console.warn('Supabase site_settings fetch error:', error.message);
+      return getSettings();
+    }
+
+    if (data) {
+      const current = getSettings();
+      const merged = {
+        ...current,
+        siteTitle: data.site_title || current.siteTitle,
+        artistName: data.artist_name || current.artistName,
+        heroAlbumTitle: data.hero_album_title || current.heroAlbumTitle,
+        contactEmail: data.contact_email || current.contactEmail,
+        maintenanceMode: data.maintenance_mode !== undefined ? data.maintenance_mode : current.maintenanceMode
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      window.dispatchEvent(new CustomEvent('settings-updated'));
+      return merged;
+    }
+  } catch (err) {
+    console.error('Supabase site_settings fetch exception:', err);
+  }
+  return getSettings();
+}
+
+export async function saveSettings(settings) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   window.dispatchEvent(new CustomEvent('settings-updated'));
+
+  if (supabase) {
+    try {
+      await supabase.from('site_settings').upsert({
+        id: 'default',
+        site_title: settings.siteTitle,
+        site_description: '',
+        artist_name: settings.artistName,
+        hero_album_title: settings.heroAlbumTitle,
+        contact_email: settings.contactEmail,
+        maintenance_mode: !!settings.maintenanceMode,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
+    } catch (err) {
+      console.warn('Supabase site_settings upsert error:', err);
+    }
+  }
 }
