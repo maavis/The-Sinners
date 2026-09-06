@@ -137,32 +137,21 @@ export async function fetchAboutDataFromSupabase() {
       slidesData = orderData;
     }
 
-    if (Array.isArray(slidesData) && slidesData.length > 0) {
-      // 3 Birebir Slot Eşleştirmesi (Tekillik Garantisi - Asla klon veya çift kart basılmaz)
-      const slot1 = slidesData.find(s => s.id === 'slide_1') || slidesData.find(s => String(s.id) === '1' || Number(s.display_order ?? s.slide_order) === 1) || slidesData[0];
-      const slot2 = slidesData.find(s => s.id === 'slide_2') || slidesData.find(s => String(s.id) === '2' || Number(s.display_order ?? s.slide_order) === 2) || slidesData[1];
-      const slot3 = slidesData.find(s => s.id === 'slide_3') || slidesData.find(s => String(s.id) === '3' || Number(s.display_order ?? s.slide_order) === 3) || slidesData[2];
-
-      const rawSlots = [
-        { item: slot1, fallback: DEFAULT_ABOUT_SLIDES[0], id: 'slide_1', order: 1 },
-        { item: slot2, fallback: DEFAULT_ABOUT_SLIDES[1], id: 'slide_2', order: 2 },
-        { item: slot3, fallback: DEFAULT_ABOUT_SLIDES[2], id: 'slide_3', order: 3 }
-      ];
-
-      inMemorySlides = rawSlots.map(({ item, fallback, id, order }) => {
-        const active = item || fallback;
-        const imgUrl = cleanImageUrl(active.image_url || active.url || fallback.image_url);
+    if (Array.isArray(slidesData)) {
+      inMemorySlides = slidesData.map((item, idx) => {
+        const order = item.display_order ?? item.slide_order ?? (idx + 1);
+        const imgUrl = cleanImageUrl(item.image_url || item.url || '');
         return {
-          id,
-          title: active.title || active.caption || fallback.title,
-          description: active.description || fallback.description || '',
+          id: item.id || `slide_${idx + 1}`,
+          title: item.title || item.caption || `0${idx + 1} // TRANSMISSION`,
+          description: item.description || '',
           image_url: imgUrl,
           url: imgUrl,
-          caption: active.caption || active.title || fallback.caption,
+          caption: item.caption || item.title || `0${idx + 1} // TRANSMISSION`,
           display_order: order,
           slide_order: order,
           slideOrder: order,
-          createdAt: active.created_at || new Date().toISOString()
+          createdAt: item.created_at || new Date().toISOString()
         };
       });
     }
@@ -381,6 +370,8 @@ export async function deleteSlide(id) {
     throw err;
   }
 }
+
+export const deleteAboutSlide = deleteSlide;
 
 /**
  * Updates and saves editorial biography paragraphs directly to Supabase site_settings table

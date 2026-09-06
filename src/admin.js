@@ -2432,13 +2432,20 @@ function renderAdminAbout(container) {
                     </div>
                   </div>
 
-                  <div class="admin-slide-card-footer">
+                  <div class="admin-slide-card-footer" style="display: flex; gap: 0.65rem; margin-top: 0.75rem;">
                     <button type="button" 
                             class="admin-btn admin-btn-primary btn-save-single-slide" 
                             data-id="${slide.id}" 
                             data-order="${cardOrder}" 
-                            style="width: 100%; margin-top: 0;">
+                            style="flex: 1; margin-top: 0;">
                       💾 KARTI KAYDET
+                    </button>
+                    <button type="button" 
+                            class="admin-btn btn-delete-single-slide" 
+                            data-id="${slide.id}" 
+                            data-title="${escapeHtml(cardTitle)}"
+                            style="background-color: #d92b2b; color: #ffffff; border: 1px solid #d92b2b; padding: 0.6rem 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                      🗑️ KARTI SİL
                     </button>
                   </div>
                 </div>
@@ -2508,6 +2515,34 @@ function renderAdminAbout(container) {
         previewEmpty.style.display = 'none';
       };
     }
+  });
+
+  // Delete single slide directly via Supabase delete and local state filter
+  const singleDeleteBtns = container.querySelectorAll('.btn-delete-single-slide');
+  singleDeleteBtns.forEach(btn => {
+    btn.onclick = async () => {
+      const slideId = btn.getAttribute('data-id');
+      const cardTitle = btn.getAttribute('data-title') || 'bu kartı';
+
+      if (!confirm(`Bu slaytı (${cardTitle}) silmek istediğinize emin misiniz?`)) {
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ SİLİNİYOR...';
+
+      try {
+        await deleteSlide(slideId);
+        logActivity('KART SİLİNDİ', `"${cardTitle}" slayt kartı silindi.`);
+        showAdminToast(`✓ "${cardTitle}" BAŞARIYLA SİLİNDİ`);
+        renderAdminAbout(container);
+      } catch (err) {
+        console.error('Slayt silme hatası:', err);
+        showAdminToast('⚠ Silme hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+        btn.disabled = false;
+        btn.textContent = '🗑️ KARTI SİL';
+      }
+    };
   });
 
   // Save single slide directly via Supabase upsert

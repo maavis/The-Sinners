@@ -2105,30 +2105,23 @@ export function renderPublicEditorialZineCards() {
     }
   ];
 
-  // Birebir 3 Slot Eşleştirmesi (Tekillik Garantisi - Asla klon veya çift kart basılmaz)
-  const slot1 = slideList.find(s => s.id === 'slide_1') || slideList.find(s => String(s.id) === '1' || Number(s.display_order ?? s.slide_order) === 1) || slideList[0];
-  const slot2 = slideList.find(s => s.id === 'slide_2') || slideList.find(s => String(s.id) === '2' || Number(s.display_order ?? s.slide_order) === 2) || slideList[1];
-  const slot3 = slideList.find(s => s.id === 'slide_3') || slideList.find(s => String(s.id) === '3' || Number(s.display_order ?? s.slide_order) === 3) || slideList[2];
+  const displaySlides = slideList.length > 0 ? slideList : [];
 
-  // Memoization guard (React.memo equivalent - skips unneeded DOM re-renders)
-  const currentKey = [
-    slot1 ? `${slot1.id}-${slot1.image_url || slot1.url}-${slot1.title}` : '1',
-    slot2 ? `${slot2.id}-${slot2.image_url || slot2.url}-${slot2.title}` : '2',
-    slot3 ? `${slot3.id}-${slot3.image_url || slot3.url}-${slot3.title}` : '3'
-  ].join('|');
+  // Memoization guard (skips unneeded DOM re-renders)
+  const currentKey = displaySlides.map(s => `${s.id}-${s.image_url || s.url}-${s.title}`).join('|');
 
-  if (lastRenderedZineKey === currentKey && container.children.length === 3) {
+  if (lastRenderedZineKey === currentKey && container.children.length === displaySlides.length) {
     return;
   }
   lastRenderedZineKey = currentKey;
 
-  const threeSlots = [
-    { slide: slot1, config: cardLayoutConfigs[0], slotIdx: 1 },
-    { slide: slot2, config: cardLayoutConfigs[1], slotIdx: 2 },
-    { slide: slot3, config: cardLayoutConfigs[2], slotIdx: 3 }
-  ];
+  if (displaySlides.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
 
-  container.innerHTML = threeSlots.map(({ slide, config, slotIdx }) => {
+  container.innerHTML = displaySlides.map((slide, idx) => {
+    const config = cardLayoutConfigs[idx % cardLayoutConfigs.length];
     const rawUrl = slide ? (slide.image_url || slide.url || config.fallbackImg) : config.fallbackImg;
     const imgUrl = cleanImageUrl(rawUrl) || config.fallbackImg;
     const title = (slide && (slide.title || slide.caption)) ? (slide.title || slide.caption) : config.fallbackTitle;
@@ -2137,7 +2130,7 @@ export function renderPublicEditorialZineCards() {
 
     return `
       <article class="zine-item ${config.itemClass}" 
-               data-zine-idx="${slotIdx}" 
+               data-zine-idx="${idx + 1}" 
                data-title="${escapeHtml(title)}" 
                data-film="${escapeHtml(config.film)}" 
                data-loc="${escapeHtml(config.loc)}" 
