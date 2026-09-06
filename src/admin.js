@@ -2307,40 +2307,7 @@ function openDeleteMediaModal(mediaItem, rootContainer) {
  */
 function renderAdminAbout(container) {
   const aboutData = getAboutData();
-  const allSlides = (aboutData.slides && aboutData.slides.length > 0) ? aboutData.slides : [];
-  const defaultList = [
-    {
-      id: 'slide_1',
-      title: '01 // REHEARSAL & NOISE',
-      description: 'Ham gitar geribildirimi ve analog mikser distorsiyon ayarları sırasında kaydedilen 35mm kontakt baskı.',
-      image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80',
-      display_order: 1
-    },
-    {
-      id: 'slide_2',
-      title: '02 // STAGE CATHARSIS',
-      description: "Yoğun sis, kırmızı spot ışıkları ve 1/60s deklanşör hızıyla yakalanan ham sahne enerjisi.",
-      image_url: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=1200&q=80',
-      display_order: 2
-    },
-    {
-      id: 'slide_3',
-      title: '03 // DARKROOM TEXTURE',
-      description: 'Made of Sin albüm kapağı ve editoryal koleksiyon için karanlık odada elle basılan ilk prova negatifi.',
-      image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1200&q=80',
-      display_order: 3
-    }
-  ];
-
-  const slot1 = allSlides.find(s => s.id === 'slide_1') || allSlides.find(s => String(s.id) === '1' || Number(s.display_order ?? s.slide_order) === 1) || defaultList[0];
-  const slot2 = allSlides.find(s => s.id === 'slide_2') || allSlides.find(s => String(s.id) === '2' || Number(s.display_order ?? s.slide_order) === 2) || defaultList[1];
-  const slot3 = allSlides.find(s => s.id === 'slide_3') || allSlides.find(s => String(s.id) === '3' || Number(s.display_order ?? s.slide_order) === 3) || defaultList[2];
-
-  const slides = [
-    { ...defaultList[0], ...slot1, id: 'slide_1', display_order: 1 },
-    { ...defaultList[1], ...slot2, id: 'slide_2', display_order: 2 },
-    { ...defaultList[2], ...slot3, id: 'slide_3', display_order: 3 }
-  ];
+  const slides = Array.isArray(aboutData.slides) ? aboutData.slides : [];
 
   container.innerHTML = `
     <div class="admin-cms-layout">
@@ -2373,7 +2340,12 @@ function renderAdminAbout(container) {
           </p>
 
           <div class="admin-slide-cards-grid">
-            ${slides.map((slide, idx) => {
+            ${slides.length === 0 ? `
+              <div style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; border: 1px dashed rgba(255,255,255,0.15); background: rgba(255,255,255,0.02);">
+                <p style="font-size: 0.95rem; color: #888; margin-bottom: 1rem;">// Henüz kayıtlı slayt kartı bulunmuyor.</p>
+                <button type="button" id="btn-add-slide-empty" class="admin-btn admin-btn-secondary">+ İLK SLAYTI EKLE</button>
+              </div>
+            ` : slides.map((slide, idx) => {
               const cleanedUrl = cleanImageUrl(slide.image_url || slide.url || '');
               const cardTitle = slide.title || slide.caption || `KART #${idx + 1}`;
               const cardDesc = slide.description || '';
@@ -2679,6 +2651,10 @@ function renderAdminAbout(container) {
   const addSlideBtn = container.querySelector('#btn-add-slide');
   if (addSlideBtn) {
     addSlideBtn.onclick = () => openSlideModal(null, container);
+  }
+  const addSlideEmptyBtn = container.querySelector('#btn-add-slide-empty');
+  if (addSlideEmptyBtn) {
+    addSlideEmptyBtn.onclick = () => openSlideModal(null, container);
   }
 
   // Bio form submission

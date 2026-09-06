@@ -74,8 +74,23 @@ export const DEFAULT_ABOUT_SLIDES = [
   }
 ];
 
-// In-memory cache for instant UI rendering
 const BIO_STORAGE_KEY = 'site_bio';
+const SLIDES_STORAGE_KEY = 'site_slides';
+
+function getInitialSlides() {
+  try {
+    const cached = localStorage.getItem(SLIDES_STORAGE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('site_slides cache okunamadı:', e);
+  }
+  return [];
+}
 
 function getInitialBioParagraphs() {
   try {
@@ -92,7 +107,7 @@ function getInitialBioParagraphs() {
   return [];
 }
 
-let inMemorySlides = [...DEFAULT_ABOUT_SLIDES];
+let inMemorySlides = getInitialSlides();
 let inMemoryBioParagraphs = getInitialBioParagraphs();
 
 /**
@@ -133,7 +148,7 @@ export async function fetchAboutDataFromSupabase() {
       if (!fallbackError && Array.isArray(fallbackData) && fallbackData.length > 0) {
         slidesData = fallbackData;
       }
-    } else if (Array.isArray(orderData) && orderData.length > 0) {
+    } else if (Array.isArray(orderData)) {
       slidesData = orderData;
     }
 
@@ -154,6 +169,11 @@ export async function fetchAboutDataFromSupabase() {
           createdAt: item.created_at || new Date().toISOString()
         };
       });
+      try {
+        localStorage.setItem(SLIDES_STORAGE_KEY, JSON.stringify(inMemorySlides));
+      } catch (e) {
+        console.warn('site_slides cache kaydedilemedi:', e);
+      }
     }
 
     // 2. Fetch Biography Paragraphs from site_settings
@@ -242,6 +262,9 @@ export async function upsertAboutSlide({ id, title, description, image_url, disp
     }
 
     inMemorySlides.sort((a, b) => (a.display_order || 1) - (b.display_order || 1));
+    try {
+      localStorage.setItem(SLIDES_STORAGE_KEY, JSON.stringify(inMemorySlides));
+    } catch (e) {}
     window.dispatchEvent(new CustomEvent('about-data-updated'));
     return saved;
   } catch (err) {
@@ -297,6 +320,9 @@ export async function saveAboutSlidesBatch(slides) {
     }));
 
     inMemorySlides.sort((a, b) => (a.display_order || 1) - (b.display_order || 1));
+    try {
+      localStorage.setItem(SLIDES_STORAGE_KEY, JSON.stringify(inMemorySlides));
+    } catch (e) {}
     window.dispatchEvent(new CustomEvent('about-data-updated'));
     return inMemorySlides;
   } catch (err) {
@@ -364,6 +390,9 @@ export async function deleteSlide(id) {
     console.log('Supabase Slide Silindi:', id);
 
     inMemorySlides = inMemorySlides.filter(s => s.id !== id);
+    try {
+      localStorage.setItem(SLIDES_STORAGE_KEY, JSON.stringify(inMemorySlides));
+    } catch (e) {}
     window.dispatchEvent(new CustomEvent('about-data-updated'));
   } catch (err) {
     console.error('Supabase Slide Hatası:', err);
