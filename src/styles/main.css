@@ -3216,7 +3216,7 @@ html.route-about .about-hamburger-btn {
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem 1rem 1.25rem 1rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-  cursor: pointer;
+  cursor: default;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease;
   will-change: transform, opacity;
   transform: translateZ(0);
@@ -3402,21 +3402,23 @@ html.route-about .about-hamburger-btn {
 
 .zine-meta-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: #888892;
-  letter-spacing: 0.1em;
-  margin-top: 0.2rem;
+  letter-spacing: 0.12em;
+  margin-top: 0.25rem;
 }
 
-.zine-badge-accent {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 0.15rem 0.45rem;
-  font-size: 0.6rem;
+.zine-location-tag {
   font-family: monospace;
-  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  color: #d1d1db;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem 0.6rem;
+  border-left: 2px solid #d92b2b;
 }
 
 /* Darkroom Lightbox Modal */

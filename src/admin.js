@@ -2355,37 +2355,25 @@ function renderAdminAbout(container) {
           <div class="admin-slide-cards-grid">
             ${slides.length === 0 ? `
               <div style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; border: 1px dashed rgba(255,255,255,0.15); background: rgba(255,255,255,0.02);">
-                <p style="font-size: 0.95rem; color: #888; margin-bottom: 1rem;">// Henüz kayıtlı slayt kartı bulunmuyor.</p>
-                <button type="button" id="btn-add-slide-empty" class="admin-btn admin-btn-secondary">+ İLK SLAYTI EKLE</button>
+                <p style="font-size: 0.95rem; color: #888; margin-bottom: 1rem;">// Henüz kayıtlı slayt fotoğrafı bulunmuyor.</p>
+                <button type="button" id="btn-add-slide-empty" class="admin-btn admin-btn-secondary">+ İLK FOTOĞRAFI EKLE</button>
               </div>
             ` : slides.map((slide, idx) => {
               const cleanedUrl = cleanImageUrl(slide.image_url || slide.url || '');
-              const cardTitle = slide.title || slide.caption || `KART #${idx + 1}`;
-              const cardDesc = slide.description || '';
               const cardOrder = slide.display_order || slide.slide_order || (idx + 1);
 
               return `
                 <div class="admin-slide-card-editor" data-slide-id="${slide.id}">
                   <div class="admin-slide-card-header">
                     <div class="admin-slide-card-badge">
-                      <span>●</span> KART #${String(cardOrder).padStart(2, '0')} // ${escapeHtml(cardTitle)}
+                      <span>●</span> SLAYT #${String(cardOrder).padStart(2, '0')}
                     </div>
                     <div class="admin-slide-card-id">${slide.id}</div>
                   </div>
 
                   <div class="admin-slide-card-body">
                     <div class="admin-form-group">
-                      <label class="admin-label">Kart Başlığı (title)*</label>
-                      <input type="text" 
-                             class="admin-input slide-field-title" 
-                             data-id="${slide.id}" 
-                             value="${escapeHtml(cardTitle)}" 
-                             placeholder="Örn: 01 // REHEARSAL & NOISE" 
-                             required />
-                    </div>
-
-                    <div class="admin-form-group">
-                      <label class="admin-label">Görsel Linki (image_url)*</label>
+                      <label class="admin-label">Görsel Bağlantısı (image_url)*</label>
                       <input type="url" 
                              class="admin-input slide-field-url" 
                              data-id="${slide.id}" 
@@ -2395,10 +2383,10 @@ function renderAdminAbout(container) {
                     </div>
 
                     <div class="admin-form-group">
-                      <label class="admin-label">Görsel Canlı Önizleme</label>
+                      <label class="admin-label">Canlı Önizleme</label>
                       <div class="admin-slide-preview-box" id="preview-box-${slide.id}">
                         <img src="${escapeHtml(cleanedUrl)}" 
-                             alt="${escapeHtml(cardTitle)}" 
+                             alt="Slayt ${cardOrder}" 
                              class="admin-slide-preview-img" 
                              id="preview-img-${slide.id}" 
                              style="${cleanedUrl ? '' : 'display: none;'}" />
@@ -2406,14 +2394,6 @@ function renderAdminAbout(container) {
                               id="preview-empty-${slide.id}" 
                               style="${cleanedUrl ? 'display: none;' : ''}">// GÖRSEL BAĞLANTISI GİRİN</span>
                       </div>
-                    </div>
-
-                    <div class="admin-form-group">
-                      <label class="admin-label">Kart Açıklaması (description)</label>
-                      <textarea class="admin-input slide-field-desc" 
-                                data-id="${slide.id}" 
-                                rows="3" 
-                                placeholder="Kart için detaylı açıklama metni...">${escapeHtml(cardDesc)}</textarea>
                     </div>
                   </div>
 
@@ -2423,12 +2403,11 @@ function renderAdminAbout(container) {
                             data-id="${slide.id}" 
                             data-order="${cardOrder}" 
                             style="flex: 1; margin-top: 0;">
-                      💾 KARTI KAYDET
+                      💾 KAYDET
                     </button>
                     <button type="button" 
                             class="admin-btn btn-delete-single-slide" 
                             data-id="${slide.id}" 
-                            data-title="${escapeHtml(cardTitle)}"
                             style="background-color: #d92b2b; color: #ffffff; border: 1px solid #d92b2b; padding: 0.6rem 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
                       🗑️ KARTI SİL
                     </button>
@@ -2507,9 +2486,8 @@ function renderAdminAbout(container) {
   singleDeleteBtns.forEach(btn => {
     btn.onclick = async () => {
       const slideId = btn.getAttribute('data-id');
-      const cardTitle = btn.getAttribute('data-title') || 'bu kartı';
 
-      if (!confirm(`Bu slaytı (${cardTitle}) silmek istediğinize emin misiniz?`)) {
+      if (!confirm('Bu slayt fotoğrafını silmek istediğinize emin misiniz?')) {
         return;
       }
 
@@ -2518,8 +2496,8 @@ function renderAdminAbout(container) {
 
       try {
         await deleteSlide(slideId);
-        logActivity('KART SİLİNDİ', `"${cardTitle}" slayt kartı silindi.`);
-        showAdminToast(`✓ "${cardTitle}" BAŞARIYLA SİLİNDİ`);
+        logActivity('SLAYT SİLİNDİ', 'Slayt fotoğrafı silindi.');
+        showAdminToast('✓ SLAYT BAŞARIYLA SİLİNDİ');
         renderAdminAbout(container);
       } catch (err) {
         console.error('Slayt silme hatası:', err);
@@ -2536,21 +2514,10 @@ function renderAdminAbout(container) {
     btn.onclick = async () => {
       const slideId = btn.getAttribute('data-id');
       const orderVal = parseInt(btn.getAttribute('data-order') || '1', 10);
-
-      const titleInput = container.querySelector(`.slide-field-title[data-id="${slideId}"]`);
       const urlInput = container.querySelector(`.slide-field-url[data-id="${slideId}"]`);
-      const descInput = container.querySelector(`.slide-field-desc[data-id="${slideId}"]`);
-
-      const title = titleInput ? titleInput.value.trim() : '';
       const rawUrl = urlInput ? urlInput.value.trim() : '';
-      const description = descInput ? descInput.value.trim() : '';
       const cleanedUrl = cleanImageUrl(rawUrl);
 
-      if (!title) {
-        showAdminToast('⚠ Kart başlığı boş olamaz.', 'danger');
-        if (titleInput) titleInput.focus();
-        return;
-      }
       if (!cleanedUrl) {
         showAdminToast('⚠ Görsel linki boş olamaz.', 'danger');
         if (urlInput) urlInput.focus();
@@ -2564,11 +2531,11 @@ function renderAdminAbout(container) {
       try {
         const payload = {
           id: slideId,
-          title,
-          description,
+          title: `Slide ${orderVal}`,
+          description: '',
           image_url: cleanedUrl,
           url: cleanedUrl,
-          caption: title,
+          caption: `Slide ${orderVal}`,
           display_order: orderVal,
           slide_order: orderVal,
           created_at: new Date().toISOString()
@@ -2587,14 +2554,14 @@ function renderAdminAbout(container) {
         // Also update local in-memory store
         await upsertAboutSlide({
           id: slideId,
-          title,
-          description,
+          title: `Slide ${orderVal}`,
+          description: '',
           image_url: cleanedUrl,
           display_order: orderVal
         });
 
-        logActivity('KART GÜNCELLENDİ', `"${title}" kartı Supabase'e kaydedildi.`);
-        showAdminToast(`✓ "${title}" BAŞARIYLA KAYDEDİLDİ`);
+        logActivity('SLAYT GÜNCELLENDİ', `Slayt #${orderVal} kaydedildi.`);
+        showAdminToast('✓ SLAYT BAŞARIYLA KAYDEDİLDİ');
       } catch (err) {
         console.error('Slayt kaydetme hatası:', err);
         showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
@@ -2614,23 +2581,18 @@ function renderAdminAbout(container) {
 
       try {
         const updatedSlidesList = slides.map((slide, idx) => {
-          const titleInput = container.querySelector(`.slide-field-title[data-id="${slide.id}"]`);
           const urlInput = container.querySelector(`.slide-field-url[data-id="${slide.id}"]`);
-          const descInput = container.querySelector(`.slide-field-desc[data-id="${slide.id}"]`);
-
-          const title = titleInput ? titleInput.value.trim() : (slide.title || '');
           const rawUrl = urlInput ? urlInput.value.trim() : (slide.image_url || slide.url || '');
-          const description = descInput ? descInput.value.trim() : (slide.description || '');
           const cleanedUrl = cleanImageUrl(rawUrl);
           const orderNum = idx + 1;
 
           return {
             id: slide.id,
-            title: title || `0${orderNum} // TRANSMISSION`,
-            description,
+            title: `Slide ${orderNum}`,
+            description: '',
             image_url: cleanedUrl,
             url: cleanedUrl,
-            caption: title || `0${orderNum} // TRANSMISSION`,
+            caption: `Slide ${orderNum}`,
             display_order: orderNum,
             slide_order: orderNum,
             created_at: new Date().toISOString()
@@ -2648,14 +2610,14 @@ function renderAdminAbout(container) {
         }
 
         await saveAboutSlidesBatch(updatedSlidesList);
-        logActivity('TÜM KARTLAR GÜNCELLENDİ', `${updatedSlidesList.length} kart Supabase'e kaydedildi.`);
-        showAdminToast('✓ TÜM KARTLAR BAŞARIYLA SUPABASE\'E KAYDEDİLDİ');
+        logActivity('TÜM SLAYTLAR GÜNCELLENDİ', `${updatedSlidesList.length} slayt kaydedildi.`);
+        showAdminToast('✓ TÜM SLAYTLAR BAŞARIYLA KAYDEDİLDİ');
       } catch (err) {
-        console.error('Tüm kartları kaydetme hatası:', err);
+        console.error('Tüm slaytları kaydetme hatası:', err);
         showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
       } finally {
         saveAllBtn.disabled = false;
-        saveAllBtn.textContent = '💾 TÜM KARTLARI KAYDET';
+        saveAllBtn.textContent = '💾 TÜM SLAYTLARI KAYDET';
       }
     };
   }
@@ -2718,27 +2680,19 @@ function openSlideModal(slideItem, rootContainer) {
   modalOverlay.innerHTML = `
     <div class="admin-modal">
       <div class="admin-modal-header">
-        <h2 class="admin-modal-title">${isEdit ? 'SLAYT GÖRSELİNİ DÜZENLE' : 'YENİ SLAYT GÖRSELİ EKLE'}</h2>
+        <h2 class="admin-modal-title">${isEdit ? 'SLAYT GÖRSELİNİ DÜZENLE' : 'YENİ SLAYT FOTOĞRAFI EKLE'}</h2>
         <button type="button" class="admin-modal-close">&times;</button>
       </div>
       <form id="slide-form">
         <div class="admin-modal-body">
           <div class="admin-form-group">
-            <label class="admin-label">Başlık (title)*</label>
-            <input type="text" id="slide-caption" class="admin-input" value="${slideItem ? escapeHtml(slideItem.title || slideItem.caption || '') : ''}" placeholder="Örn: 04 // NOCTURNAL TRANSMISSION" required />
-          </div>
-          <div class="admin-form-group" style="margin-top: 1rem;">
-            <label class="admin-label">Görsel URL (image_url)*</label>
+            <label class="admin-label">Görsel Bağlantısı (image_url)*</label>
             <input type="url" id="slide-url" class="admin-input" value="${escapeHtml(initialUrl)}" placeholder="https://i.imgur.com/... veya https://images.unsplash.com/..." required />
             <p class="admin-input-help" style="font-size: 0.75rem; color: #888; margin-top: 4px;">Imgur sayfa linkleri otomatik olarak direkt resim linkine dönüştürülür.</p>
           </div>
           <div class="admin-form-group" style="margin-top: 1rem;">
-            <label class="admin-label">Açıklama (description)</label>
-            <textarea id="slide-desc" class="admin-input" rows="3" placeholder="Slayt / kart açıklaması...">${slideItem ? escapeHtml(slideItem.description || '') : ''}</textarea>
-          </div>
-          <div class="admin-form-group" style="margin-top: 1rem;">
-            <label class="admin-label">Görsel Önizleme</label>
-            <div class="admin-img-preview-box" style="width: 100%; height: 160px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; position: relative;">
+            <label class="admin-label">Görsel Canlı Önizleme</label>
+            <div class="admin-img-preview-box" style="width: 100%; height: 180px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px; position: relative;">
               <img id="slide-preview-img" src="${initialUrl}" style="width: 100%; height: 100%; object-fit: cover; ${initialUrl ? '' : 'display: none;'}" alt="Slayt Önizleme" />
               <span id="slide-preview-placeholder" style="color: #666; font-size: 0.78rem; font-family: monospace; ${initialUrl ? 'display: none;' : ''}">// GÖRSEL ÖNİZLEMESİ</span>
             </div>
@@ -2813,18 +2767,16 @@ function openSlideModal(slideItem, rootContainer) {
 
     const rawUrl = urlInput.value.trim();
     const cleanedUrl = cleanImageUrl(rawUrl);
-    const title = modalOverlay.querySelector('#slide-caption').value.trim();
-    const description = modalOverlay.querySelector('#slide-desc').value.trim();
 
     try {
       if (isEdit) {
-        await updateSlide(slideItem.id, { image_url: cleanedUrl, url: cleanedUrl, title, caption: title, description });
+        await updateSlide(slideItem.id, { image_url: cleanedUrl, url: cleanedUrl, title: '', caption: '', description: '' });
         logActivity('SLAYT GÜNCELLENDİ', `Slayt güncellendi: ${slideItem.id}`);
         showAdminToast('✓ SLAYT GÖRSELİ GÜNCELLENDİ');
       } else {
-        await addSlide({ image_url: cleanedUrl, url: cleanedUrl, title, caption: title, description });
-        logActivity('SLAYT EKLENDİ', `Yeni slayt eklendi: "${title}"`);
-        showAdminToast('✓ YENİ SLAYT BAŞARIYLA OLUŞTURULDU');
+        await addSlide({ image_url: cleanedUrl, url: cleanedUrl, title: '', caption: '', description: '' });
+        logActivity('SLAYT EKLENDİ', 'Yeni slayt fotoğrafı eklendi.');
+        showAdminToast('✓ YENİ SLAYT BAŞARIYLA EKLENDİ');
       }
     } catch (err) {
       console.error('Slayt kaydetme hatası:', err);
@@ -2878,30 +2830,19 @@ function renderAdminHomePano(container) {
           <div class="admin-slide-cards-grid">
             ${panoItems.map((item, idx) => {
               const cleanedUrl = cleanPanoImageUrl(item.image_url || item.url || '');
-              const cardTitle = item.title || `SLOT #${idx + 1}`;
-              const cardDesc = item.description || '';
+              const locationText = item.location_text || item.meta_location || '';
               const slotNum = idx + 1;
 
               return `
                 <div class="admin-slide-card-editor" data-slot="${slotNum}" data-id="${item.id}">
                   <div class="admin-slide-card-header">
                     <div class="admin-slide-card-badge">
-                      <span>●</span> SLOT #${String(slotNum).padStart(2, '0')} // ${escapeHtml(item.badge || `ARCHIVE #${slotNum}`)}
+                      <span>●</span> PANO KART #${String(slotNum).padStart(2, '0')}
                     </div>
                     <div class="admin-slide-card-id">${item.id}</div>
                   </div>
 
                   <div class="admin-slide-card-body">
-                    <div class="admin-form-group">
-                      <label class="admin-label">Kart Başlığı (title)*</label>
-                      <input type="text" 
-                             class="admin-input pano-field-title" 
-                             data-slot="${slotNum}" 
-                             value="${escapeHtml(cardTitle)}" 
-                             placeholder="Örn: 01 // REHEARSAL & NOISE" 
-                             required />
-                    </div>
-
                     <div class="admin-form-group">
                       <label class="admin-label">Görsel Bağlantısı (image_url)*</label>
                       <input type="url" 
@@ -2916,7 +2857,7 @@ function renderAdminHomePano(container) {
                       <label class="admin-label">Görsel Canlı Önizleme</label>
                       <div class="admin-slide-preview-box" id="pano-preview-box-${slotNum}">
                         <img src="${escapeHtml(cleanedUrl)}" 
-                             alt="${escapeHtml(cardTitle)}" 
+                             alt="Pano Slot ${slotNum}" 
                              class="admin-slide-preview-img" 
                              id="pano-preview-img-${slotNum}" 
                              style="${cleanedUrl ? '' : 'display: none;'}" />
@@ -2927,11 +2868,14 @@ function renderAdminHomePano(container) {
                     </div>
 
                     <div class="admin-form-group">
-                      <label class="admin-label">Kart Açıklaması (description)</label>
-                      <textarea class="admin-input pano-field-desc" 
-                                data-slot="${slotNum}" 
-                                rows="3" 
-                                placeholder="Fotoğraf detay açıklaması...">${escapeHtml(cardDesc)}</textarea>
+                      <label class="admin-label">Alt Metin / Konum-Zaman Satırı (location_text)*</label>
+                      <input type="text" 
+                             class="admin-input pano-field-loc" 
+                             data-slot="${slotNum}" 
+                             value="${escapeHtml(locationText)}" 
+                             placeholder="Örn: BERLİN STÜDYO 03:42 AM" 
+                             required />
+                      <p class="admin-input-help" style="font-size: 0.75rem; color: #888; margin-top: 4px;">Fotoğrafın hemen altında görünecek dinamik konum/zaman yazısıdır.</p>
                     </div>
                   </div>
 
@@ -3008,20 +2952,13 @@ function renderAdminHomePano(container) {
       const slotNum = parseInt(btn.getAttribute('data-slot'), 10);
       const cardId = btn.getAttribute('data-id') || `pano_${slotNum}`;
 
-      const titleInput = container.querySelector(`.pano-field-title[data-slot="${slotNum}"]`);
       const urlInput = container.querySelector(`.pano-field-url[data-slot="${slotNum}"]`);
-      const descInput = container.querySelector(`.pano-field-desc[data-slot="${slotNum}"]`);
+      const locInput = container.querySelector(`.pano-field-loc[data-slot="${slotNum}"]`);
 
-      const title = titleInput ? titleInput.value.trim() : '';
       const rawUrl = urlInput ? urlInput.value.trim() : '';
-      const description = descInput ? descInput.value.trim() : '';
+      const locationText = locInput ? locInput.value.trim() : '';
       const cleanedUrl = cleanPanoImageUrl(rawUrl);
 
-      if (!title) {
-        showAdminToast('⚠ Kart başlığı boş olamaz.', 'danger');
-        if (titleInput) titleInput.focus();
-        return;
-      }
       if (!cleanedUrl) {
         showAdminToast('⚠ Görsel linki boş olamaz.', 'danger');
         if (urlInput) urlInput.focus();
@@ -3037,13 +2974,13 @@ function renderAdminHomePano(container) {
           id: cardId,
           slot_index: slotNum,
           display_order: slotNum,
-          title,
-          description,
+          location_text: locationText,
+          meta_location: locationText,
           image_url: cleanedUrl
         });
 
-        logActivity('PANO KARTI GÜNCELLENDİ', `Ana sayfa pano slot ${slotNum} ("${title}") kaydedildi.`);
-        showAdminToast(`✓ "${title}" BAŞARIYLA KAYDEDİLDİ`);
+        logActivity('PANO KARTI GÜNCELLENDİ', `Ana sayfa pano slot ${slotNum} ("${locationText || 'Görsel'}") kaydedildi.`);
+        showAdminToast(`✓ SLOT #${slotNum} BAŞARIYLA KAYDEDİLDİ`);
       } catch (err) {
         console.error('Pano kartı kaydetme hatası:', err);
         showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
@@ -3064,21 +3001,19 @@ function renderAdminHomePano(container) {
       try {
         const updatedList = panoItems.map((item, idx) => {
           const slotNum = idx + 1;
-          const titleInput = container.querySelector(`.pano-field-title[data-slot="${slotNum}"]`);
           const urlInput = container.querySelector(`.pano-field-url[data-slot="${slotNum}"]`);
-          const descInput = container.querySelector(`.pano-field-desc[data-slot="${slotNum}"]`);
+          const locInput = container.querySelector(`.pano-field-loc[data-slot="${slotNum}"]`);
 
-          const title = titleInput ? titleInput.value.trim() : item.title;
           const rawUrl = urlInput ? urlInput.value.trim() : (item.image_url || item.url || '');
-          const description = descInput ? descInput.value.trim() : item.description;
+          const locationText = locInput ? locInput.value.trim() : (item.location_text || item.meta_location || '');
 
           return {
             ...item,
             id: item.id || `pano_${slotNum}`,
             slot_index: slotNum,
             display_order: slotNum,
-            title,
-            description,
+            location_text: locationText,
+            meta_location: locationText,
             image_url: cleanPanoImageUrl(rawUrl)
           };
         });

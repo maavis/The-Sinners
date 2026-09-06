@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initHomeScrollEngine();
   initGalleryModalControls();
   initTourTopBarScrollHandler();
-  initEditorialZineDarkroomModal();
   initScrollToTopButton();
 
   window.addEventListener('tour-data-updated', renderPublicTourDates);
@@ -2054,12 +2053,7 @@ function setupArchiveControls() {
 
 /**
  * Render Public Editorial Zine Cards (Home Page Visual Archive)
- * Dedicated to Home Scroll Experience - completely separated from /about slides
- * Backed by Supabase home_pano table
- */
-let lastRenderedZineKey = '';
-
-export function renderPublicEditorialZineCards() {
+ * Dedicated to Home Scroll Experience - completely separatexport function renderPublicEditorialZineCards() {
   const container = document.getElementById('editorial-zine-grid') || document.querySelector('.editorial-zine-grid');
   if (!container) return;
 
@@ -2067,7 +2061,7 @@ export function renderPublicEditorialZineCards() {
   const displayItems = Array.isArray(panoItems) && panoItems.length > 0 ? panoItems : [];
 
   // Memoization guard (skips unneeded DOM re-renders)
-  const currentKey = displayItems.map(s => `${s.id}-${s.image_url || s.url}-${s.title}`).join('|');
+  const currentKey = displayItems.map(s => `${s.id}-${s.image_url || s.url}-${s.location_text || ''}`).join('|');
 
   if (lastRenderedZineKey === currentKey && container.children.length === displayItems.length) {
     return;
@@ -2077,29 +2071,15 @@ export function renderPublicEditorialZineCards() {
   container.innerHTML = displayItems.map((item, idx) => {
     const rawUrl = item.image_url || item.url || '';
     const imgUrl = cleanPanoImageUrl(rawUrl);
-    const title = item.title || `0${idx + 1} // ARCHIVE`;
-    const desc = item.description || '';
     const itemClass = item.item_class || (idx === 0 ? 'item-rehearsal' : idx === 1 ? 'item-live' : 'item-darkroom');
     const tapeClass = item.tape_class || (idx === 0 ? 'zine-tape-top-left' : idx === 1 ? 'zine-tape-top-right' : 'zine-tape-center');
     const redStamp = item.red_stamp || (idx === 1 ? '<div class="zine-red-stamp">DEVIL\'S GRIN // CONFIDENTIAL</div>' : '');
-    const film = item.film || (idx === 0 ? '35MM KODAK TRI-X 400' : idx === 1 ? 'ILFORD HP5 PLUS 400' : 'TYPE II CHROME / SILVER GELATIN');
-    const loc = item.loc || (idx === 0 ? '52.5200° N, 13.4050° E — STÜDYO B' : idx === 1 ? 'CANLI PERFORMANS // DEVIL\'S GRIN' : 'UNDERGROUND ANALOG LAB');
-    const date = item.date || (idx === 0 ? '03:42 AM // SIKIYÖNETİM SEANSI' : idx === 1 ? '22:15 PM // HEADLINE ŞOV' : 'FW26 // COVER SESSIONS');
-    const metaLocation = item.meta_location || (idx === 0 ? 'BERLİN STÜDYO 03:42 AM' : idx === 1 ? 'CANLI ŞOV // 180G VINYL ERA' : 'EDİTORYAL KOLEKSİYON ARŞİVİ');
-    const badge = item.badge || `ARCHIVE #0${idx + 1}`;
-    const techStamp = item.tech_stamp || (idx === 0 ? '[ KODAK TRI-X • EXP 18 ]' : idx === 1 ? '[ ILFORD HP5 • 1/60s ]' : '[ MADE OF SIN • MASTER PROOF ]');
+    const locationText = item.location_text || item.meta_location || `ARCHIVE #${idx + 1}`;
     const perfCount = item.perf_count || (idx === 2 ? 8 : 5);
     const perfs = Array(perfCount).fill('<span>■</span>').join('');
 
     return `
-      <article class="zine-item ${itemClass}" 
-               data-zine-idx="${idx + 1}" 
-               data-title="${escapeHtml(title)}" 
-               data-film="${escapeHtml(film)}" 
-               data-loc="${escapeHtml(loc)}" 
-               data-date="${escapeHtml(date)}" 
-               data-desc="${escapeHtml(desc)}" 
-               data-img="${escapeHtml(imgUrl)}">
+      <article class="zine-item ${itemClass}" data-zine-idx="${idx + 1}">
         <div class="zine-tape ${tapeClass}"></div>
         ${redStamp}
         <div class="zine-film-strip">
@@ -2107,7 +2087,7 @@ export function renderPublicEditorialZineCards() {
           <div class="zine-img-wrapper">
             <div class="zine-light-leak"></div>
             <img src="${escapeHtml(imgUrl)}" 
-                 alt="${escapeHtml(title)}" 
+                 alt="${escapeHtml(locationText)}" 
                  class="zine-img is-loaded" 
                  onload="this.classList.add('is-loaded')" 
                  loading="eager" 
@@ -2116,128 +2096,13 @@ export function renderPublicEditorialZineCards() {
           <div class="film-perf-row">${perfs}</div>
         </div>
         <div class="zine-card-footer">
-          <div class="zine-tech-stamp">${escapeHtml(techStamp)}</div>
-          <h3 class="zine-card-title">${escapeHtml(title)}</h3>
           <div class="zine-meta-row">
-            <span>${escapeHtml(metaLocation)}</span>
-            <span class="zine-badge-accent">${escapeHtml(badge)}</span>
+            <span class="zine-location-tag">${escapeHtml(locationText)}</span>
           </div>
         </div>
       </article>
     `;
   }).join('');
-}
-
-/**
- * Editorial Zine Darkroom Lightbox Controller
- */
-function initEditorialZineDarkroomModal() {
-  let modalBackdrop = document.getElementById('darkroom-lightbox-backdrop');
-  if (!modalBackdrop) {
-    modalBackdrop = document.createElement('div');
-    modalBackdrop.id = 'darkroom-lightbox-backdrop';
-    modalBackdrop.className = 'darkroom-modal-backdrop';
-    modalBackdrop.setAttribute('aria-hidden', 'true');
-    document.body.appendChild(modalBackdrop);
-  }
-
-  const openDarkroom = (item) => {
-    const title = item.getAttribute('data-title') || '';
-    const film = item.getAttribute('data-film') || '';
-    const loc = item.getAttribute('data-loc') || '';
-    const date = item.getAttribute('data-date') || '';
-    const desc = item.getAttribute('data-desc') || '';
-    const img = item.getAttribute('data-img') || '';
-
-    modalBackdrop.innerHTML = `
-      <div class="darkroom-modal-card">
-        <button type="button" class="darkroom-modal-close" id="darkroom-close-btn" aria-label="Kapat">&times;</button>
-        
-        <div class="darkroom-modal-img-col">
-          <img src="${escapeHtml(img)}" alt="${escapeHtml(title)}" class="darkroom-modal-img" />
-        </div>
-
-        <div class="darkroom-modal-info-col">
-          <div>
-            <div style="font-family: monospace; font-size: 0.7rem; color: #d92b2b; letter-spacing: 0.2em; margin-bottom: 0.75rem; text-transform: uppercase;">
-              // TOXIC • GÖRSEL ARŞİV
-            </div>
-            <h2 style="font-family: 'Bodoni Moda', 'Playfair Display', serif; font-size: 1.5rem; color: #fff; margin: 0 0 1rem 0; line-height: 1.2;">
-              ${escapeHtml(title)}
-            </h2>
-            <p style="font-size: 0.85rem; color: #aaa; line-height: 1.7; margin-bottom: 1.5rem;">
-              ${escapeHtml(desc)}
-            </p>
-
-            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.78rem; font-family: monospace;">
-              <div style="display: flex; justify-content: space-between; color: #777;">
-                <span>FİLM NEGATİFİ:</span>
-                <span style="color: #fff;">${escapeHtml(film)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; color: #777;">
-                <span>KONUM & MEKAN:</span>
-                <span style="color: #fff;">${escapeHtml(loc)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; color: #777;">
-                <span>ZAMAN DAMGASI:</span>
-                <span style="color: #fff;">${escapeHtml(date)}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; color: #777;">
-                <span>BASKI TÜRÜ:</span>
-                <span style="color: #d92b2b;">GÜMÜŞ JELATİN / ANALOG</span>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top: 2rem;">
-            <button type="button" class="admin-btn admin-btn-secondary" id="btn-close-darkroom-action" style="width: 100%; border-color: rgba(255,255,255,0.2); text-align: center;">
-              KAPAT & ARŞİVE DÖN
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    modalBackdrop.classList.add('is-open');
-    modalBackdrop.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-
-    const closeBtn = modalBackdrop.querySelector('#darkroom-close-btn');
-    const closeAction = modalBackdrop.querySelector('#btn-close-darkroom-action');
-    const closeIt = () => {
-      modalBackdrop.classList.remove('is-open');
-      modalBackdrop.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    };
-
-    if (closeBtn) closeBtn.onclick = closeIt;
-    if (closeAction) closeAction.onclick = closeIt;
-  };
-
-  // Delegated click listener on zine items
-  document.addEventListener('click', (e) => {
-    const item = e.target.closest('.zine-item');
-    if (item && item.closest('#home-archive')) {
-      e.preventDefault();
-      openDarkroom(item);
-    }
-  });
-
-  modalBackdrop.onclick = (e) => {
-    if (e.target === modalBackdrop) {
-      modalBackdrop.classList.remove('is-open');
-      modalBackdrop.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
-  };
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modalBackdrop.classList.contains('is-open')) {
-      modalBackdrop.classList.remove('is-open');
-      modalBackdrop.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-    }
-  });
 }
 
 /**

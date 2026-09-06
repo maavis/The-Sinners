@@ -43,15 +43,8 @@ export const DEFAULT_HOME_PANO_ITEMS = [
     id: 'pano_1',
     slot_index: 1,
     display_order: 1,
-    title: '01 // REHEARSAL & NOISE',
-    description: 'Ham gitar geribildirimi ve analog mikser distorsiyon ayarları sırasında kaydedilen 35mm kontakt baskı.',
+    location_text: 'BERLİN STÜDYO 03:42 AM',
     image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
-    film: '35MM KODAK TRI-X 400',
-    loc: '52.5200° N, 13.4050° E — STÜDYO B',
-    date: '03:42 AM // SIKIYÖNETİM SEANSI',
-    meta_location: 'BERLİN STÜDYO 03:42 AM',
-    badge: 'ARCHIVE #01',
-    tech_stamp: '[ KODAK TRI-X • EXP 18 ]',
     item_class: 'item-rehearsal',
     tape_class: 'zine-tape-top-left',
     red_stamp: '',
@@ -61,15 +54,8 @@ export const DEFAULT_HOME_PANO_ITEMS = [
     id: 'pano_2',
     slot_index: 2,
     display_order: 2,
-    title: '02 // STAGE CATHARSIS',
-    description: "Yoğun sis, kırmızı spot ışıkları ve 1/60s deklanşör hızıyla yakalanan ham sahne enerjisi.",
+    location_text: 'CANLI ŞOV // 180G VINYL ERA',
     image_url: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80',
-    film: 'ILFORD HP5 PLUS 400',
-    loc: 'CANLI PERFORMANS // DEVIL\'S GRIN',
-    date: '22:15 PM // HEADLINE ŞOV',
-    meta_location: 'CANLI ŞOV // 180G VINYL ERA',
-    badge: 'ARCHIVE #02',
-    tech_stamp: '[ ILFORD HP5 • 1/60s ]',
     item_class: 'item-live',
     tape_class: 'zine-tape-top-right',
     red_stamp: '<div class="zine-red-stamp">DEVIL\'S GRIN // CONFIDENTIAL</div>',
@@ -79,15 +65,8 @@ export const DEFAULT_HOME_PANO_ITEMS = [
     id: 'pano_3',
     slot_index: 3,
     display_order: 3,
-    title: '03 // DARKROOM TEXTURE',
-    description: 'Made of Sin albüm kapağı ve editoryal koleksiyon için karanlık odada elle basılan ilk prova negatifi.',
+    location_text: 'EDİTORYAL KOLEKSİYON ARŞİVİ',
     image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
-    film: 'TYPE II CHROME / SILVER GELATIN',
-    loc: 'UNDERGROUND ANALOG LAB',
-    date: 'FW26 // COVER SESSIONS',
-    meta_location: 'EDİTORYAL KOLEKSİYON ARŞİVİ',
-    badge: 'ARCHIVE #03',
-    tech_stamp: '[ MADE OF SIN • MASTER PROOF ]',
     item_class: 'item-darkroom',
     tape_class: 'zine-tape-center',
     red_stamp: '',
@@ -116,6 +95,7 @@ function mergeWithDefaultPano(items) {
   return DEFAULT_HOME_PANO_ITEMS.map((def, idx) => {
     const found = items.find(it => String(it.id) === String(def.id) || Number(it.slot_index || it.display_order) === (idx + 1)) || items[idx];
     if (found) {
+      const locText = found.location_text !== undefined ? found.location_text : (found.meta_location || def.location_text);
       return {
         ...def,
         ...found,
@@ -123,8 +103,7 @@ function mergeWithDefaultPano(items) {
         slot_index: def.slot_index,
         display_order: def.display_order,
         image_url: cleanPanoImageUrl(found.image_url || found.url || def.image_url),
-        title: found.title || found.caption || def.title,
-        description: found.description !== undefined ? found.description : def.description
+        location_text: locText
       };
     }
     return { ...def };
@@ -182,13 +161,14 @@ export async function upsertHomePanoItem(itemData) {
   const slotIdx = Number(itemData.slot_index || itemData.display_order || 1);
   const id = itemData.id || `pano_${slotIdx}`;
   const cleanedUrl = cleanPanoImageUrl(itemData.image_url || itemData.url || '');
+  const locText = itemData.location_text !== undefined ? itemData.location_text : (itemData.meta_location || '');
 
   const payload = {
     id,
     slot_index: slotIdx,
     display_order: slotIdx,
-    title: itemData.title || '',
-    description: itemData.description || '',
+    location_text: locText,
+    meta_location: locText,
     image_url: cleanedUrl,
     updated_at: new Date().toISOString()
   };
@@ -242,12 +222,13 @@ export async function saveAllHomePanoItems(items) {
     const slotIdx = idx + 1;
     const id = item.id || `pano_${slotIdx}`;
     const cleanedUrl = cleanPanoImageUrl(item.image_url || item.url || '');
+    const locText = item.location_text !== undefined ? item.location_text : (item.meta_location || '');
     return {
       id,
       slot_index: slotIdx,
       display_order: slotIdx,
-      title: item.title || '',
-      description: item.description || '',
+      location_text: locText,
+      meta_location: locText,
       image_url: cleanedUrl,
       updated_at: new Date().toISOString()
     };
