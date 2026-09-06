@@ -2892,8 +2892,8 @@ function renderAdminHomePano(container) {
                              class="admin-input pano-field-badge" 
                              data-slot="${slotNum}" 
                              value="${escapeHtml(item.badge_text || '')}" 
-                             placeholder="Örn: DEVIL'S GRIN // CONFIDENTIAL" />
-                      <p class="admin-input-help" style="font-size: 0.75rem; color: #888; margin-top: 4px;">Fotoğrafın sağ/sol üst köşesinde kırmızı çerçeveli damga etiketi olarak görünür (Boş bırakılırsa damga görünmez).</p>
+                             placeholder="${slotNum % 3 === 1 ? 'Örn: LIMITED ARCHIVE // VOL.01' : slotNum % 3 === 2 ? 'Örn: DEVIL\'S GRIN // CONFIDENTIAL' : 'Örn: DARKROOM // RAW PRINT'}" />
+                      <p class="admin-input-help" style="font-size: 0.75rem; color: #888; margin-top: 4px;">Kart sırasına göre otomatik monokromatik tema (1: Siyah, 2: Beyaz, 3: Füme) ve asimetrik açıyla organik uygulanır (Boş bırakılırsa damga görünmez).</p>
                     </div>
                   </div>
 

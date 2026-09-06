@@ -44,7 +44,7 @@ export const DEFAULT_HOME_PANO_ITEMS = [
     slot_index: 1,
     display_order: 1,
     location_text: 'BERLİN STÜDYO 03:42 AM',
-    badge_text: '',
+    badge_text: 'LIMITED ARCHIVE // VOL.01',
     image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=80',
     item_class: 'item-rehearsal',
     tape_class: 'zine-tape-top-left',
@@ -60,7 +60,7 @@ export const DEFAULT_HOME_PANO_ITEMS = [
     image_url: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80',
     item_class: 'item-live',
     tape_class: 'zine-tape-top-right',
-    red_stamp: '<div class="zine-red-stamp">DEVIL\'S GRIN // CONFIDENTIAL</div>',
+    red_stamp: "DEVIL'S GRIN // CONFIDENTIAL",
     perf_count: 5
   },
   {
@@ -68,7 +68,7 @@ export const DEFAULT_HOME_PANO_ITEMS = [
     slot_index: 3,
     display_order: 3,
     location_text: 'EDİTORYAL KOLEKSİYON ARŞİVİ',
-    badge_text: '',
+    badge_text: 'DARKROOM // RAW PRINT',
     image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80',
     item_class: 'item-darkroom',
     tape_class: 'zine-tape-center',

@@ -2065,7 +2065,8 @@ export function renderPublicEditorialZineCards() {
 
     // Dynamic badge/stamp text (from DB badge_text, fallback to default text)
     const badgeText = (item.badge_text !== undefined ? item.badge_text : (item.red_stamp ? "DEVIL'S GRIN // CONFIDENTIAL" : '')).trim();
-    const redStamp = badgeText ? `<div class="zine-red-stamp">${escapeHtml(badgeText)}</div>` : '';
+    const variantIndex = (idx % 3) + 1;
+    const badgeStamp = badgeText ? `<div class="zine-stamp zine-stamp-v${variantIndex} zine-red-stamp" data-variant="${variantIndex}">${escapeHtml(badgeText)}</div>` : '';
 
     const locationText = item.location_text || item.meta_location || `ARCHIVE #${idx + 1}`;
     const perfCount = item.perf_count || (idx === 2 ? 8 : 5);
@@ -2074,7 +2075,7 @@ export function renderPublicEditorialZineCards() {
     return `
       <article class="zine-item ${itemClass}" data-zine-idx="${idx + 1}">
         <div class="zine-tape ${tapeClass}"></div>
-        ${redStamp}
+        ${badgeStamp}
         <div class="zine-film-strip">
           <div class="film-perf-row">${perfs}</div>
           <div class="zine-img-wrapper">

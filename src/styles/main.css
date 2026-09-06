@@ -3317,23 +3317,95 @@ html.route-about .about-hamburger-btn {
   width: 120px;
 }
 
-/* Red Rubber Stamp */
+/* Monochromatic Asymmetric Zine Stamp / Tape Badges (Red color completely removed) */
+.zine-stamp,
 .zine-red-stamp {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
   z-index: 6;
-  border: 1.5px solid rgba(217, 43, 43, 0.85);
-  color: #d92b2b;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  padding: 0.25rem 0.6rem;
+  letter-spacing: 0.14em;
+  padding: 0.28rem 0.65rem;
   text-transform: uppercase;
-  transform: rotate(-8deg) translateZ(0);
-  background: rgba(20, 10, 10, 0.88);
   pointer-events: none;
+  white-space: nowrap;
+  box-sizing: border-box;
+  user-select: none;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* 1. Kart (index % 3 == 0): Siyah zemin, beyaz keskin yazı | Sol üst köşe, hafif yukarı taşan açı */
+.zine-stamp-v1,
+.editorial-zine-grid .zine-item:nth-child(3n + 1) .zine-stamp,
+.editorial-zine-grid .zine-item:nth-child(3n + 1) .zine-red-stamp {
+  top: -8px;
+  left: 16px;
+  right: auto;
+  bottom: auto;
+  transform: rotate(-5deg) translateZ(0);
+  background: #000000;
+  color: #ffffff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+}
+
+/* 2. Kart (index % 3 == 1): Beyaz / kırık beyaz zemin, siyah kontrast yazı | Sağ üst köşe, içeri doğru bant açısı */
+.zine-stamp-v2,
+.editorial-zine-grid .zine-item:nth-child(3n + 2) .zine-stamp,
+.editorial-zine-grid .zine-item:nth-child(3n + 2) .zine-red-stamp {
+  top: 12px;
+  right: 20px;
+  left: auto;
+  bottom: auto;
+  transform: rotate(4deg) translateZ(0);
+  background: #f4f4f4;
+  color: #000000;
+  font-weight: 800;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+}
+
+/* 3. Kart (index % 3 == 2): Yarı saydam füme/gri bant zemin, beyaz damga yazı | Sol alt köşe */
+.zine-stamp-v3,
+.editorial-zine-grid .zine-item:nth-child(3n + 3) .zine-stamp,
+.editorial-zine-grid .zine-item:nth-child(3n + 3) .zine-red-stamp {
+  top: auto;
+  bottom: 18px;
+  left: 24px;
+  right: auto;
+  transform: rotate(-2deg) translateZ(0);
+  background: rgba(24, 24, 27, 0.9);
+  color: #d4d4d8;
+  font-weight: 700;
+  border: 1px solid rgba(113, 113, 122, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* On 3rd card, ensure location tag aligns cleanly alongside the bottom-left stamp */
+.editorial-zine-grid .zine-item:nth-child(3n + 3) .zine-meta-row {
+  justify-content: flex-end;
+}
+
+/* Micro-interaction hover transitions */
+.zine-item:hover .zine-stamp-v1,
+.editorial-zine-grid .zine-item:nth-child(3n + 1):hover .zine-stamp,
+.editorial-zine-grid .zine-item:nth-child(3n + 1):hover .zine-red-stamp {
+  transform: rotate(-3deg) scale(1.05) translateZ(0);
+}
+
+.zine-item:hover .zine-stamp-v2,
+.editorial-zine-grid .zine-item:nth-child(3n + 2):hover .zine-stamp,
+.editorial-zine-grid .zine-item:nth-child(3n + 2):hover .zine-red-stamp {
+  transform: rotate(6deg) scale(1.05) translateZ(0);
+}
+
+.zine-item:hover .zine-stamp-v3,
+.editorial-zine-grid .zine-item:nth-child(3n + 3):hover .zine-stamp,
+.editorial-zine-grid .zine-item:nth-child(3n + 3):hover .zine-red-stamp {
+  transform: rotate(-1deg) scale(1.05) translateZ(0);
 }
 
 /* Film Negative Strip & Sprockets */
