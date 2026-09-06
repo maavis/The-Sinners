@@ -62,15 +62,19 @@ export async function fetchMusicFromSupabase() {
             trackOrder: t.track_order || 1
           }));
 
+        const rawArtist = (r.artist || 'TOXIC').trim();
+        const artist = rawArtist.toUpperCase().includes('SINNERS') ? 'TOXIC' : rawArtist;
+        const description = (r.description || '').replace(/The Sinners/gi, 'Toxic');
+
         return {
           id: r.id,
           title: r.title,
-          artist: r.artist || 'TOXIC',
+          artist: artist,
           year: r.year || '',
           releaseDate: r.release_date || '',
           type: r.type || 'SINGLE',
           coverUrl: r.cover_url || '',
-          description: r.description || '',
+          description: description,
           status: r.status || 'PUBLISHED',
           featured: !!r.featured,
           spotifyUrl: r.spotify_url || '',
@@ -322,11 +326,16 @@ export function getAllTracks() {
   const tracks = [];
   inMemoryReleases.forEach(rel => {
     if (rel.status === 'DRAFT') return;
+    const rawRelArtist = (rel.artist || 'TOXIC').trim();
+    const relArtist = rawRelArtist.toUpperCase().includes('SINNERS') ? 'TOXIC' : rawRelArtist;
     (rel.tracks || []).forEach(trk => {
+      const rawTrkArtist = (trk.artist || relArtist).trim();
+      const trkArtist = rawTrkArtist.toUpperCase().includes('SINNERS') ? 'TOXIC' : rawTrkArtist;
       tracks.push({
         ...trk,
         coverUrl: rel.coverUrl,
-        artist: rel.artist,
+        artist: trkArtist,
+        releaseTitle: rel.title,
         year: rel.year,
         type: rel.type
       });

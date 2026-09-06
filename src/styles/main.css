@@ -825,15 +825,23 @@ html.route-store-teaser .site-container {
 
 /* Logo Target / Container */
 .logo-container {
-  margin-top: 0;
+  margin-top: -1.5rem;
   padding-top: 0;
-  transform: translateY(-1.8rem);
+  transform: translateY(-3.8rem);
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   opacity: 1 !important;
   visibility: visible !important;
+  transition: transform 0.3s ease;
+}
+
+@media (max-width: 850px) {
+  .logo-container {
+    margin-top: -0.75rem;
+    transform: translateY(-2.4rem);
+  }
 }
 
 .band-logo-text {

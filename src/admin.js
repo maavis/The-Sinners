@@ -1002,7 +1002,7 @@ function renderAdminReleaseRows(releases) {
         </td>
         <td>
           <div class="admin-row-title">${escapeHtml(rel.title)} ${rel.featured ? '<span class="admin-badge badge-warning">ÖNE ÇIKAN</span>' : ''}</div>
-          <div class="admin-sub-text">${escapeHtml(rel.artist || 'TOXIC')}</div>
+          <div class="admin-sub-text">${escapeHtml((rel.artist && rel.artist.toUpperCase().includes('SINNERS')) ? 'TOXIC' : (rel.artist || 'TOXIC'))}</div>
         </td>
         <td><span class="admin-badge badge-subtle">${rel.type}</span></td>
         <td>${escapeHtml(rel.releaseDate || rel.year)}</td>
@@ -1052,7 +1052,7 @@ function openReleaseModal(releaseToEdit, rootContainer) {
 
                 <div class="admin-form-group">
                   <label class="admin-label">Sanatçı Adı*</label>
-                  <input type="text" id="rel-artist" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.artist) : 'TOXIC'}" required />
+                  <input type="text" id="rel-artist" class="admin-input" value="${releaseToEdit ? escapeHtml((releaseToEdit.artist && releaseToEdit.artist.toUpperCase().includes('SINNERS')) ? 'TOXIC' : (releaseToEdit.artist || 'TOXIC')) : 'TOXIC'}" required />
                 </div>
 
                 <div class="admin-form-group">
@@ -3295,6 +3295,12 @@ function renderAdminSettings(container) {
             <input type="text" id="set-artist" class="admin-input" value="${escapeHtml(settings.artistName)}" required />
           </div>
 
+          <div class="admin-form-group" style="margin-top: 1.25rem; padding: 1.25rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px;">
+            <label class="admin-label" style="color: #ffffff; font-weight: 700;">Anasayfa Hero / Albüm Başlığı (MADE OF SIN)</label>
+            <input type="text" id="set-hero-title" class="admin-input" value="${escapeHtml(settings.heroAlbumTitle || 'MADE OF SIN')}" required placeholder="Örn: MADE OF SIN" />
+            <p class="admin-hint" style="margin-top: 0.5rem; font-size: 0.8rem; color: #888892; line-height: 1.4;">Anasayfada Toxic logosunun altında ve açılış (intro) ekranında yer alan büyük başlık metnini belirler.</p>
+          </div>
+
           <div class="admin-form-group" style="margin-top: 1.25rem;">
             <label class="admin-label">İletişim & Booking E-Postası</label>
             <input type="email" id="set-email" class="admin-input" value="${escapeHtml(settings.contactEmail)}" required />
@@ -3327,6 +3333,7 @@ function renderAdminSettings(container) {
       const updated = {
         siteTitle: container.querySelector('#set-title').value,
         artistName: container.querySelector('#set-artist').value,
+        heroAlbumTitle: container.querySelector('#set-hero-title').value.trim() || 'MADE OF SIN',
         contactEmail: container.querySelector('#set-email').value,
         maintenanceMode: container.querySelector('#set-maintenance').checked
       };

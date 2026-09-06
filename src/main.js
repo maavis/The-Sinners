@@ -7,6 +7,7 @@ import { getJournalEntries } from './data/updates.js';
 import { getAboutData, cleanImageUrl, fetchAboutDataFromSupabase } from './data/about.js';
 import { getHeaderSocialLinks, getHeaderSocialIconHTML, getFooterSocialIconHTML, getSocialLinks, fetchSocialLinksFromSupabase } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
+import { getSettings } from './data/settings.js';
 import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase, isMusicDataLoading } from './data/music.js';
 import { initMotionSystem, triggerPageTransition, observeNewElements, revealSectionContent } from './motion.js';
 
@@ -56,6 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('socials-data-updated', renderFooterSocialLinks);
   window.addEventListener('music-data-updated', renderPublicMusicPage);
   window.addEventListener('footer-data-updated', renderPublicFooters);
+  window.addEventListener('settings-updated', () => {
+    initHero();
+    const s = getSettings();
+    if (s.siteTitle) document.title = s.siteTitle;
+  });
 });
 
 function initCinematicIntro() {
@@ -138,6 +144,7 @@ function initHero() {
   const heroBgTarget = document.getElementById('hero-bg-target');
   const albumSubtitleTarget = document.getElementById('album-subtitle-target');
   const albumTitleTarget = document.getElementById('album-title-target');
+  const introPhrase = document.querySelector('.intro-phrase-wrap p');
 
   if (siteConfig.hero.heroBgUrl && heroBgTarget) {
     heroBgTarget.style.backgroundImage = `url('${siteConfig.hero.heroBgUrl}')`;
@@ -149,8 +156,17 @@ function initHero() {
     albumSubtitleTarget.textContent = siteConfig.hero.albumSubtitle;
   }
 
-  if (siteConfig.hero.albumTitle && albumTitleTarget) {
-    albumTitleTarget.textContent = siteConfig.hero.albumTitle;
+  const settings = getSettings();
+  const currentHeroTitle = settings.heroAlbumTitle || siteConfig.hero.albumTitle || 'MADE OF SIN';
+
+  if (albumTitleTarget) {
+    albumTitleTarget.textContent = currentHeroTitle;
+  }
+  if (introPhrase) {
+    introPhrase.textContent = currentHeroTitle;
+  }
+  if (settings.siteTitle) {
+    document.title = settings.siteTitle;
   }
 }
 
@@ -1615,7 +1631,8 @@ function playTrack(track, queue = []) {
   const imgEl = document.getElementById('player-img');
 
   if (titleEl) titleEl.textContent = track.title;
-  if (artistEl) artistEl.textContent = `${track.artist || 'TOXIC'} — ${track.releaseTitle || 'SINGLE'}`;
+  const trackArtist = (track.artist && track.artist.toUpperCase().includes('SINNERS')) ? 'Toxic' : (track.artist || 'Toxic');
+  if (artistEl) artistEl.textContent = `${trackArtist} — ${track.releaseTitle || 'SINGLE'}`;
   if (imgEl && track.coverUrl) imgEl.src = track.coverUrl;
 
   const favs = getFavoriteTrackIds();
@@ -1753,7 +1770,8 @@ function renderPublicMusicPage() {
       heroCoverEl.alt = `${mainRelease.title} Cover Artwork`;
     }
     if (heroMetaEl) heroMetaEl.textContent = `${mainRelease.year} // ${mainRelease.type} ${mainRelease.releaseDate ? '// ' + mainRelease.releaseDate : ''}`;
-    if (heroArtistEl) heroArtistEl.textContent = mainRelease.artist || 'TOXIC';
+    const artistDisplay = (mainRelease.artist && mainRelease.artist.toUpperCase().includes('SINNERS')) ? 'Toxic' : (mainRelease.artist || 'Toxic');
+    if (heroArtistEl) heroArtistEl.textContent = artistDisplay;
     
     const trackCount = (mainRelease.tracks || []).length;
     if (tracklistHeaderLabelEl) {
@@ -1953,7 +1971,7 @@ function renderMusicArchiveList() {
           </button>
           <div class="archive-title-meta-col">
             <span class="archive-track-title">${escapeHtml(trk.title)}</span>
-            <span class="archive-release-sub">${escapeHtml(trk.artist)} — ${escapeHtml(trk.releaseTitle)}</span>
+            <span class="archive-release-sub">${escapeHtml((trk.artist && trk.artist.toUpperCase().includes('SINNERS')) ? 'Toxic' : (trk.artist || 'Toxic'))} — ${escapeHtml(trk.releaseTitle)}</span>
           </div>
         </div>
 
