@@ -1156,6 +1156,8 @@ function renderPublicAboutPage() {
     bioContainer.innerHTML = data.bioParagraphs.map(para => `
       <p class="about-bio-paragraph" data-motion="text-reveal">${escapeHtml(para)}</p>
     `).join('');
+  } else {
+    bioContainer.innerHTML = '';
   }
 
   observeNewElements(document.getElementById('about'));

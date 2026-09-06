@@ -2672,6 +2672,17 @@ function renderAdminAbout(container) {
       }
     };
   }
+
+  const bioTextarea = container.querySelector('#about-bio-textarea');
+  const onBioDataUpdated = () => {
+    if (bioTextarea && (!bioTextarea.value.trim() || document.activeElement !== bioTextarea)) {
+      const current = getAboutData();
+      if (current.bioParagraphs && current.bioParagraphs.length > 0) {
+        bioTextarea.value = current.bioParagraphs.join('\n\n');
+      }
+    }
+  };
+  window.addEventListener('about-data-updated', onBioDataUpdated, { once: true });
 }
 
 function openSlideModal(slideItem, rootContainer) {

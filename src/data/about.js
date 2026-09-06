@@ -75,12 +75,25 @@ export const DEFAULT_ABOUT_SLIDES = [
 ];
 
 // In-memory cache for instant UI rendering
+const BIO_STORAGE_KEY = 'site_bio';
+
+function getInitialBioParagraphs() {
+  try {
+    const cached = localStorage.getItem(BIO_STORAGE_KEY);
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.filter(Boolean);
+      }
+    }
+  } catch (e) {
+    console.warn('site_bio cache okunamadı:', e);
+  }
+  return [];
+}
+
 let inMemorySlides = [...DEFAULT_ABOUT_SLIDES];
-let inMemoryBioParagraphs = [
-  "Toxic is an alternative / gothic rock entity existing at the intersection of raw sonic aggression, atmospheric textures, and uncompromising artistic expression.",
-  "Formed in shadow, the band merges heavy distorted baritone instrumentation with hypnotic editorial visual aesthetics. Every record, performance, and visual transmission is created as a complete atmospheric experience.",
-  "Truth spoken clearly without compromise. No news, just noise."
-];
+let inMemoryBioParagraphs = getInitialBioParagraphs();
 
 /**
  * Returns current in-memory about data
@@ -164,7 +177,12 @@ export async function fetchAboutDataFromSupabase() {
     if (settingsError) {
       console.error('Supabase About Bio Hatası:', settingsError);
     } else if (settingsData && Array.isArray(settingsData.bio_paragraphs) && settingsData.bio_paragraphs.length > 0) {
-      inMemoryBioParagraphs = settingsData.bio_paragraphs;
+      inMemoryBioParagraphs = settingsData.bio_paragraphs.filter(Boolean);
+      try {
+        localStorage.setItem(BIO_STORAGE_KEY, JSON.stringify(inMemoryBioParagraphs));
+      } catch (e) {
+        console.warn('site_bio cache kaydedilemedi:', e);
+      }
     }
 
     window.dispatchEvent(new CustomEvent('about-data-updated'));
@@ -371,6 +389,11 @@ export async function updateBioParagraphs(paragraphs) {
   const cleanParagraphs = Array.isArray(paragraphs) ? paragraphs.filter(Boolean) : [];
 
   inMemoryBioParagraphs = cleanParagraphs;
+  try {
+    localStorage.setItem(BIO_STORAGE_KEY, JSON.stringify(cleanParagraphs));
+  } catch (e) {
+    console.warn('site_bio update kaydedilemedi:', e);
+  }
   window.dispatchEvent(new CustomEvent('about-data-updated'));
 
   if (!supabase) {
@@ -398,7 +421,10 @@ export async function updateBioParagraphs(paragraphs) {
     console.log('Supabase Bio Kaydedildi:', data);
 
     if (data && Array.isArray(data.bio_paragraphs)) {
-      inMemoryBioParagraphs = data.bio_paragraphs;
+      inMemoryBioParagraphs = data.bio_paragraphs.filter(Boolean);
+      try {
+        localStorage.setItem(BIO_STORAGE_KEY, JSON.stringify(inMemoryBioParagraphs));
+      } catch (e) {}
       window.dispatchEvent(new CustomEvent('about-data-updated'));
     }
 
