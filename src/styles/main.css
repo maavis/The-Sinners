@@ -3248,6 +3248,25 @@ html.route-about .about-hamburger-btn {
   margin-top: 1rem;
 }
 
+/* Adaptive Layout when cards are deleted (< 3 cards) */
+.editorial-zine-grid[data-count="1"] .zine-item {
+  grid-column: 3 / span 8 !important;
+  max-width: 680px;
+  margin: 0 auto;
+  transform: rotate(-0.5deg) translateZ(0) !important;
+}
+
+.editorial-zine-grid[data-count="2"] .zine-item:first-child {
+  grid-column: 1 / span 6 !important;
+  transform: rotate(-1.5deg) translateZ(0) !important;
+}
+
+.editorial-zine-grid[data-count="2"] .zine-item:last-child {
+  grid-column: 7 / span 6 !important;
+  transform: rotate(1.2deg) translateY(-8px) translateZ(0) !important;
+  margin-top: 0;
+}
+
 /* Washi Tape Accent */
 .zine-tape {
   position: absolute;

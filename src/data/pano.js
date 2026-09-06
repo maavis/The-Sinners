@@ -92,28 +92,32 @@ function getInitialPanoItems() {
 }
 
 function mergeWithDefaultPano(items) {
-  return DEFAULT_HOME_PANO_ITEMS.map((def, idx) => {
-    const found = items.find(it => String(it.id) === String(def.id) || Number(it.slot_index || it.display_order) === (idx + 1)) || items[idx];
-    if (found) {
-      const locText = found.location_text !== undefined ? found.location_text : (found.meta_location || def.location_text);
-      return {
-        ...def,
-        ...found,
-        id: def.id,
-        slot_index: def.slot_index,
-        display_order: def.display_order,
-        image_url: cleanPanoImageUrl(found.image_url || found.url || def.image_url),
-        location_text: locText
-      };
-    }
-    return { ...def };
+  if (!Array.isArray(items) || items.length === 0) {
+    return [...DEFAULT_HOME_PANO_ITEMS];
+  }
+
+  return items.map((item, idx) => {
+    const slotIdx = Number(item.slot_index || item.display_order || (idx + 1));
+    const def = DEFAULT_HOME_PANO_ITEMS.find(d => String(d.id) === String(item.id) || d.slot_index === slotIdx) 
+      || DEFAULT_HOME_PANO_ITEMS[idx % DEFAULT_HOME_PANO_ITEMS.length];
+    
+    const locText = item.location_text !== undefined ? item.location_text : (item.meta_location || def.location_text);
+    return {
+      ...def,
+      ...item,
+      id: item.id || def.id || `pano_${idx + 1}`,
+      slot_index: slotIdx,
+      display_order: slotIdx,
+      image_url: cleanPanoImageUrl(item.image_url || item.url || def.image_url),
+      location_text: locText
+    };
   });
 }
 
 let inMemoryPanoItems = getInitialPanoItems();
 
 /**
- * Returns current in-memory home pano items (guaranteed 3 items)
+ * Returns current in-memory home pano items
  */
 export function getHomePanoItems() {
   return inMemoryPanoItems;
@@ -139,8 +143,12 @@ export async function fetchHomePanoFromSupabase() {
       return inMemoryPanoItems;
     }
 
-    if (Array.isArray(data) && data.length > 0) {
-      inMemoryPanoItems = mergeWithDefaultPano(data);
+    if (Array.isArray(data)) {
+      if (data.length > 0) {
+        inMemoryPanoItems = mergeWithDefaultPano(data);
+      } else {
+        inMemoryPanoItems = [...DEFAULT_HOME_PANO_ITEMS];
+      }
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(inMemoryPanoItems));
       } catch (e) {}
@@ -151,6 +159,41 @@ export async function fetchHomePanoFromSupabase() {
   } catch (err) {
     console.warn('Supabase home_pano fetch error:', err);
     return inMemoryPanoItems;
+  }
+}
+
+/**
+ * Deletes a single pano card from Supabase home_pano table and local state
+ */
+export async function deleteHomePanoItem(id) {
+  if (!supabase) {
+    const err = new Error('Supabase client is not initialized.');
+    console.error('Supabase Home Pano Silme Hatası:', err);
+    throw err;
+  }
+
+  try {
+    const { error } = await supabase
+      .from('home_pano')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Supabase Home Pano Silme Hatası:', error);
+      throw error;
+    }
+
+    console.log('Supabase Home Pano Silindi:', id);
+
+    inMemoryPanoItems = inMemoryPanoItems.filter(item => String(item.id) !== String(id));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(inMemoryPanoItems));
+    } catch (e) {}
+    window.dispatchEvent(new CustomEvent('home-pano-updated'));
+    return inMemoryPanoItems;
+  } catch (err) {
+    console.error('Supabase Home Pano Silme Hatası:', err);
+    throw err;
   }
 }
 

@@ -45,6 +45,7 @@ import {
   getHomePanoItems,
   upsertHomePanoItem,
   saveAllHomePanoItems,
+  deleteHomePanoItem,
   cleanPanoImageUrl,
   fetchHomePanoFromSupabase
 } from './data/pano.js';
@@ -2814,17 +2815,17 @@ function renderAdminHomePano(container) {
             <p class="admin-page-desc">Ana sayfadaki yatay scroll içindeki 3'lü estetik polaroid/bantlı kolaj kartlarını düzenleyin.</p>
           </div>
           <div>
-            <button id="btn-save-all-pano" class="admin-btn admin-btn-primary">💾 3 KARTI BİRDEN KAYDET</button>
+            <button id="btn-save-all-pano" class="admin-btn admin-btn-primary">💾 TÜM KARTLARI KAYDET</button>
           </div>
         </div>
 
         <div class="admin-content-section">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-            <h2 class="admin-section-subtitle" style="margin-bottom: 0;">KOLAJ YERLEŞİM KARTLARI (3 SABİT SLOT)</h2>
+            <h2 class="admin-section-subtitle" style="margin-bottom: 0;">KOLAJ YERLEŞİM KARTLARI (${panoItems.length} KART)</h2>
             <span style="font-family: monospace; font-size: 0.72rem; color: #888;">Supabase: home_pano tablosu ile bağımsız senkron</span>
           </div>
           <p class="admin-input-help" style="margin-bottom: 1.25rem;">
-            Bu kartlar ana sayfanın görsel arşiv panosunda asimetrik editoryal düzende (Rehearsal, Live Stage ve Darkroom) sergilenir. /about slaytlarından tamamen bağımsızdır ve asla bozulmaz.
+            Bu kartlar ana sayfanın görsel arşiv panosunda asimetrik editoryal düzende sergilenir. /about slaytlarından tamamen bağımsızdır ve silinen kartlar ana sayfada anında güncellenir.
           </p>
 
           <div class="admin-slide-cards-grid">
@@ -2879,13 +2880,20 @@ function renderAdminHomePano(container) {
                     </div>
                   </div>
 
-                  <div class="admin-slide-card-footer" style="margin-top: 0.75rem;">
+                  <div class="admin-slide-card-footer" style="display: flex; gap: 0.65rem; margin-top: 0.75rem;">
                     <button type="button" 
                             class="admin-btn admin-btn-primary btn-save-single-pano" 
                             data-slot="${slotNum}" 
                             data-id="${item.id}"
-                            style="width: 100%;">
-                      💾 BU KARTI KAYDET
+                            style="flex: 1; margin-top: 0;">
+                      💾 KAYDET
+                    </button>
+                    <button type="button" 
+                            class="admin-btn btn-delete-single-pano" 
+                            data-slot="${slotNum}" 
+                            data-id="${item.id}"
+                            style="background-color: #d92b2b; color: #ffffff; border: 1px solid #d92b2b; padding: 0.6rem 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                      🗑️ KARTI SİL
                     </button>
                   </div>
                 </div>
@@ -2900,7 +2908,7 @@ function renderAdminHomePano(container) {
   bindAdminNavEvents(container);
 
   // Real-time image preview
-  panoItems.forEach((_, idx) => {
+  panoItems.forEach((item, idx) => {
     const slotNum = idx + 1;
     const urlInput = container.querySelector(`.pano-field-url[data-slot="${slotNum}"]`);
     const previewImg = container.querySelector(`#pano-preview-img-${slotNum}`);
@@ -2943,6 +2951,36 @@ function renderAdminHomePano(container) {
         previewEmpty.style.display = 'none';
       };
     }
+  });
+
+  // Delete single pano card handler
+  const singleDeleteBtns = container.querySelectorAll('.btn-delete-single-pano');
+  singleDeleteBtns.forEach(btn => {
+    btn.onclick = async () => {
+      const cardId = btn.getAttribute('data-id');
+      const slotNum = btn.getAttribute('data-slot');
+
+      if (!confirm('Bu pano kartını silmek istediğinize emin misiniz?')) {
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ SİLİNİYOR...';
+
+      try {
+        await deleteHomePanoItem(cardId);
+        logActivity('PANO KARTI SİLİNDİ', `Ana sayfa pano kartı (${cardId}) silindi.`);
+        showAdminToast('✓ PANO KARTI BAŞARIYLA SİLİNDİ');
+
+        // Anında arayüzü yeniden render et
+        renderAdminHomePano(container);
+      } catch (err) {
+        console.error('Pano kartı silme hatası:', err);
+        showAdminToast('⚠ Silme hatası: ' + (err.message || 'Supabase hatası'), 'danger');
+        btn.disabled = false;
+        btn.textContent = '🗑️ KARTI SİL';
+      }
+    };
   });
 
   // Single card save handler
@@ -3026,7 +3064,7 @@ function renderAdminHomePano(container) {
         showAdminToast('⚠ Kayıt hatası: ' + (err.message || 'Supabase hatası'), 'danger');
       } finally {
         saveAllBtn.disabled = false;
-        saveAllBtn.textContent = '💾 3 KARTI BİRDEN KAYDET';
+        saveAllBtn.textContent = '💾 TÜM KARTLARI KAYDET';
       }
     };
   }

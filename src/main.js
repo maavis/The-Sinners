@@ -2059,10 +2059,12 @@ export function renderPublicEditorialZineCards() {
   if (!container) return;
 
   const panoItems = getHomePanoItems();
-  const displayItems = (Array.isArray(panoItems) && panoItems.length >= 3) ? panoItems : DEFAULT_HOME_PANO_ITEMS;
+  const displayItems = (Array.isArray(panoItems) && panoItems.length > 0) ? panoItems : DEFAULT_HOME_PANO_ITEMS;
+
+  container.setAttribute('data-count', String(displayItems.length));
 
   // Memoization guard (skips unneeded DOM re-renders)
-  const currentKey = displayItems.map(s => `${s.id}-${s.image_url || s.url}-${s.location_text || ''}`).join('|');
+  const currentKey = `${displayItems.length}|` + displayItems.map(s => `${s.id}-${s.image_url || s.url}-${s.location_text || ''}`).join('|');
 
   if (lastRenderedZineKey === currentKey && container.children.length === displayItems.length) {
     return;
