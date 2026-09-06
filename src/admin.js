@@ -218,7 +218,7 @@ function renderAdminLogin(container) {
     <div class="admin-login-wrapper login-screen" id="login-screen">
       <div class="admin-login-card login-modal">
         <div class="admin-login-logo-wrap">
-          <img src="https://i.imgur.com/s1hSAjx.png" alt="TOXIC" class="admin-login-logo" />
+          <img src="https://i.imgur.com/RjfqAhE.png" alt="TOXIC" class="admin-login-logo" />
         </div>
         <div class="admin-login-title">TOXIC YÖNETİM PANELİ</div>
         <div class="admin-login-sub">ADMİN GİRİŞİ</div>

@@ -13,7 +13,7 @@ export const siteConfig = {
   logo: {
     useImageLogo: true,
     textLogo: "TOXIC",
-    imageUrl: "https://i.imgur.com/s1hSAjx.png",
+    imageUrl: "https://i.imgur.com/RjfqAhE.png",
     altText: "TOXIC Official Band Logo"
   },
 
