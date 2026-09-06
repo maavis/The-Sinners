@@ -22,18 +22,18 @@
     (function() {
       document.documentElement.classList.add('motion-pending', 'is-app-initializing');
       var p = window.location.pathname;
-      var routeClass = '';
-      if (p === '/tour' || p.startsWith('/tour/')) routeClass = 'route-tour';
-      else if (p === '/news' || p.startsWith('/news/') || p === '/updates' || p.startsWith('/updates/')) routeClass = 'route-updates';
-      else if (p === '/about' || p.startsWith('/about/')) routeClass = 'route-about';
-      else if (p === '/music' || p.startsWith('/music/')) routeClass = 'route-music';
-      else if (p === '/merch' || p.startsWith('/merch/')) routeClass = 'route-merch';
-      else if (p === '/privacy' || p.startsWith('/privacy/')) routeClass = 'route-privacy';
-      else if (p === '/terms' || p.startsWith('/terms/')) routeClass = 'route-terms';
-      else if (p === '/admin' || p.startsWith('/admin/')) routeClass = 'route-admin';
-      else routeClass = 'route-home';
+      var routeClasses = [];
+      if (p === '/tour' || p.startsWith('/tour/')) routeClasses.push('route-tour');
+      else if (p === '/news' || p.startsWith('/news/') || p === '/updates' || p.startsWith('/updates/')) routeClasses.push('route-updates', 'route-news');
+      else if (p === '/about' || p.startsWith('/about/')) routeClasses.push('route-about');
+      else if (p === '/music' || p.startsWith('/music/')) routeClasses.push('route-music');
+      else if (p === '/merch' || p.startsWith('/merch/')) routeClasses.push('route-merch');
+      else if (p === '/privacy' || p.startsWith('/privacy/')) routeClasses.push('route-privacy');
+      else if (p === '/terms' || p.startsWith('/terms/')) routeClasses.push('route-terms');
+      else if (p === '/admin' || p.startsWith('/admin/')) routeClasses.push('route-admin');
+      else routeClasses.push('route-home');
 
-      if (routeClass) document.documentElement.classList.add(routeClass);
+      if (routeClasses.length) document.documentElement.classList.add(...routeClasses);
 
       try {
         var introSeen = sessionStorage.getItem('parrhesia_intro_seen');

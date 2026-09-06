@@ -142,16 +142,24 @@ html.route-tour #tour {
 }
 
 html.route-updates #hero,
+html.route-news #hero,
 html.route-updates #home-scroll-sections,
+html.route-news #home-scroll-sections,
 html.route-updates #merch,
+html.route-news #merch,
 html.route-updates #video,
+html.route-news #video,
 html.route-updates #tour,
+html.route-news #tour,
 html.route-updates #about,
-html.route-updates #music {
+html.route-news #about,
+html.route-updates #music,
+html.route-news #music {
   display: none !important;
 }
 
-html.route-updates #updates {
+html.route-updates #updates,
+html.route-news #updates {
   display: flex !important;
 }
 
@@ -1563,14 +1571,17 @@ html.route-store-teaser .site-container {
    11.8. PUBLIC SITE UPD//T3 EDITORIAL TRANSMISSION ARCHIVE (WARM PAPER THEME)
    -------------------------------------------------------------------------- */
 html.route-updates,
+html.route-news,
 html.route-tour {
   background-color: #f5f3ee !important;
   color: #111113 !important;
 }
 
 html.route-updates body,
+html.route-news body,
 html.route-tour body,
 html.route-updates .main-content,
+html.route-news .main-content,
 html.route-tour .main-content {
   background-color: #f5f3ee !important;
   color: #111113 !important;
@@ -1581,7 +1592,9 @@ html.route-tour .main-content {
 
 /* Light Navigation Override for /news AND /tour routes */
 html.route-updates .left-sidebar,
+html.route-news .left-sidebar,
 html.route-updates .sidebar-navigation,
+html.route-news .sidebar-navigation,
 html.route-tour .left-sidebar,
 html.route-tour .sidebar-navigation {
   background-color: #f5f3ee !important;
@@ -1589,13 +1602,21 @@ html.route-tour .sidebar-navigation {
 }
 
 html.route-updates .left-sidebar .nav-label,
+html.route-news .left-sidebar .nav-label,
 html.route-updates .left-sidebar .nav-link,
+html.route-news .left-sidebar .nav-link,
 html.route-updates .left-sidebar .nav-index,
+html.route-news .left-sidebar .nav-index,
 html.route-updates .brand-logo,
+html.route-news .brand-logo,
 html.route-updates .logo-text,
+html.route-news .logo-text,
 html.route-updates .desktop-top-bar,
+html.route-news .desktop-top-bar,
 html.route-updates .top-bar-right a,
+html.route-news .top-bar-right a,
 html.route-updates .top-bar-right svg,
+html.route-news .top-bar-right svg,
 html.route-tour .left-sidebar .nav-label,
 html.route-tour .left-sidebar .nav-link,
 html.route-tour .left-sidebar .nav-index,
@@ -1611,6 +1632,7 @@ html.route-tour .top-bar-right svg {
 }
 
 html.route-updates .left-sidebar .nav-link.active,
+html.route-news .left-sidebar .nav-link.active,
 html.route-tour .left-sidebar .nav-link.active {
   background-color: rgba(17, 17, 19, 0.08) !important;
   border-color: rgba(17, 17, 19, 0.2) !important;
@@ -1618,11 +1640,13 @@ html.route-tour .left-sidebar .nav-link.active {
 }
 
 html.route-updates .left-sidebar .nav-link.active .nav-label,
+html.route-news .left-sidebar .nav-link.active .nav-label,
 html.route-tour .left-sidebar .nav-link.active .nav-label {
   color: #111113 !important;
 }
 
 html.route-updates .left-sidebar .nav-link:hover .nav-label,
+html.route-news .left-sidebar .nav-link:hover .nav-label,
 html.route-tour .left-sidebar .nav-link:hover .nav-label {
   color: #d92b2b !important;
 }
@@ -1632,6 +1656,7 @@ html.route-tour .left-sidebar .nav-link:hover .nav-label {
   html.route-tour .left-sidebar,
   html.route-music .left-sidebar,
   html.route-updates .left-sidebar,
+  html.route-news .left-sidebar,
   html.route-privacy .left-sidebar,
   html.route-terms .left-sidebar {
     position: fixed !important;
@@ -5216,25 +5241,32 @@ html.route-music .site-global-footer,
   display: none !important;
 }
 
-/* LIGHT PAGES (/tour, /news) - PURE BLACK TEXT & ICONS & BORDER */
+/* NEWS & UPDATES ROUTE (/news, /updates) - HIDE FOOTER EXPLICITLY */
 html.route-updates .site-global-footer,
+html.route-news .site-global-footer,
+html.route-updates footer,
+html.route-news footer,
+.route-updates footer,
+.route-news footer,
+.route-updates .site-global-footer,
+.route-news .site-global-footer,
+#updates .site-global-footer,
+#updates footer,
+section#updates.active ~ footer {
+  display: none !important;
+}
+
+/* LIGHT PAGES (/tour) - PURE BLACK TEXT & ICONS & BORDER */
 html.route-tour .site-global-footer {
   border-top: 1px solid rgba(0, 0, 0, 0.12) !important;
 }
 
-html.route-updates .site-global-footer,
 html.route-tour .site-global-footer,
-html.route-updates .site-global-footer .footer-replica-line1,
 html.route-tour .site-global-footer .footer-replica-line1,
-html.route-updates .site-global-footer .footer-replica-line2,
 html.route-tour .site-global-footer .footer-replica-line2,
-html.route-updates .site-global-footer .footer-replica-line4,
 html.route-tour .site-global-footer .footer-replica-line4,
-html.route-updates .site-global-footer .footer-replica-line5,
 html.route-tour .site-global-footer .footer-replica-line5,
-html.route-updates .site-global-footer .replica-legal-link,
 html.route-tour .site-global-footer .replica-legal-link,
-html.route-updates .site-global-footer .replica-icon-link,
 html.route-tour .site-global-footer .replica-icon-link {
   color: #000000 !important;
   fill: #000000 !important;

@@ -353,7 +353,7 @@ function initClientRouter() {
   function handleRoute(path) {
     if (path === '/admin' || path.startsWith('/admin/')) {
       document.documentElement.classList.add('route-admin');
-      document.documentElement.classList.remove('route-tour', 'route-updates', 'route-about', 'route-music', 'route-privacy', 'route-terms');
+      document.documentElement.classList.remove('route-tour', 'route-updates', 'route-news', 'route-about', 'route-music', 'route-privacy', 'route-terms');
       handleAdminRouting();
       return;
     }
@@ -397,7 +397,7 @@ function initClientRouter() {
 
     const executeRouteSwap = () => {
       // Cleanly remove all route state classes from root element
-      document.documentElement.classList.remove('route-home', 'route-tour', 'route-updates', 'route-about', 'route-music', 'route-privacy', 'route-terms', 'route-merch', 'route-store-teaser');
+      document.documentElement.classList.remove('route-home', 'route-tour', 'route-updates', 'route-news', 'route-about', 'route-music', 'route-privacy', 'route-terms', 'route-merch', 'route-store-teaser');
 
       const storeRoot = document.getElementById('merch-store-root');
       if (storeRoot && normalizedPath !== '/merch-preview' && normalizedPath !== '/store-vault') {
@@ -465,7 +465,7 @@ function initClientRouter() {
         window.scrollTo({ top: 0, behavior: 'instant' });
         renderPublicTourDates();
       } else if (normalizedPath === '/news' || normalizedPath === '/updates') {
-        document.documentElement.classList.add('route-updates');
+        document.documentElement.classList.add('route-updates', 'route-news');
         stopAboutSlideshow();
         stopHeroGhostTextEngine();
         stopHomeScrollEngine();
@@ -1296,6 +1296,7 @@ function startHeroGhostTextEngine() {
   function spawnGhostTextCycle() {
     const isHome = !document.documentElement.classList.contains('route-tour') &&
                    !document.documentElement.classList.contains('route-updates') &&
+                   !document.documentElement.classList.contains('route-news') &&
                    !document.documentElement.classList.contains('route-about') &&
                    !document.documentElement.classList.contains('route-admin');
 
@@ -1433,6 +1434,7 @@ function initHomeScrollEngine() {
     const isHome = !document.documentElement.classList.contains('route-about') &&
                    !document.documentElement.classList.contains('route-tour') &&
                    !document.documentElement.classList.contains('route-updates') &&
+                   !document.documentElement.classList.contains('route-news') &&
                    !document.documentElement.classList.contains('route-music') &&
                    !document.documentElement.classList.contains('route-admin');
 
