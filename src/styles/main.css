@@ -5690,14 +5690,55 @@ html.skip-intro #cinematic-intro-overlay,
   }
 }
 
-/* Mobile Adjustments for Click to Enter Intro */
+/* Mobile Adjustments for Click to Enter Intro & GPU Optimization */
 @media (max-width: 768px) {
+  .cinematic-intro-overlay {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: #0c0c0d !important;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .intro-backdrop {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .intro-stage,
+  .intro-phrase-wrap,
+  .intro-logo-wrap,
+  .intro-enter-btn {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: opacity, transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .noise-overlay {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
   .intro-phrase-wrap p {
     font-size: 0.95rem;
     letter-spacing: 0.2em;
   }
   .intro-logo-img {
     width: 220px;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: opacity;
   }
   .intro-enter-btn {
     font-size: 0.8rem;

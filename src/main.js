@@ -14,12 +14,15 @@ import './styles/main.css';
 import './styles/admin.css';
 import './styles/store.css';
 
+// Initialize intro immediately without waiting for DOMContentLoaded or async fetch
+initCinematicIntro();
+
 document.addEventListener('DOMContentLoaded', () => {
+  initCinematicIntro();
   fetchProductsFromSupabase();
   fetchMusicFromSupabase();
   fetchAboutDataFromSupabase();
   fetchSocialLinksFromSupabase();
-  initCinematicIntro();
   initLogo();
   initHero();
   initNavigation();
@@ -72,6 +75,9 @@ function initCinematicIntro() {
     overlay.style.display = 'none';
     return;
   }
+
+  if (overlay.dataset.introInit === 'true') return;
+  overlay.dataset.introInit = 'true';
 
   let isEntering = false;
 
