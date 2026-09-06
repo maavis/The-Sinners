@@ -48,17 +48,14 @@ export function mountMerchStore(container) {
  */
 function renderStoreSkeleton(container) {
   container.innerHTML = `
-    <!-- Gothic Occult Scanlines & Fog Background Atmosphere -->
     <div class="store-scanlines-overlay" aria-hidden="true"></div>
     <div class="gothic-store-ambient-fog" aria-hidden="true">
       <div class="gothic-fog-1"></div>
       <div class="gothic-fog-2"></div>
     </div>
 
-    <!-- 1. GOTHIC STORE HEADER & NAVIGATION -->
     <header id="store-header" class="store-header">
       <div class="store-header-inner">
-        <!-- Brand Group -->
         <div class="store-brand-group">
           <a href="/merch" class="store-brand-logo" data-store-route="/merch">
             <span class="gothic-sigil-icon">☠</span>
@@ -71,7 +68,6 @@ function renderStoreSkeleton(container) {
           </a>
         </div>
 
-        <!-- Center Category Nav Links (Desktop) -->
         <ul class="store-nav-menu">
           <li><a class="store-nav-link ${activeCategory === 'ALL' ? 'active' : ''}" data-cat="ALL"><span class="gothic-nav-cross">†</span> TÜMÜ</a></li>
           <li><a class="store-nav-link ${activeCategory === 'T-SHIRTS' ? 'active' : ''}" data-cat="T-SHIRTS">TİŞÖRT</a></li>
@@ -81,7 +77,6 @@ function renderStoreSkeleton(container) {
           <li><a class="store-nav-link ${activeCategory === 'ACCESSORIES' ? 'active' : ''}" data-cat="ACCESSORIES">AKSESUAR</a></li>
         </ul>
 
-        <!-- Right Utilities Group -->
         <div class="store-actions-group">
           <button id="store-search-trigger" class="store-action-btn" title="Ürün Ara">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -97,7 +92,6 @@ function renderStoreSkeleton(container) {
       </div>
     </header>
 
-    <!-- 2. HIGH-ANIMATION DUAL GOTHIC MARQUEE TICKERS -->
     <div class="gothic-marquee-container" aria-hidden="true">
       <div class="gothic-marquee-row gothic-marquee-forward">
         <div class="gothic-marquee-track">
@@ -113,7 +107,6 @@ function renderStoreSkeleton(container) {
       </div>
     </div>
 
-    <!-- 3. GOTHIC MASTHEAD & VAULT TITLE SECTION -->
     <section class="gothic-masthead-section">
       <div class="gothic-masthead-backdrop"></div>
       <div class="gothic-masthead-content">
@@ -129,7 +122,6 @@ function renderStoreSkeleton(container) {
       </div>
     </section>
 
-    <!-- 4. GOTHIC BRUTALIST CATEGORY FILTER BAR -->
     <nav class="store-filter-bar" id="store-vitrine">
       <div class="store-filter-inner">
         <div class="store-categories-list">
@@ -147,14 +139,11 @@ function renderStoreSkeleton(container) {
       </div>
     </nav>
 
-    <!-- 5. DYNAMIC PRODUCT VITRINE GRID -->
     <main class="store-main-layout">
       <div id="store-products-feed" class="store-product-grid">
-        <!-- Dynamically rendered product cards with 3D and glitch states -->
       </div>
     </main>
 
-    <!-- 6. HIGH-IMPACT LIMITED DROP GOTHIC BANNER -->
     <section class="store-drop-banner">
       <div class="store-drop-card gothic-drop-card">
         <div class="store-drop-content">
@@ -177,7 +166,6 @@ function renderStoreSkeleton(container) {
       </div>
     </section>
 
-    <!-- 7. INTERACTIVE PHYSICAL MEDIA COLLECTOR'S SECTION -->
     <section class="store-media-section">
       <div class="store-media-header">
         <div>
@@ -187,7 +175,6 @@ function renderStoreSkeleton(container) {
         </div>
       </div>
       <div class="store-media-grid">
-        <!-- Vinyl Interactive Spotlight -->
         <div class="store-media-card gothic-media-card vinyl-card-interactive">
           <div class="vinyl-sleeve-wrapper">
             <img src="https://images.unsplash.com/photo-1539185441755-769473a23570?auto=format&fit=crop&w=800&q=80" alt="Plak Kapak" class="store-media-thumb vinyl-sleeve-img" />
@@ -210,7 +197,6 @@ function renderStoreSkeleton(container) {
           </div>
         </div>
         
-        <!-- Cassette Interactive Spotlight -->
         <div class="store-media-card gothic-media-card cassette-card-interactive">
           <div class="cassette-sleeve-wrapper">
             <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=800&q=80" alt="Kaset" class="store-media-thumb" />
@@ -235,7 +221,6 @@ function renderStoreSkeleton(container) {
       </div>
     </section>
 
-    <!-- 8. GOTHIC STORE FOOTER -->
     <footer class="store-footer">
       <div class="store-footer-inner">
         <div>
@@ -283,7 +268,6 @@ function renderStoreSkeleton(container) {
       </div>
     </footer>
 
-    <!-- 9. GOTHIC SLIDE-OVER CART DRAWER -->
     <div id="store-cart-drawer-backdrop" class="store-cart-drawer-backdrop" aria-hidden="true">
       <aside class="store-cart-drawer gothic-cart-drawer">
         <div class="store-cart-header">
@@ -295,16 +279,13 @@ function renderStoreSkeleton(container) {
         </div>
 
         <div id="store-cart-items-feed" class="store-cart-items-list">
-          <!-- Cart items rendered here -->
         </div>
 
         <div id="store-cart-footer-area" class="store-cart-footer">
-          <!-- Cart totals and Checkout button -->
         </div>
       </aside>
     </div>
 
-    <!-- 10. FULLSCREEN GOTHIC SEARCH OVERLAY -->
     <div id="store-search-overlay" class="store-search-overlay" aria-hidden="true">
       <div class="store-search-header">
         <h2 class="store-search-heading gothic-serif-title">MAĞAZA ARŞİVİNDE ARAYIN</h2>
@@ -320,18 +301,14 @@ function renderStoreSkeleton(container) {
         />
       </div>
       <div id="store-search-results-feed" class="store-search-results-area">
-        <!-- Live search results -->
       </div>
     </div>
 
-    <!-- 11. PRODUCT DETAIL MODAL / QUICK VIEW -->
     <div id="store-detail-modal-backdrop" class="store-modal-backdrop" aria-hidden="true">
       <div id="store-detail-modal-content" class="store-detail-modal gothic-detail-modal">
-        <!-- Rendered detail view -->
       </div>
     </div>
 
-    <!-- 12. CHECKOUT PROTOTYPE CONFIRMATION MODAL -->
     <div id="store-checkout-modal-backdrop" class="store-checkout-modal-backdrop" aria-hidden="true">
       <div class="store-checkout-modal gothic-checkout-modal">
         <div class="store-checkout-icon">✓</div>
@@ -344,7 +321,6 @@ function renderStoreSkeleton(container) {
       </div>
     </div>
 
-    <!-- TOAST CONTAINER -->
     <div id="store-toast-container" class="store-toast-container"></div>
   `;
 }
@@ -433,7 +409,6 @@ function renderProductGrid() {
 
     return `
       <article class="store-card gothic-product-card" data-product-id="${prod.id}">
-        <!-- Media / Images with Glitch & 3D Layer -->
         <div class="store-card-media btn-open-detail" data-product-id="${prod.id}">
           <div class="gothic-card-corner tl"></div>
           <div class="gothic-card-corner tr"></div>
@@ -446,7 +421,6 @@ function renderProductGrid() {
           <div class="gothic-scanline-glitch-layer" aria-hidden="true"></div>
         </div>
 
-        <!-- Info Area -->
         <div class="store-card-info">
           <div class="gothic-card-cat-row">
             <span class="store-card-category">${prod.category}</span>
@@ -459,14 +433,12 @@ function renderProductGrid() {
             <span class="gothic-stock-meta">${prod.stockLabel}</span>
           </div>
 
-          <!-- Size Selector -->
           ${prod.sizes && prod.sizes.length > 1 ? `
             <div class="store-card-sizes">
               ${sizesHTML}
             </div>
           ` : '<div style="margin-bottom: 0.5rem;"></div>'}
 
-          <!-- Quick Add Button with Blood Glow -->
           <div class="store-card-actions">
             <button 
               type="button" 
@@ -536,7 +508,6 @@ function openProductDetailModal(productId) {
   modalContainer.innerHTML = `
     <button id="store-detail-close-btn" class="store-modal-close-btn" aria-label="Ürün Detayını Kapat">&times;</button>
     
-    <!-- LEFT: GALLERY -->
     <div class="store-detail-gallery">
       <div class="detail-main-img-wrap">
         <img id="detail-active-img" src="${galleryImages[0]}" alt="${escapeHtml(prod.name)}" class="store-detail-main-img" />
@@ -554,7 +525,6 @@ function openProductDetailModal(productId) {
       ` : ''}
     </div>
 
-    <!-- RIGHT: INFORMATION & PURCHASING -->
     <div class="store-detail-info">
       <span class="store-detail-season">${prod.season || 'SONBAHAR/KIŞ 2026 // VAULT EDITION'}</span>
       <h1 class="store-detail-title gothic-serif-title">${escapeHtml(prod.name)}</h1>
@@ -562,7 +532,6 @@ function openProductDetailModal(productId) {
       
       <p class="store-detail-short-desc">${escapeHtml(prod.description)}</p>
 
-      <!-- SIZES -->
       <div class="store-detail-size-section">
         <div class="store-section-label">
           <span>BEDEN SEÇİN</span>
@@ -582,7 +551,6 @@ function openProductDetailModal(productId) {
         </div>
       </div>
 
-      <!-- QUANTITY & ADD TO CART -->
       <div class="store-detail-purchase-row">
         <div class="store-qty-stepper">
           <button type="button" id="detail-qty-minus" class="store-qty-btn">−</button>
@@ -600,7 +568,6 @@ function openProductDetailModal(productId) {
         </button>
       </div>
 
-      <!-- ACCORDION INFORMATION -->
       <div class="store-accordions">
         <div class="store-accordion-item is-open">
           <button type="button" class="store-accordion-header">

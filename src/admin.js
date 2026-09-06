@@ -2363,7 +2363,6 @@ function renderAdminAbout(container) {
           </div>
         </div>
 
-        <!-- 1. DYNAMIC ARŞİV KARTLARI / SLAYTLAR (01, 02, 03) -->
         <div class="admin-content-section">
           <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
             <h2 class="admin-section-subtitle" style="margin-bottom: 0;">ARŞİV KARTLARI & SLAYTLAR (${slides.length} KART)</h2>
@@ -2390,7 +2389,6 @@ function renderAdminAbout(container) {
                   </div>
 
                   <div class="admin-slide-card-body">
-                    <!-- Başlık (title) -->
                     <div class="admin-form-group">
                       <label class="admin-label">Kart Başlığı (title)*</label>
                       <input type="text" 
@@ -2401,7 +2399,6 @@ function renderAdminAbout(container) {
                              required />
                     </div>
 
-                    <!-- Görsel Linki (image_url) -->
                     <div class="admin-form-group">
                       <label class="admin-label">Görsel Linki (image_url)*</label>
                       <input type="url" 
@@ -2412,7 +2409,6 @@ function renderAdminAbout(container) {
                              required />
                     </div>
 
-                    <!-- Canlı Görsel Önizleme -->
                     <div class="admin-form-group">
                       <label class="admin-label">Görsel Canlı Önizleme</label>
                       <div class="admin-slide-preview-box" id="preview-box-${slide.id}">
@@ -2427,7 +2423,6 @@ function renderAdminAbout(container) {
                       </div>
                     </div>
 
-                    <!-- Açıklama (description) -->
                     <div class="admin-form-group">
                       <label class="admin-label">Kart Açıklaması (description)</label>
                       <textarea class="admin-input slide-field-desc" 
@@ -2452,7 +2447,6 @@ function renderAdminAbout(container) {
           </div>
         </div>
 
-        <!-- 2. BİYOGRAFİ METNİ / PARAGRAFLAR -->
         <div class="admin-content-section" style="margin-top: 3rem;">
           <h2 class="admin-section-subtitle">BİYOGRAFİ METNİ / PARAGRAFLAR</h2>
           <form id="about-bio-form">

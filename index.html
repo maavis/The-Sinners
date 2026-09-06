@@ -6,12 +6,10 @@
   <title>The Sinners - Made of Sin</title>
   <meta name="description" content="THE SINNERS Official Website - Gothic / Alternative Rock">
   
-  <!-- Google Fonts: UnifrakturMaguntia (Gothic Blackletter), Cinzel, Bodoni Moda & Playfair Display (Editorial High-Contrast Serif), Pirata One -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700;900&family=Pirata+One&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=UnifrakturMaguntia&family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
   
-  <!-- Preload Critical Custom Gothic Fonts to eliminate any FOUT/flash of plain font -->
   <link rel="preload" href="/fonts/Terror%20From%20Midnight.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="preload" href="/fonts/bloodcrow.ttf" as="font" type="font/ttf" crossorigin>
 
@@ -20,7 +18,6 @@
   <link rel="stylesheet" href="/src/styles/store.css">
   <script src="https://player.vimeo.com/api/player.js"></script>
 
-  <!-- Immediate Route Check & Nav Hydration before First Paint to Eliminate Hard Refresh Flash -->
   <script>
     (function() {
       document.documentElement.classList.add('motion-pending', 'is-app-initializing');
@@ -63,15 +60,12 @@
 </head>
 <body class="gothic-theme">
 
-  <!-- THE SINNERS SOFT EDITORIAL BRAND INTRO OVERLAY -->
   <div id="cinematic-intro-overlay" class="cinematic-intro-overlay" aria-hidden="true">
     <div class="intro-backdrop"></div>
     <div class="intro-stage">
-      <!-- PHASE 1: EDITORIAL STATEMENT TEXT -->
       <div class="intro-phrase-wrap">
         <p>MADE OF SIN</p>
       </div>
-      <!-- PHASE 2: BRAND LOGO & CLICK TO ENTER REVEAL -->
       <div class="intro-logo-wrap">
         <img src="https://i.imgur.com/s1hSAjx.png" alt="THE SINNERS" class="intro-logo-img" />
         <div class="intro-enter-btn">
@@ -81,10 +75,8 @@
     </div>
   </div>
 
-  <!-- Optimized Lightweight Grain Texture Overlay -->
   <div class="noise-overlay" aria-hidden="true"></div>
 
-  <!-- MOBILE HEADER BAR (Visible only on smaller screens) -->
   <header class="mobile-header">
     <button id="mobile-menu-toggle" class="mobile-menu-btn" aria-label="Toggle Menu">
       <span class="hamburger-line"></span>
@@ -96,16 +88,12 @@
     </div>
   </header>
 
-  <!-- MOBILE DRAWER BACKDROP -->
   <div id="mobile-drawer-backdrop" class="mobile-drawer-backdrop" aria-hidden="true"></div>
 
-  <!-- SITE WRAPPER -->
   <div class="site-container">
 
-    <!-- 2. SOL MENÜ / FIXED LEFT NAVIGATION -->
     <aside id="sidebar-navigation" class="left-sidebar">
       <div class="sidebar-header">
-        <!-- Close button removed per user request for permanent static navigation -->
       </div>
 
       <nav class="sidebar-nav">
@@ -205,25 +193,19 @@
       </nav>
 
       <div class="sidebar-footer">
-        <!-- USD button removed per user request -->
       </div>
     </aside>
 
-    <!-- MAIN CONTENT AREA -->
     <main class="main-content">
 
-      <!-- TOP RIGHT UTILITY BAR (DESKTOP) -->
       <div class="desktop-top-bar">
         <div class="top-bar-right">
           <div id="desktop-social-links" class="header-social-links"></div>
         </div>
       </div>
 
-      <!-- 1. HERO SECTION -->
       <section id="hero" class="hero-section">
-        <!-- Background Overlay / Replaceable Image Box with Vimeo Background Video & Grey Smoke Effect -->
         <div class="hero-bg-container" id="hero-bg-target">
-          <!-- BACKGROUND GHOST TEXT LAYER (Home Page Background Texture) -->
           <div id="hero-ghost-layer" class="hero-ghost-layer" aria-hidden="true"></div>
           <div class="hero-bg-placeholder">
             <div class="vimeo-bg-wrapper">
@@ -242,17 +224,14 @@
             <div class="placeholder-texture"></div>
             <div class="placeholder-vignette"></div>
           </div>
-          <!-- HERO BOTTOM DISSOLVE TO BLACK GRADIENT -->
           <div class="hero-bottom-dissolve"></div>
         </div>
 
         <div class="hero-content">
-          <!-- LOGO AREA (Image Logo from Imgur) -->
           <div class="logo-container" id="logo-target" data-motion="image">
             <img src="https://i.imgur.com/s1hSAjx.png" alt="PARRHESIA Logo" class="band-logo-img" />
           </div>
 
-          <!-- HERO CENTER ALBUM ANNOUNCEMENT -->
           <div class="hero-announcement" data-motion="reveal">
             <h2 class="album-title-text" id="album-title-target">
               MADE OF SIN
@@ -261,10 +240,8 @@
         </div>
       </section>
 
-      <!-- HOME PAGE EXTENDED CINEMATIC SCROLL EXPERIENCE -->
       <div id="home-scroll-sections" class="home-scroll-container">
         
-        <!-- LIVING MOVING DARK GREY SMOKE ATMOSPHERE BACKGROUND -->
         <div class="home-smoke-bg" aria-hidden="true">
           <iframe 
             src="https://player.vimeo.com/video/1217276679?background=1&autoplay=1&muted=1&loop=1&controls=0&autopause=0" 
@@ -279,7 +256,6 @@
           <div class="home-smoke-layer home-smoke-3"></div>
         </div>
         
-        <!-- 4. MUSIC / LATEST MATERIAL (LATEST RELEASE) -->
         <section id="home-music" class="home-section home-music-section music-stagger-section">
           <div class="music-editorial-layout">
             <div class="music-visual-col music-reveal-photo">
@@ -296,7 +272,6 @@
               <span class="music-meta-tag music-reveal-item" style="--stagger-delay: 0.1s;">// LATEST RELEASE</span>
               <h2 class="music-title music-reveal-item" style="--stagger-delay: 0.28s;">9MM HATE</h2>
               
-              <!-- ALBUM TRACKLIST -->
               <div class="album-tracklist-container music-reveal-item" style="--stagger-delay: 0.42s;">
                 <ul class="album-tracklist-grid">
                   <li><span class="track-dot"></span> <span class="track-name">Parrhesia!</span></li>
@@ -327,33 +302,26 @@
           </div>
         </section>
 
-        <!-- 5. VISUAL ARCHIVE / EDITORIAL COLLAGE -->
         <section id="home-archive" class="home-section home-archive-section reveal-on-scroll">
-          <!-- Background Ambient Watermark -->
           <div class="archive-bg-watermark" aria-hidden="true">THE SINNERS THE SINNERS THE SINNERS THE SINNERS THE SINNERS</div>
 
-          <!-- ZINE MOODBOARD CANVAS -->
           <div class="editorial-zine-canvas">
-            <!-- Canvas Grid Overlay Marks -->
             <div class="zine-crosshair top-left">+</div>
             <div class="zine-crosshair top-right">+</div>
             <div class="zine-crosshair bottom-left">+</div>
             <div class="zine-crosshair bottom-right">+</div>
 
             <div class="editorial-zine-grid" id="editorial-zine-grid">
-              <!-- Dynamically populated via Supabase about_slides -->
             </div>
           </div>
         </section>
 
-        <!-- FOOTER FOR HOME PAGE -->
         <footer class="site-global-footer">
           <div class="footer-replica-wrapper">
             <div class="footer-replica-line1">© DEVIL'S GRIN RECORDS 2026</div>
             <div class="footer-replica-line2">MADE OF SIN</div>
 
             <div class="footer-replica-icons-row">
-              <!-- Dynamically populated from Supabase social_links table -->
             </div>
 
             <div class="footer-replica-line4">© 2026 The Sinners</div>
@@ -369,35 +337,28 @@
 
       </div>
 
-      <!-- DEDICATED TOUR PAGE SECTION (Visible strictly on /tour route) -->
       <section id="tour" class="tour-section hidden">
         <div class="tour-grain-overlay" aria-hidden="true"></div>
         <div class="tour-content-area">
           
-          <!-- UPCOMING SHOWS -->
           <div class="tour-upcoming-section">
             <h3 class="tour-section-title" data-motion="headline">// GELECEK ETKİNLİKLER</h3>
             <div id="public-upcoming-events" class="tour-events-list" data-motion="stagger">
-              <!-- Dynamically rendered via JS -->
             </div>
           </div>
 
-          <!-- PAST SHOWS -->
           <div class="tour-past-section">
             <h3 class="tour-past-title" data-motion="headline">// GEÇMİŞ ETKİNLİKLER</h3>
             <div id="public-past-events" class="tour-events-list" data-motion="stagger">
-              <!-- Dynamically rendered via JS -->
             </div>
           </div>
 
         </div>
       </section>
 
-      <!-- PAST EVENT GALLERY LIGHTBOX MODAL -->
       <div id="tour-gallery-modal" class="tour-gallery-modal hidden" aria-hidden="true">
         <div class="gallery-modal-backdrop"></div>
         <div class="gallery-modal-wrapper">
-          <!-- TOP FLOATING EDITORIAL HEADER -->
           <div class="gallery-modal-header">
             <div class="gallery-header-meta">
               <span id="gallery-event-tag" class="gallery-event-tag">// CONCERT GALLERY ARCHIVE</span>
@@ -409,7 +370,6 @@
             </button>
           </div>
 
-          <!-- CENTER STAGE CINEMATIC VIEWER -->
           <div class="gallery-viewer">
             <button id="gallery-prev-btn" class="gallery-nav-btn gallery-prev-btn" aria-label="Previous Photo">&#10094;</button>
             
@@ -420,14 +380,12 @@
             <button id="gallery-next-btn" class="gallery-nav-btn gallery-next-btn" aria-label="Next Photo">&#10095;</button>
           </div>
 
-          <!-- BOTTOM COUNTER & CONTROLS -->
           <div class="gallery-modal-footer">
             <span id="gallery-counter" class="gallery-counter">01 / 01</span>
           </div>
         </div>
       </div>
 
-      <!-- DEDICATED UPD//T3 DIGITAL JOURNAL SECTION (Visible strictly on /news or /updates route) -->
       <section id="updates" class="updates-section hidden">
         <div class="updates-grain-overlay" aria-hidden="true"></div>
         <div class="updates-content-area">
@@ -437,17 +395,14 @@
           </header>
 
           <div id="journal-entries-feed" class="transmissions-editorial-grid" data-motion="stagger">
-            <!-- Dynamically rendered 2-column image editorial grid & inline expanded magazine spreads via JS -->
           </div>
 
-          <!-- FOOTER FOR UPDATES PAGE -->
           <footer class="site-global-footer">
             <div class="footer-replica-wrapper">
               <div class="footer-replica-line1">© DEVIL'S GRIN RECORDS 2026</div>
               <div class="footer-replica-line2">MADE OF SIN</div>
 
               <div class="footer-replica-icons-row">
-                <!-- Dynamically populated from Supabase social_links table -->
               </div>
 
               <div class="footer-replica-line4">© 2026 The Sinners</div>
@@ -464,9 +419,7 @@
         </div>
       </section>
 
-      <!-- DEDICATED ABOUT / WHØ PAGE SECTION (Visible strictly on /about route) -->
       <section id="about" class="about-section hidden">
-        <!-- FLOATING HAMBURGER TOGGLE FOR /about PAGE -->
         <button id="about-menu-toggle" class="about-hamburger-btn" aria-label="Toggle Navigation Menu">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
@@ -474,10 +427,8 @@
         </button>
 
         <div class="about-content-area">
-          <!-- 1. CINEMATIC HERO SLIDESHOW -->
           <div class="about-hero-slideshow" data-motion="image">
             <div id="about-slides-container" class="about-slides-wrapper">
-              <!-- Dynamically rendered slideshow images via JS -->
             </div>
             <div class="about-slides-overlay"></div>
             <div class="about-slides-controls">
@@ -485,21 +436,17 @@
             </div>
           </div>
 
-          <!-- 2. EDITORIAL BIOGRAPHY SECTION -->
           <div class="about-bio-container">
             <div id="about-bio-text" class="about-bio-body" data-motion="stagger">
-              <!-- Dynamically rendered editorial bio paragraphs via JS -->
             </div>
           </div>
 
-          <!-- FOOTER FOR ABOUT PAGE -->
           <footer class="site-global-footer">
             <div class="footer-replica-wrapper">
               <div class="footer-replica-line1">© DEVIL'S GRIN RECORDS 2026</div>
               <div class="footer-replica-line2">MADE OF SIN</div>
 
               <div class="footer-replica-icons-row">
-                <!-- Dynamically populated from Supabase social_links table -->
               </div>
 
               <div class="footer-replica-line4">© 2026 The Sinners</div>
@@ -516,9 +463,7 @@
         </div>
       </section>
 
-      <!-- DEDICATED MU//IC PAGE SECTION (Visible strictly on /music route) -->
       <section id="music" class="music-section hidden">
-        <!-- SUBTLE ATMOSPHERIC GRAIN & FOG BACKGROUND -->
         <div class="music-smoke-bg" aria-hidden="true">
           <div class="music-grain-overlay"></div>
           <div class="music-fog-layer music-fog-1"></div>
@@ -527,7 +472,6 @@
 
         <div class="music-content-area">
           
-          <!-- 01 — CURRENT RELEASE SECTION -->
           <div class="music-block" data-motion="reveal">
             <div class="music-section-header">
               <span class="music-section-tag" data-motion="eyebrow">// 01 — CURRENT RELEASE</span>
@@ -560,7 +504,6 @@
                     <span class="tracklist-header-label" data-motion="eyebrow">// TRACKLIST</span>
                   </div>
                   <div id="current-release-tracklist" class="current-tracklist grid-2col" data-motion="stagger">
-                    <!-- Dynamically rendered via JS -->
                   </div>
                 </div>
               </div>
@@ -569,7 +512,6 @@
 
           <div class="music-editorial-divider"></div>
 
-          <!-- 02 — MUSIC ARCHIVE SECTION -->
           <div class="music-block" data-motion="reveal">
             <div class="archive-header-editorial">
               <div class="archive-title-meta">
@@ -592,7 +534,6 @@
             </div>
 
             <div id="music-archive-list" class="music-archive-list" data-motion="stagger">
-              <!-- Dynamically rendered via JS -->
             </div>
 
             <div id="archive-expand-row" class="archive-expand-row hidden">
@@ -605,25 +546,21 @@
 
           <div class="music-editorial-divider"></div>
 
-          <!-- 03 — DISCOGRAPHY SECTION -->
           <div class="music-block" data-motion="reveal">
             <div class="discography-header-editorial">
               <span class="music-section-tag" data-motion="eyebrow">// 03 — DISCOGRAPHY</span>
             </div>
 
             <div id="discography-grid" class="discography-grid" data-motion="stagger">
-              <!-- Dynamically rendered via JS -->
             </div>
           </div>
 
-          <!-- FOOTER FOR MUSIC PAGE -->
           <footer class="site-global-footer">
             <div class="footer-replica-wrapper">
               <div class="footer-replica-line1">© DEVIL'S GRIN RECORDS 2026</div>
               <div class="footer-replica-line2">MADE OF SIN</div>
 
               <div class="footer-replica-icons-row">
-                <!-- Dynamically populated from Supabase social_links table -->
               </div>
 
               <div class="footer-replica-line4">© 2026 The Sinners</div>
@@ -640,7 +577,6 @@
         </div>
       </section>
 
-      <!-- DEDICATED PRIVACY POLICY PAGE SECTION (Visible strictly on /privacy route) -->
       <section id="privacy" class="privacy-section hidden">
         <div class="privacy-content-area">
           <header class="privacy-header">
@@ -734,14 +670,12 @@
             </section>
           </article>
 
-          <!-- FOOTER FOR PRIVACY PAGE -->
           <footer class="site-global-footer">
             <div class="footer-replica-wrapper">
               <div class="footer-replica-line1">© DEVIL'S GRIN RECORDS 2026</div>
               <div class="footer-replica-line2">MADE OF SIN</div>
 
               <div class="footer-replica-icons-row">
-                <!-- Dynamically populated from Supabase social_links table -->
               </div>
 
               <div class="footer-replica-line4">© 2026 The Sinners</div>
@@ -757,7 +691,6 @@
         </div>
       </section>
 
-      <!-- DEDICATED TERMS & CONDITIONS PAGE SECTION (Visible strictly on /terms route) -->
       <section id="terms" class="terms-section hidden">
         <div class="terms-content-area">
           <header class="terms-header">
@@ -857,14 +790,12 @@
             </section>
           </article>
 
-          <!-- FOOTER FOR TERMS PAGE -->
           <footer class="site-global-footer">
             <div class="footer-replica-wrapper">
               <div class="footer-replica-line1">© DEVIL'S GRIN RECORDS 2026</div>
               <div class="footer-replica-line2">MADE OF SIN</div>
 
               <div class="footer-replica-icons-row">
-                <!-- Dynamically populated from Supabase social_links table -->
               </div>
 
               <div class="footer-replica-line4">© 2026 The Sinners</div>
@@ -880,7 +811,6 @@
         </div>
       </section>
 
-      <!-- DEDICATED STORE TEASER / 404 LOCKED SECTION (Visible on /store route from menu) -->
       <section id="store-teaser" class="store-teaser-section hidden">
         <div class="store-teaser-bg" aria-hidden="true">
           <div class="store-teaser-radial-glow"></div>
@@ -922,7 +852,6 @@
     </main>
   </div>
 
-  <!-- SCROLL TO TOP FLOATING BUTTON -->
   <button id="scroll-to-top-btn" class="scroll-to-top-btn" aria-label="Yukarı Çık" title="Yukarı Çık">
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <line x1="12" y1="19" x2="12" y2="5"></line>
@@ -930,10 +859,8 @@
     </svg>
   </button>
 
-  <!-- PERSISTENT GLOBAL MUSIC PLAYER BAR -->
   <div id="global-music-player" class="global-player-bar hidden">
     <div class="player-container">
-      <!-- LEFT: THUMBNAIL & METADATA -->
       <div class="player-left-col">
         <img id="player-img" src="https://i.imgur.com/ADvecY4.gif" alt="Track Cover" class="player-cover-img" />
         <div class="player-text-col">
@@ -945,7 +872,6 @@
         </button>
       </div>
 
-      <!-- CENTER: CONTROLS & TIMELINE -->
       <div class="player-center-col">
         <div class="player-buttons-row">
           <button id="player-prev-btn" class="player-ctrl-btn" aria-label="Previous Track">
@@ -969,7 +895,6 @@
         </div>
       </div>
 
-      <!-- RIGHT: VOLUME & CLOSE BUTTON -->
       <div class="player-right-col">
         <div class="player-volume-wrapper">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
@@ -985,10 +910,8 @@
     </div>
   </div>
 
-  <!-- ADMIN PORTAL CONTAINER (Accessible strictly via /admin route) -->
   <div id="admin-portal-root" class="admin-portal-root hidden"></div>
 
-  <!-- MERCH STORE ROOT CONTAINER (Accessible strictly via /merch route) -->
   <div id="merch-store-root" class="merch-store-root hidden"></div>
 
   <script type="module" src="src/main.js"></script>
