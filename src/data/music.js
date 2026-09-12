@@ -103,6 +103,18 @@ export function getReleases() {
 }
 
 /**
+ * Ortak Featured / Latest Release Getirici (Single Source of Truth)
+ * Supabase `releases` tablosunda `featured: true` olan yayını döner.
+ * Hem Anasayfa (`#home-music`) hem de Müzik sayfası (`#music`) tarafından ortak kullanılır.
+ */
+export function getFeaturedRelease() {
+  const published = inMemoryReleases.filter(r => r.status === 'PUBLISHED');
+  return published.find(r => r.featured) || null;
+}
+
+export const getLatestRelease = getFeaturedRelease;
+
+/**
  * Doğrudan Supabase `tracks` tablosundan şarkıyı siler
  */
 export async function deleteTrack(trackId) {

@@ -294,34 +294,28 @@
             <div class="music-visual-col music-reveal-photo">
               <div class="album-artwork-box">
                 <img 
-                  src="https://i.imgur.com/ADvecY4.gif" 
-                  alt="9MM HATE Cover Artwork" 
+                  src="" 
+                  alt="" 
                   class="album-artwork-img" 
+                  style="opacity: 0; transition: opacity 0.3s ease;"
                 />
                 <div class="artwork-badge">LATEST RELEASE</div>
               </div>
             </div>
             <div class="music-info-col">
               <span class="music-meta-tag music-reveal-item" style="--stagger-delay: 0.1s;">// LATEST RELEASE</span>
-              <h2 class="music-title music-reveal-item" style="--stagger-delay: 0.28s;">9MM HATE</h2>
+              <h2 class="music-title music-reveal-item" style="--stagger-delay: 0.28s;">YÜKLENİYOR...</h2>
               
               <div class="album-tracklist-container music-reveal-item" style="--stagger-delay: 0.42s;">
                 <ul class="album-tracklist-grid">
-                  <li><span class="track-dot"></span> <span class="track-name">Parrhesia!</span></li>
-                  <li><span class="track-dot"></span> <span class="track-name">Betrayal</span></li>
-                  <li><span class="track-dot"></span> <span class="track-name">I'm Not Okay</span></li>
-                  <li><span class="track-dot"></span> <span class="track-name">No Longer Quiet</span></li>
-                  <li><span class="track-dot"></span> <span class="track-name">For the Night</span></li>
-                  <li><span class="track-dot"></span> <span class="track-name">Wasn't Me</span></li>
-                  <li><span class="track-dot"></span> <span class="track-name">Way to Heaven</span></li>
-                  <li><span class="track-dot"></span> <span class="track-name">Still Standing</span></li>
+                  <li><span class="track-dot"></span> <span class="track-name">Yükleniyor...</span></li>
                 </ul>
               </div>
 
               <div class="music-track-meta music-reveal-item" style="--stagger-delay: 0.56s;">
                 <div class="track-detail-row">
                   <span class="detail-label">YAYIN TARİHİ:</span>
-                  <span class="detail-val">18 OCAK 2026</span>
+                  <span class="detail-val">-</span>
                 </div>
               </div>
 
@@ -513,20 +507,20 @@
             <div class="current-release-editorial-grid">
               <div class="current-release-visual-col">
                 <div class="current-artwork-box" data-motion="image">
-                  <img src="https://i.imgur.com/ADvecY4.gif" alt="9MM HATE Cover Artwork" class="current-artwork-img" />
-                  <div class="current-artwork-badge">LATEST RELEASE</div>
+                  <img src="" alt="" class="current-artwork-img" style="opacity: 0; transition: opacity 0.3s ease;" />
+                  <div class="current-artwork-badge">FEATURED RELEASE</div>
                 </div>
               </div>
 
               <div class="current-release-info-col">
                 <div class="current-release-head">
-                  <span class="current-release-meta-tag" data-motion="eyebrow">2026 // ALBUM</span>
-                  <h2 class="current-release-album-title" data-motion="headline">9MM HATE</h2>
+                  <span class="current-release-meta-tag" data-motion="eyebrow">// FEATURED RELEASE</span>
+                  <h2 class="current-release-album-title" data-motion="headline">YÜKLENİYOR...</h2>
                   <p class="current-release-artist-name" data-motion="eyebrow">TOXIC</p>
                 </div>
 
                 <div class="current-release-action-bar">
-                  <button id="btn-play-current-release" class="music-primary-play-btn">
+                  <button id="btn-play-current-release" class="music-primary-play-btn" style="display: none;">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                     <span>OYNAT</span>
                   </button>
@@ -537,6 +531,9 @@
                     <span class="tracklist-header-label" data-motion="eyebrow">// TRACKLIST</span>
                   </div>
                   <div id="current-release-tracklist" class="current-tracklist grid-2col" data-motion="stagger">
+                    <div style="grid-column: 1 / -1; padding: 2.5rem 1rem; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-align: center;">
+                      // YAYINLAR VE PARÇALAR YÜKLENİYOR...
+                    </div>
                   </div>
                 </div>
               </div>
@@ -890,10 +887,10 @@
   <div id="global-music-player" class="global-player-bar hidden">
     <div class="player-container">
       <div class="player-left-col">
-        <img id="player-img" src="https://i.imgur.com/ADvecY4.gif" alt="Track Cover" class="player-cover-img" />
+        <img id="player-img" src="" alt="Track Cover" class="player-cover-img" style="opacity: 0;" />
         <div class="player-text-col">
-          <span id="player-title" class="player-track-title">Parrhesia!</span>
-          <span id="player-artist" class="player-track-artist">PARRHESIA — 9MM HATE</span>
+          <span id="player-title" class="player-track-title">-</span>
+          <span id="player-artist" class="player-track-artist">TOXIC</span>
         </div>
         <button id="player-fav-btn" class="player-icon-btn" aria-label="Favorite Track">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>

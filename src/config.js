@@ -23,7 +23,7 @@ export const siteConfig = {
   // 2. Set heroBgUrl to 'assets/hero-photo.jpg' (or leave empty '' to use dark grey placeholder)
   hero: {
     heroBgUrl: "", // Example: "assets/hero-photo.jpg"
-    albumSubtitle: "9MM HATE YAYINDA",
+    albumSubtitle: "",
     albumTitle: "MADE OF SIN"
   },
 

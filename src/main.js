@@ -9,7 +9,7 @@ import { getHomePanoItems, cleanPanoImageUrl, fetchHomePanoFromSupabase, DEFAULT
 import { getHeaderSocialLinks, getHeaderSocialIconHTML, getFooterSocialIconHTML, getSocialLinks, fetchSocialLinksFromSupabase, DEFAULT_SOCIAL_LINKS } from './data/socials.js';
 import { getFooterData } from './data/footer.js';
 import { getSettings, fetchSettingsFromSupabase } from './data/settings.js';
-import { RELEASES, getReleases, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase, isMusicDataLoading } from './data/music.js';
+import { RELEASES, getReleases, getFeaturedRelease, getLatestRelease, getAllTracks, getFavoriteTrackIds, toggleFavoriteTrack, fetchMusicFromSupabase, isMusicDataLoading } from './data/music.js';
 import { initMotionSystem, triggerPageTransition, observeNewElements, revealSectionContent } from './motion.js';
 
 import './styles/main.css';
@@ -59,7 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPublicEditorialZineCards();
   });
   window.addEventListener('socials-data-updated', renderFooterSocialLinks);
-  window.addEventListener('music-data-updated', renderPublicMusicPage);
+  window.addEventListener('music-data-updated', () => {
+    renderPublicMusicPage();
+    renderHomeMusicSection();
+  });
   window.addEventListener('footer-data-updated', renderPublicFooters);
   window.addEventListener('settings-updated', () => {
     initHero();
@@ -645,6 +648,7 @@ function initClientRouter() {
         if (storeTeaserSec) storeTeaserSec.classList.add('hidden');
 
         initHomeScrollEngine();
+        renderHomeMusicSection();
         if (heroSec) revealSectionContent(heroSec);
 
         const targetSectionId = routeSectionMap[normalizedPath] || 'hero';
@@ -1758,15 +1762,96 @@ function updateTrackListPlayingIndicators() {
   });
 }
 
+function renderHomeMusicSection(providedRelease) {
+  const homeMusicSection = document.getElementById('home-music');
+  if (!homeMusicSection) return;
+
+  const artworkImg = homeMusicSection.querySelector('.album-artwork-img');
+  const titleEl = homeMusicSection.querySelector('.music-title');
+  const tracklistGrid = homeMusicSection.querySelector('.album-tracklist-grid');
+  const dateVal = homeMusicSection.querySelector('.detail-val');
+
+  if (isMusicDataLoading()) {
+    if (titleEl) titleEl.textContent = 'YÜKLENİYOR...';
+    if (artworkImg) {
+      artworkImg.style.opacity = '0';
+      artworkImg.src = '';
+      artworkImg.alt = '';
+    }
+    if (tracklistGrid) {
+      tracklistGrid.innerHTML = '<li><span class="track-dot"></span> <span class="track-name">Yükleniyor...</span></li>';
+    }
+    if (dateVal) dateVal.textContent = '-';
+    return;
+  }
+
+  // Single Source of Truth: identical getFeaturedRelease() shared with Music page
+  const release = providedRelease !== undefined ? providedRelease : getFeaturedRelease();
+
+  if (!release) {
+    // If no release is marked featured in Supabase, hide or clear the section
+    homeMusicSection.classList.add('hidden');
+    return;
+  }
+
+  homeMusicSection.classList.remove('hidden');
+  if (artworkImg) {
+    artworkImg.style.opacity = '1';
+    artworkImg.src = release.coverUrl;
+    artworkImg.alt = `${release.title} Cover Artwork`;
+  }
+  if (titleEl) titleEl.textContent = release.title;
+  if (dateVal) dateVal.textContent = release.releaseDate || release.year || '-';
+
+  if (tracklistGrid) {
+    const tracks = release.tracks || [];
+    if (tracks.length === 0) {
+      tracklistGrid.innerHTML = '<li><span class="track-dot"></span> <span class="track-name">Parça bulunmuyor</span></li>';
+    } else {
+      tracklistGrid.innerHTML = tracks.slice(0, 8).map((t) => 
+        `<li class="home-track-item" data-track-id="${t.id}" style="cursor: pointer;"><span class="track-dot"></span> <span class="track-name">${escapeHtml(t.title)}</span></li>`
+      ).join('');
+
+      tracklistGrid.querySelectorAll('.home-track-item').forEach(item => {
+        item.onclick = () => {
+          const tId = item.getAttribute('data-track-id');
+          const trk = tracks.find(t => t.id === tId);
+          if (trk) {
+            const queue = tracks.map(t => ({ ...t, coverUrl: release.coverUrl, artist: release.artist }));
+            playTrack(trk, queue);
+          }
+        };
+      });
+    }
+  }
+}
+
 function renderPublicMusicPage() {
   const currentReleaseTracklistEl = document.getElementById('current-release-tracklist');
   const discographyGridEl = document.getElementById('discography-grid');
+  const heroTitleEl = document.querySelector('#music .current-release-album-title, #music .music-hero-title, #music .featured-album-title');
+  const heroCoverEl = document.querySelector('#music .current-artwork-img, #music .music-hero-cover, #music .featured-album-cover');
+  const heroMetaEl = document.querySelector('#music .current-release-meta-tag, #music .music-hero-meta, #music .featured-album-meta');
+  const heroArtistEl = document.querySelector('#music .current-release-artist-name');
+  const tracklistHeaderLabelEl = document.querySelector('#music .tracklist-header-label');
+  const playReleaseBtn = document.getElementById('btn-play-current-release');
 
   const isLoading = isMusicDataLoading();
   const allReleases = getReleases();
   const publishedReleases = allReleases.filter(r => r.status === 'PUBLISHED');
 
   if (isLoading) {
+    if (heroTitleEl) heroTitleEl.textContent = 'YÜKLENİYOR...';
+    if (heroCoverEl) {
+      heroCoverEl.style.opacity = '0';
+      heroCoverEl.src = '';
+      heroCoverEl.alt = '';
+    }
+    if (heroMetaEl) heroMetaEl.textContent = '// FEATURED RELEASE';
+    if (heroArtistEl) heroArtistEl.textContent = 'TOXIC';
+    if (playReleaseBtn) playReleaseBtn.style.display = 'none';
+    if (tracklistHeaderLabelEl) tracklistHeaderLabelEl.textContent = '// TRACKLIST';
+
     if (currentReleaseTracklistEl) {
       currentReleaseTracklistEl.innerHTML = `
         <div style="grid-column: 1 / -1; padding: 2.5rem 1rem; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-align: center;">
@@ -1781,96 +1866,109 @@ function renderPublicMusicPage() {
         </div>
       `;
     }
+    renderHomeMusicSection(null);
     renderMusicArchiveList();
     setupArchiveControls();
     return;
   }
   
-  // 1) Find the explicit featured release (e.g. 9MM HATE)
-  // 2) If not explicitly featured, find the main ALBUM release
-  // 3) Fallback to the first published release
-  const mainRelease = publishedReleases.find(r => r.featured) || 
-                      publishedReleases.find(r => r.type === 'ALBUM') || 
-                      publishedReleases[0];
+  // Single Source of Truth: Supabase featured release only (Shared via getFeaturedRelease)
+  const mainRelease = getFeaturedRelease();
 
   // Update Hero Release Info UI
   if (mainRelease) {
-    const heroTitleEl = document.querySelector('#music .current-release-album-title, #music .music-hero-title, #music .featured-album-title');
-    const heroCoverEl = document.querySelector('#music .current-artwork-img, #music .music-hero-cover, #music .featured-album-cover');
-    const heroMetaEl = document.querySelector('#music .current-release-meta-tag, #music .music-hero-meta, #music .featured-album-meta');
-    const heroArtistEl = document.querySelector('#music .current-release-artist-name');
-    const tracklistHeaderLabelEl = document.querySelector('#music .tracklist-header-label');
-
     if (heroTitleEl) heroTitleEl.textContent = mainRelease.title;
     if (heroCoverEl) {
+      heroCoverEl.style.opacity = '1';
       heroCoverEl.src = mainRelease.coverUrl;
       heroCoverEl.alt = `${mainRelease.title} Cover Artwork`;
     }
     if (heroMetaEl) heroMetaEl.textContent = `${mainRelease.year} // ${mainRelease.type} ${mainRelease.releaseDate ? '// ' + mainRelease.releaseDate : ''}`;
     const artistDisplay = (mainRelease.artist && mainRelease.artist.toUpperCase().includes('SINNERS')) ? 'Toxic' : (mainRelease.artist || 'Toxic');
     if (heroArtistEl) heroArtistEl.textContent = artistDisplay;
+    if (playReleaseBtn) playReleaseBtn.style.display = 'inline-flex';
     
     const trackCount = (mainRelease.tracks || []).length;
     if (tracklistHeaderLabelEl) {
       tracklistHeaderLabelEl.textContent = `// TRACKLIST (${trackCount} ${trackCount === 1 ? 'TRACK' : 'TRACKS'})`;
     }
-  }
 
-  // 1. Current Release Tracklist
-  if (currentReleaseTracklistEl && mainRelease) {
-    if ((mainRelease.tracks || []).length === 0) {
-      currentReleaseTracklistEl.innerHTML = `
-        <div style="grid-column: 1 / -1; padding: 2rem 0; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em;">
-          // BU YAYINDA HENÜZ PARÇA BULUNMUYOR.
-        </div>
-      `;
-    } else {
-      currentReleaseTracklistEl.innerHTML = (mainRelease.tracks || []).map((trk, idx) => {
-        const isCurrent = currentTrackList[currentTrackIndex] && currentTrackList[currentTrackIndex].id === trk.id;
-        const isPlaying = isCurrent && isAudioPlaying;
-
-        return `
-          <div class="music-track-row ${isCurrent ? 'is-playing' : ''} ${isPlaying ? 'is-active-playing' : ''}" data-track-id="${trk.id}">
-            <div class="track-row-left">
-              <span class="track-num">${(idx + 1) < 10 ? '0' + (idx + 1) : (idx + 1)}</span>
-              <button type="button" class="track-play-inline-btn" aria-label="Play ${escapeHtml(trk.title)}">
-                <svg class="play-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                <svg class="pause-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-              </button>
-              <span class="track-title-text">${escapeHtml(trk.title)}</span>
-            </div>
-            <span class="track-duration-text">${trk.duration}</span>
+    // 1. Current Release Tracklist
+    if (currentReleaseTracklistEl) {
+      if ((mainRelease.tracks || []).length === 0) {
+        currentReleaseTracklistEl.innerHTML = `
+          <div style="grid-column: 1 / -1; padding: 2rem 0; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em;">
+            // BU YAYINDA HENÜZ PARÇA BULUNMUYOR.
           </div>
         `;
-      }).join('');
+      } else {
+        currentReleaseTracklistEl.innerHTML = (mainRelease.tracks || []).map((trk, idx) => {
+          const isCurrent = currentTrackList[currentTrackIndex] && currentTrackList[currentTrackIndex].id === trk.id;
+          const isPlaying = isCurrent && isAudioPlaying;
 
-      const currentRows = currentReleaseTracklistEl.querySelectorAll('.music-track-row');
-      currentRows.forEach(row => {
-        row.onclick = () => {
-          const trkId = row.getAttribute('data-track-id');
-          const trk = (mainRelease.tracks || []).find(t => t.id === trkId);
-          if (trk) {
-            const currentTrk = currentTrackList[currentTrackIndex];
-            if (currentTrk && currentTrk.id === trk.id) {
-              toggleAudioPlayPause();
-            } else {
-              const queue = (mainRelease.tracks || []).map(t => ({ ...t, coverUrl: mainRelease.coverUrl, artist: mainRelease.artist }));
-              playTrack(trk, queue);
+          return `
+            <div class="music-track-row ${isCurrent ? 'is-playing' : ''} ${isPlaying ? 'is-active-playing' : ''}" data-track-id="${trk.id}">
+              <div class="track-row-left">
+                <span class="track-num">${(idx + 1) < 10 ? '0' + (idx + 1) : (idx + 1)}</span>
+                <button type="button" class="track-play-inline-btn" aria-label="Play ${escapeHtml(trk.title)}">
+                  <svg class="play-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <svg class="pause-svg-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                </button>
+                <span class="track-title-text">${escapeHtml(trk.title)}</span>
+              </div>
+              <span class="track-duration-text">${trk.duration}</span>
+            </div>
+          `;
+        }).join('');
+
+        const currentRows = currentReleaseTracklistEl.querySelectorAll('.music-track-row');
+        currentRows.forEach(row => {
+          row.onclick = () => {
+            const trkId = row.getAttribute('data-track-id');
+            const trk = (mainRelease.tracks || []).find(t => t.id === trkId);
+            if (trk) {
+              const currentTrk = currentTrackList[currentTrackIndex];
+              if (currentTrk && currentTrk.id === trk.id) {
+                toggleAudioPlayPause();
+              } else {
+                const queue = (mainRelease.tracks || []).map(t => ({ ...t, coverUrl: mainRelease.coverUrl, artist: mainRelease.artist }));
+                playTrack(trk, queue);
+              }
             }
-          }
-        };
-      });
+          };
+        });
+      }
+    }
+
+    if (playReleaseBtn) {
+      playReleaseBtn.onclick = () => {
+        const queue = (mainRelease.tracks || []).map(t => ({ ...t, coverUrl: mainRelease.coverUrl, artist: mainRelease.artist }));
+        if (queue.length > 0) playTrack(queue[0], queue);
+      };
+    }
+  } else {
+    // If no featured release in Supabase, leave featured area clean and empty (Do NOT fallback to 9MM HATE)
+    if (heroTitleEl) heroTitleEl.textContent = 'ÖNE ÇIKAN YAYIN YOK';
+    if (heroCoverEl) {
+      heroCoverEl.style.opacity = '0';
+      heroCoverEl.src = '';
+      heroCoverEl.alt = '';
+    }
+    if (heroMetaEl) heroMetaEl.textContent = '// FEATURED RELEASE';
+    if (heroArtistEl) heroArtistEl.textContent = 'TOXIC';
+    if (playReleaseBtn) playReleaseBtn.style.display = 'none';
+    if (tracklistHeaderLabelEl) tracklistHeaderLabelEl.textContent = '// TRACKLIST';
+    if (currentReleaseTracklistEl) {
+      currentReleaseTracklistEl.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 2rem 0; color: rgba(255,255,255,0.4); font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-align: center;">
+          // HENÜZ ÖNE ÇIKAN BİR YAYIN SEÇİLMEDİ.
+        </div>
+      `;
     }
   }
 
-  // Play Release Button Handler
-  const playReleaseBtn = document.getElementById('btn-play-current-release');
-  if (playReleaseBtn && mainRelease) {
-    playReleaseBtn.onclick = () => {
-      const queue = (mainRelease.tracks || []).map(t => ({ ...t, coverUrl: mainRelease.coverUrl, artist: mainRelease.artist }));
-      if (queue.length > 0) playTrack(queue[0], queue);
-    };
-  }
+  // Update homepage music block with featured release
+  renderHomeMusicSection(mainRelease);
 
   // 2. Music Archive List
   renderMusicArchiveList();

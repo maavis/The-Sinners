@@ -11,7 +11,7 @@ const STORAGE_KEY = 'parrhesia_media_library';
 const INITIAL_MEDIA_ITEMS = [
   {
     id: 'med_101',
-    name: '9MM HATE Cover Artwork',
+    name: 'Cover Artwork',
     url: 'https://i.imgur.com/ADvecY4.gif',
     type: 'IMAGE',
     size: '1.4 MB',

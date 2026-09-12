@@ -978,6 +978,23 @@ function renderAdminMusic(container) {
     };
   });
 
+  const featureBtns = container.querySelectorAll('.btn-feature-release');
+  featureBtns.forEach(btn => {
+    btn.onclick = async () => {
+      const id = btn.getAttribute('data-id');
+      const item = getReleases().find(r => r.id === id);
+      if (item) {
+        const newFeatured = !item.featured;
+        btn.disabled = true;
+        btn.textContent = '...';
+        await updateRelease(id, { featured: newFeatured });
+        logActivity('YAYIN GÜNCELLENDİ', `Yayın "${item.title}" öne çıkarılma durumu: ${newFeatured ? 'Öne Çıkarıldı' : 'Normal'}`);
+        showAdminToast(newFeatured ? '★ YAYIN ÖNE ÇIKARILDI (LATEST RELEASE YAPILDI)' : '✓ ÖNE ÇIKARMA KALDIRILDI');
+        renderAdminMusic(container);
+      }
+    };
+  });
+
   const toggleBtns = container.querySelectorAll('.btn-toggle-release');
   toggleBtns.forEach(btn => {
     btn.onclick = async () => {
@@ -1027,6 +1044,9 @@ function renderAdminReleaseRows(releases) {
         </td>
         <td>
           <div class="admin-action-btns">
+            <button class="admin-action-btn btn-feature-release" data-id="${rel.id}" title="${rel.featured ? 'Öne çıkarmayı kaldır' : 'Öne Çıkar (Latest Release Yap)'}" style="${rel.featured ? 'background: #eab308; color: #000; font-weight: 700; border-color: #eab308;' : ''}">
+              ${rel.featured ? '★ Öne Çıkan' : '☆ Öne Çıkar'}
+            </button>
             <button class="admin-action-btn btn-edit-release" data-id="${rel.id}">Düzenle</button>
             <button class="admin-action-btn btn-toggle-release" data-id="${rel.id}">${rel.status === 'PUBLISHED' ? 'Yayından Kaldır' : 'Yayınla'}</button>
             <button class="admin-action-btn btn-danger btn-delete-release" data-id="${rel.id}">Sil</button>
@@ -1062,7 +1082,7 @@ function openReleaseModal(releaseToEdit, rootContainer) {
               <div class="admin-form-grid">
                 <div class="admin-form-group span-2">
                   <label class="admin-label">Yayın / Albüm Adı*</label>
-                  <input type="text" id="rel-title" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.title) : ''}" required placeholder="Örn: 9MM HATE" />
+                  <input type="text" id="rel-title" class="admin-input" value="${releaseToEdit ? escapeHtml(releaseToEdit.title) : ''}" required placeholder="Örn: MADE OF SIN" />
                 </div>
 
                 <div class="admin-form-group">

@@ -9,7 +9,7 @@ const INITIAL_ACTIVITIES = [
   {
     id: 'act_1',
     action: 'RELEASE CREATED',
-    details: 'Release "9MM HATE" (Album) published',
+    details: 'Release "MADE OF SIN" (Album) published',
     user: 'ADMIN',
     timestamp: new Date(Date.now() - 3600000 * 2).toISOString()
   },
@@ -23,7 +23,7 @@ const INITIAL_ACTIVITIES = [
   {
     id: 'act_3',
     action: 'TRANSMISSION PUBLISHED',
-    details: 'Transmission "THE ANALOG RESONANCE OF 9MM HATE" published',
+    details: 'Transmission "THE ANALOG RESONANCE OF MADE OF SIN" published',
     user: 'ADMIN',
     timestamp: new Date(Date.now() - 3600000 * 12).toISOString()
   }
