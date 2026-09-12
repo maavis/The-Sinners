@@ -1331,7 +1331,7 @@ let ghostTextTimer = null;
 let ghostTextActiveTimeouts = [];
 
 const GHOST_WORDS_POOL = [
-  'Toxic'
+  'TOXIC'
 ];
 
 const RANDOM_QUADRANTS = [
@@ -1390,6 +1390,7 @@ function startHeroGhostTextEngine() {
 
       const el = document.createElement('div');
       el.className = 'ghost-text-item';
+      el.setAttribute('lang', 'en');
       el.textContent = word;
 
       el.style.top = randomTop;
@@ -1958,7 +1959,10 @@ function renderMusicArchiveList() {
   }
 
   if (filtered.length === 0) {
-    archiveListEl.innerHTML = `<div class="empty-archive-msg">NO TRACKS FOUND MATCHING "${escapeHtml(musicSearchQuery)}"</div>`;
+    const emptyMsg = musicSearchQuery.trim()
+      ? `"${escapeHtml(musicSearchQuery)}" İLE EŞLEŞEN PARÇA BULUNAMADI`
+      : 'EŞLEŞEN PARÇA BULUNAMADI';
+    archiveListEl.innerHTML = `<div class="empty-archive-msg">${emptyMsg}</div>`;
     const expandRow = document.getElementById('archive-expand-row');
     if (expandRow) expandRow.classList.add('hidden');
     return;
